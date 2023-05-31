@@ -42,7 +42,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                 if let Some(def) = data.skill(cast.skill.id) {
                     ui.text_colored(
                         grey,
-                        format!("{:>3}.{}", cast.time / 1000, cast.time % 1000),
+                        format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
                     );
 
                     ui.same_line();
