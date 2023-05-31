@@ -47,7 +47,7 @@ impl Plugin {
 
                     StateChange::None => {
                         if let Some(start) = self.start {
-                            if self.data.has_skill(event.skill_id) {
+                            if self.data.contains(event.skill_id) {
                                 match event.is_activation {
                                     Activation::Start => {
                                         let skill = Skill::new(event.skill_id, skill_name);
@@ -78,12 +78,13 @@ impl Plugin {
                                             && event.buff == 0
                                         {
                                             // TODO: use local combat events for hits?
-                                            if let Some(cast) = self.latest_cast_mut(event.skill_id)
-                                            {
+                                            // TODO: filter hits to main target?
+                                            let skill = self.data.map_hit_id(event.skill_id);
+                                            if let Some(cast) = self.latest_cast_mut(skill) {
                                                 cast.hit();
                                                 debug!("hit {cast:?}");
                                             } else {
-                                                let skill = Skill::new(event.skill_id, skill_name);
+                                                let skill = Skill::new(skill, skill_name);
                                                 let cast = Cast::new(skill, event.time - start);
                                                 debug!("hit without start {cast:?}");
                                                 self.add_cast(cast);

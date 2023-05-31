@@ -26,5 +26,6 @@
   hits: 3
   expected: 2
 - id: 45717 # one wolf pack
+  hit_id: 42145 # different id for hits
   hits: 5
   expected: 4

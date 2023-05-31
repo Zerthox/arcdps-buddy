@@ -1,7 +1,7 @@
 pub mod event;
 pub mod ui;
 
-use crate::{cast::Cast, cast_log::CastLog, data::Data};
+use crate::{cast::Cast, cast_log::CastLog, data::SkillData};
 use arc_util::{
     settings::Settings,
     ui::{Window, WindowOptions},
@@ -18,7 +18,7 @@ const SETTINGS_FILE: &str = "arcdps_buddy.json";
 /// Main plugin.
 #[derive(Debug)]
 pub struct Plugin {
-    data: Data,
+    data: SkillData,
     start: Option<u64>,
     casts: Vec<Cast>,
     cast_log: Window<CastLog>,
@@ -28,7 +28,7 @@ impl Plugin {
     /// Creates a new plugin.
     pub fn new() -> Self {
         Self {
-            data: Data::with_defaults(),
+            data: SkillData::with_defaults(),
             start: None,
             casts: Vec::new(),
             cast_log: Window::new(WindowOptions::new("Casts"), CastLog::new()),

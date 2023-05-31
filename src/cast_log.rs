@@ -1,6 +1,6 @@
 use crate::{
     cast::{Cast, CastState},
-    data::Data,
+    data::SkillData,
 };
 use arc_util::{
     colors::{CYAN, GREEN, GREY, RED, YELLOW},
@@ -24,7 +24,7 @@ impl CastLog {
     }
 }
 
-pub type CastLogProps<'a> = (&'a Data, &'a [Cast]);
+pub type CastLogProps<'a> = (&'a SkillData, &'a [Cast]);
 
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, (data, casts): CastLogProps) {
@@ -39,7 +39,7 @@ impl Component<CastLogProps<'_>> for CastLog {
             let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
             for cast in casts {
-                if let Some(def) = data.skill(cast.skill.id) {
+                if let Some(def) = data.get(cast.skill.id) {
                     ui.text_colored(
                         grey,
                         format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
