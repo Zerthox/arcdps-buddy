@@ -1,0 +1,38 @@
+- id: 30825 # deaths charge (reapers shroud)
+  hits: 9
+- id: 30504 # soul spiral (reapers shroud)
+  hits: 12
+
+- id: 62621 # dark barrage (harbinger shroud)
+  hits: 6
+- id: 62672 # devouring cut (harbinger shroud)
+  hits: 1
+- id: 62539 # voracious arc (harbinger shroud)
+  hits: 1
+- id: 62563 # vital draw (harbinger shroud)
+  hits: 3
+
+- id: 10705 # deathly swarm
+  hits: 1
+
+- id: 10532 # grasping dead
+  hits: 1
+- id: 10709 # feast of corruption
+  hits: 1
+- id: 51647 # devouring darkness
+  hits: 1
+
+- id: 62513 # weeping shots
+  hits: 6
+- id: 62511 # vile blast
+  hits: 1
+
+- id: 10546 # well of power
+  hits: 5
+- id: 10607 # well of darkness
+  hits: 5
+- id: 62662 # elixir of ambition
+  hits: 1
+
+- id: 10636 # summon madness (lich form)
+  hits: 8
