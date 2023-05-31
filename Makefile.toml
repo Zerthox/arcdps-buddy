@@ -1,0 +1,61 @@
+env_scripts = [
+"""
+#!@duckscript
+if is_empty ${GW2_PATH}
+    GW2_PATH = set "C:/Program Files/Guild Wars 2"
+
+    steam_path = set "C:/Program Files (x86)/Steam/steamapps/common/Guild Wars 2"
+    if get_env GW2_STEAM
+        GW2_PATH = set ${steam_path}
+    elseif is_empty ${GW2_STEAM}
+        if is_path_exists ${steam_path}
+            GW2_PATH = set ${steam_path}
+        end
+    end
+
+    addon_path = join_path ${GW2_PATH} addons/arcdps
+    has_addon_manager = set false
+    if not is_empty ${GW2_ADDON_MANAGER}
+        has_addon_manager = get_env GW2_ADDON_MANAGER
+    else
+        arcdps_path = join_path ${addon_path} gw2addon_arcdps.dll
+        has_addon_manager = is_path_exists ${arcdps_path}
+    end
+
+    if ${has_addon_manager}
+        GW2_PATH = set ${addon_path}
+    end
+
+    set_env GW2_PATH ${GW2_PATH}
+end
+"""
+]
+
+[tasks.build]
+script = "cargo build --release"
+clear = true
+
+[tasks.build-dev]
+script = "cargo build"
+
+[tasks.copy]
+script = "cp \"${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/release/${CARGO_MAKE_CRATE_NAME}.dll\" \"${GW2_PATH}\""
+script_runner = "@shell"
+
+[tasks.copy-debug]
+script = "cp \"${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/debug/${CARGO_MAKE_CRATE_NAME}.dll\" \"${GW2_PATH}\""
+script_runner = "@shell"
+
+[tasks.remove]
+script = "rm \"${GW2_PATH}/${CARGO_MAKE_CRATE_NAME}.dll\""
+script_runner = "@shell"
+
+[tasks.install]
+run_task = { name = ["build", "copy"] }
+
+[tasks.uninstall]
+alias = "remove"
+
+[tasks.dev]
+run_task = { name = ["build-dev", "copy-debug"] }
+watch = true

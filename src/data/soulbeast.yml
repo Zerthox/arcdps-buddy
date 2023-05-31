@@ -1,0 +1,30 @@
+- id: 12509 # rapid fire
+  hits: 10
+  expected: 8
+- id: 12469 # barrage
+  hits: 12
+  expected: 4
+
+- id: 12480 # splitblade
+  hits: 5
+- id: 12490 # winters bite
+  hits: 1
+- id: 12638 # path of scars
+  hits: 2
+  expected: 1
+- id: 12639 # whirling defense
+  hits: 12
+  expected: 10
+
+- id: 12492 # frost trap
+  hits: 5
+  expected: 3
+- id: 12499 # flame trap
+  hits: 5
+  expected: 3
+- id: 12496 # vipers nest
+  hits: 3
+  expected: 2
+- id: 45717 # one wolf pack
+  hits: 5
+  expected: 4
