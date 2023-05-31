@@ -1,6 +1,6 @@
 use super::Plugin;
 use crate::{cast::Cast, skill::Skill};
-use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange};
+use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
 impl Plugin {
@@ -77,17 +77,22 @@ impl Plugin {
                                         if event.is_buff_remove == BuffRemove::None
                                             && event.buff == 0
                                         {
-                                            // TODO: use local combat events for hits?
-                                            // TODO: filter hits to main target?
-                                            let skill = self.data.map_hit_id(event.skill_id);
-                                            if let Some(cast) = self.latest_cast_mut(skill) {
-                                                cast.hit();
-                                                debug!("hit {cast:?}");
-                                            } else {
-                                                let skill = Skill::new(skill, skill_name);
-                                                let cast = Cast::new(skill, event.time - start);
-                                                debug!("hit without start {cast:?}");
-                                                self.add_cast(cast);
+                                            if let Ok(
+                                                Strike::Normal | Strike::Crit | Strike::Glance,
+                                            ) = event.result.try_into()
+                                            {
+                                                // TODO: use local combat events for hits?
+                                                // TODO: filter hits to main target?
+                                                let skill = self.data.map_hit_id(event.skill_id);
+                                                if let Some(cast) = self.latest_cast_mut(skill) {
+                                                    cast.hit();
+                                                    debug!("hit {cast:?}");
+                                                } else {
+                                                    let skill = Skill::new(skill, skill_name);
+                                                    let cast = Cast::new(skill, event.time - start);
+                                                    debug!("hit without start {cast:?}");
+                                                    self.add_cast(cast);
+                                                }
                                             }
                                         }
                                     }
