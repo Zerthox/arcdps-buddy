@@ -1,3 +1,6 @@
+- id: 45743 # gazelle charge
+  hits: 1
+
 - id: 12509 # rapid fire
   hits: 10
   expected: 8
@@ -15,6 +18,10 @@
 - id: 12639 # whirling defense
   hits: 12
   expected: 10
+
+- id: 12504 # bonfire
+  hits: 9
+  expected: 6
 
 - id: 12492 # frost trap
   hits: 5
