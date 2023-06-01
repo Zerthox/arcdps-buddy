@@ -7,13 +7,19 @@ use arc_util::{
     ui::{Window, WindowOptions},
 };
 use log::info;
+use once_cell::sync::Lazy;
 use semver::Version;
+use std::sync::{Mutex, MutexGuard};
 
 /// Plugin version.
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Settings file name.
 const SETTINGS_FILE: &str = "arcdps_buddy.json";
+
+/// Main plugin instance.
+// FIXME: a single mutex for the whole thing is potentially inefficient
+static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 
 /// Main plugin.
 #[derive(Debug)]
@@ -31,7 +37,14 @@ impl Plugin {
             data: SkillData::with_defaults(),
             start: None,
             casts: Vec::new(),
-            cast_log: Window::new(WindowOptions::new("Casts"), CastLog::new()),
+            cast_log: Window::new(
+                WindowOptions {
+                    width: 350.0,
+                    height: 450.0,
+                    ..WindowOptions::new("Casts")
+                },
+                CastLog::new(),
+            ),
         }
     }
 
@@ -58,6 +71,11 @@ impl Plugin {
         settings.store_data("version", VERSION);
         settings.store_component(&self.cast_log);
         settings.save_file();
+    }
+
+    /// Acquires access to the plugin instance.
+    pub fn lock() -> MutexGuard<'static, Plugin> {
+        PLUGIN.lock().unwrap()
     }
 }
 

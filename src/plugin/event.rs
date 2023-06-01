@@ -23,7 +23,6 @@ impl Plugin {
 
     /// Handles a combat event from area stats.
     pub fn area_event(
-        &mut self,
         event: Option<CombatEvent>,
         src: Option<Agent>,
         _dst: Option<Agent>,
@@ -36,24 +35,27 @@ impl Plugin {
                 match event.is_statechange {
                     StateChange::EnterCombat => {
                         debug!("combat enter");
-                        self.casts.clear();
-                        self.start = Some(event.time);
+                        let mut plugin = Self::lock();
+                        plugin.casts.clear();
+                        plugin.start = Some(event.time);
                     }
 
                     StateChange::ExitCombat => {
                         debug!("combat exit");
-                        self.start = None;
+                        let mut plugin = Self::lock();
+                        plugin.start = None;
                     }
 
                     StateChange::None => {
-                        if let Some(start) = self.start {
-                            if self.data.contains(event.skill_id) {
+                        let mut plugin = Self::lock();
+                        if let Some(start) = plugin.start {
+                            if plugin.data.contains(event.skill_id) {
                                 match event.is_activation {
                                     Activation::Start => {
                                         let skill = Skill::new(event.skill_id, skill_name);
                                         let cast = Cast::new(skill, event.time - start);
                                         debug!("start {cast:?}");
-                                        self.add_cast(cast);
+                                        plugin.add_cast(cast);
                                     }
 
                                     activation @ (Activation::CancelFire
@@ -62,7 +64,7 @@ impl Plugin {
                                         let state = activation.into();
                                         let duration = event.value;
 
-                                        if let Some(cast) = self.latest_cast_mut(event.skill_id) {
+                                        if let Some(cast) = plugin.latest_cast_mut(event.skill_id) {
                                             debug!("complete {cast:?}");
                                             cast.complete(state, duration);
                                         } else {
@@ -83,15 +85,15 @@ impl Plugin {
                                             {
                                                 // TODO: use local combat events for hits?
                                                 // TODO: filter hits to main target?
-                                                let skill = self.data.map_hit_id(event.skill_id);
-                                                if let Some(cast) = self.latest_cast_mut(skill) {
+                                                let skill = plugin.data.map_hit_id(event.skill_id);
+                                                if let Some(cast) = plugin.latest_cast_mut(skill) {
                                                     cast.hit();
                                                     debug!("hit {cast:?}");
                                                 } else {
                                                     let skill = Skill::new(skill, skill_name);
                                                     let cast = Cast::new(skill, event.time - start);
                                                     debug!("hit without start {cast:?}");
-                                                    self.add_cast(cast);
+                                                    plugin.add_cast(cast);
                                                 }
                                             }
                                         }
