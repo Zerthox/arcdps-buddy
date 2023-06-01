@@ -49,7 +49,7 @@ fn options_windows(ui: &Ui, window_name: Option<&str>) -> bool {
 }
 
 fn options_end(ui: &Ui) {
-    Plugin::render_settings(ui)
+    Plugin::lock().render_settings(ui)
 }
 
 fn wnd_filter(key: usize, key_down: bool, prev_key_down: bool) -> bool {

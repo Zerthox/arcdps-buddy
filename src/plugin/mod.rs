@@ -48,6 +48,11 @@ impl Plugin {
         }
     }
 
+    /// Acquires access to the plugin instance.
+    pub fn lock() -> MutexGuard<'static, Self> {
+        PLUGIN.lock().unwrap()
+    }
+
     /// Loads the plugin.
     pub fn load(&mut self) {
         info!("v{} load", VERSION);
@@ -71,11 +76,6 @@ impl Plugin {
         settings.store_data("version", VERSION);
         settings.store_component(&self.cast_log);
         settings.save_file();
-    }
-
-    /// Acquires access to the plugin instance.
-    pub fn lock() -> MutexGuard<'static, Plugin> {
-        PLUGIN.lock().unwrap()
     }
 }
 

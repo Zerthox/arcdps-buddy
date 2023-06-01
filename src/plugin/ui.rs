@@ -13,13 +13,12 @@ impl Plugin {
     }
 
     /// Callback for settings UI creation.
-    pub fn render_settings(ui: &Ui) {
-        let mut plugin = Self::lock();
+    pub fn render_settings(&mut self, ui: &Ui) {
         render::input_key(
             ui,
             "##castlog-key",
             "Casts Hotkey",
-            &mut plugin.cast_log.hotkey,
+            &mut self.cast_log.hotkey,
         );
     }
 
