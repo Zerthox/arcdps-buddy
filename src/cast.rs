@@ -42,17 +42,26 @@ impl Cast {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CastState {
+    /// Unknown or initial state.
     #[default]
     Unknown,
+
+    /// Completed fully.
     Fire,
+
+    /// Cancelled after fire.
     Cancel,
+
+    /// Interrupted before fire.
+    Interrupt,
 }
 
 impl From<Activation> for CastState {
     fn from(activation: Activation) -> Self {
         match activation {
-            Activation::CancelFire | Activation::Reset => Self::Fire,
-            Activation::CancelCancel => Self::Cancel,
+            Activation::Reset => Self::Fire,
+            Activation::CancelFire => Self::Cancel,
+            Activation::CancelCancel => Self::Interrupt,
             _ => Self::Unknown,
         }
     }

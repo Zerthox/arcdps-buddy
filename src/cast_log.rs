@@ -70,11 +70,13 @@ impl Component<CastLogProps<'_>> for CastLog {
                         );
                     }
 
+                    let text = format!("{}ms", cast.duration);
                     ui.same_line();
                     match cast.state {
                         CastState::Unknown => ui.text("?ms"),
-                        CastState::Fire => ui.text_colored(green, format!("{}ms", cast.duration)),
-                        CastState::Cancel => ui.text_colored(red, format!("{}ms", cast.duration)),
+                        CastState::Cancel => ui.text_colored(yellow, text),
+                        CastState::Fire => ui.text_colored(green, text),
+                        CastState::Interrupt => ui.text_colored(red, text),
                     }
                 }
             }
