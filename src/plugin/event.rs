@@ -68,10 +68,15 @@ impl Plugin {
                                             debug!("complete {cast:?}");
                                             cast.complete(state, duration);
                                         } else {
-                                            debug!(
-                                                "complete without start {:?} ({}) with {:?}",
-                                                skill_name, event.skill_id, activation
-                                            )
+                                            let skill = Skill::new(event.skill_id, skill_name);
+                                            let mut cast = Cast::new(
+                                                skill,
+                                                event.time
+                                                    - u64::try_from(duration).unwrap_or_default(),
+                                            );
+                                            cast.complete(state, duration);
+                                            debug!("complete without start {cast:?}");
+                                            plugin.add_cast(cast);
                                         }
                                     }
 
