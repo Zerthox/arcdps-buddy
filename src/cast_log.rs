@@ -16,11 +16,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CastLog {
     pub hotkey: Option<u32>,
+
+    #[serde(skip)]
+    last_scroll_max: f32,
 }
 
 impl CastLog {
     pub const fn new() -> Self {
-        Self { hotkey: None }
+        Self {
+            hotkey: None,
+            last_scroll_max: 0.0,
+        }
     }
 }
 
@@ -80,6 +86,12 @@ impl Component<CastLogProps<'_>> for CastLog {
                     }
                 }
             }
+        }
+
+        // auto scroll
+        #[allow(clippy::float_cmp)]
+        if ui.scroll_y() == self.last_scroll_max {
+            ui.set_scroll_here_y_with_ratio(1.0);
         }
     }
 }
