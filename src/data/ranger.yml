@@ -1,6 +1,8 @@
-- id: 45743 # gazelle charge
+# beastmode
+- id: 45743 # charge (gazelle)
   hits: 1
 
+# longbow
 - id: 12509 # rapid fire
   hits: 10
   expected: 8
@@ -8,6 +10,7 @@
   hits: 12
   expected: 4
 
+# axe
 - id: 12480 # splitblade
   hits: 5
 - id: 12490 # winters bite
@@ -19,10 +22,12 @@
   hits: 12
   expected: 10
 
+# torch
 - id: 12504 # bonfire
   hits: 9
   expected: 6
 
+# slot
 - id: 12492 # frost trap
   hits: 5
   expected: 3
