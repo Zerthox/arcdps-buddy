@@ -1,12 +1,16 @@
 pub mod event;
 pub mod ui;
 
-use crate::{cast::Cast, cast_log::CastLog, data::SkillData};
+use crate::{
+    cast::Cast,
+    cast_log::CastLog,
+    data::{LoadError, SkillData},
+};
 use arc_util::{
     settings::Settings,
     ui::{Window, WindowOptions},
 };
-use log::info;
+use log::{info, warn};
 use once_cell::sync::Lazy;
 use semver::Version;
 use std::sync::{Mutex, MutexGuard};
@@ -17,6 +21,9 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Settings file name.
 const SETTINGS_FILE: &str = "arcdps_buddy.json";
 
+/// Cast skill definition file name.
+const SKILLS_FILE: &str = "arcdps_buddy_skills.yml";
+
 /// Main plugin instance.
 // FIXME: a single mutex for the whole thing is potentially inefficient
 static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
@@ -25,6 +32,7 @@ static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 #[derive(Debug)]
 pub struct Plugin {
     data: SkillData,
+    data_state: Result<(), LoadError>,
     start: Option<u64>,
     casts: Vec<Cast>,
     cast_log: Window<CastLog>,
@@ -35,6 +43,7 @@ impl Plugin {
     pub fn new() -> Self {
         Self {
             data: SkillData::with_defaults(),
+            data_state: Err(LoadError::NotFound),
             start: None,
             casts: Vec::new(),
             cast_log: Window::new(
@@ -68,6 +77,30 @@ impl Plugin {
             }
         );
         settings.load_component(&mut self.cast_log);
+
+        self.load_data();
+    }
+
+    pub fn load_data(&mut self) {
+        if let Some(path) = Settings::config_path(SKILLS_FILE) {
+            if path.exists() {
+                self.data_state = self.data.try_load(&path);
+
+                if self.data_state.is_ok() {
+                    info!("Loaded custom definitions from \"{}\"", path.display());
+                } else {
+                    warn!(
+                        "Failed to load custom definitions from \"{}\"",
+                        path.display()
+                    );
+                }
+            }
+        }
+    }
+
+    pub fn reset_data(&mut self) {
+        self.data = SkillData::with_defaults();
+        self.data_state = Err(LoadError::NotFound);
     }
 
     /// Unloads the plugin.

@@ -1,7 +1,13 @@
 mod structs;
 
 pub use self::structs::*;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{self, BufReader},
+    mem,
+    path::Path,
+};
 
 pub const SKILLS: &[SkillDef] = &include!(concat!(env!("OUT_DIR"), "/skills.rs"));
 
@@ -52,5 +58,35 @@ impl SkillData {
             }) if *hit_id == id => *skill_id,
             _ => id,
         }
+    }
+
+    /// Attempts to load data from a given file path.
+    pub fn try_load(&mut self, path: impl AsRef<Path>) -> Result<(), LoadError> {
+        let file = BufReader::new(File::open(path)?);
+        let data: Vec<SkillDef> = serde_yaml::from_reader(file)?;
+        *self = Self::new(mem::take(&mut self.data).into_iter().chain(data));
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum LoadError {
+    NotFound,
+    FailedToRead,
+    Invalid,
+}
+
+impl From<io::Error> for LoadError {
+    fn from(err: io::Error) -> Self {
+        match err.kind() {
+            io::ErrorKind::NotFound => Self::NotFound,
+            _ => Self::FailedToRead,
+        }
+    }
+}
+
+impl From<serde_yaml::Error> for LoadError {
+    fn from(_: serde_yaml::Error) -> Self {
+        Self::Invalid
     }
 }
