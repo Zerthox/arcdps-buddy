@@ -14,6 +14,8 @@ impl Plugin {
 
     /// Callback for settings UI creation.
     pub fn render_settings(&mut self, ui: &Ui) {
+        let _style = render::small_padding(ui);
+
         render::input_key(
             ui,
             "##castlog-key",
