@@ -1,5 +1,5 @@
 use crate::skill::Skill;
-use arcdps::Activation;
+use arcdps::{Activation, Agent};
 
 #[derive(Debug, Clone)]
 pub struct Cast {
@@ -15,8 +15,8 @@ pub struct Cast {
     /// Time spent in animation.
     pub duration: i32,
 
-    /// Number of related hits.
-    pub hits: u32,
+    /// Related hits.
+    pub hits: Vec<Hit>,
 }
 
 impl Cast {
@@ -26,12 +26,14 @@ impl Cast {
             time,
             state: CastState::Unknown,
             duration: 0,
-            hits: 0,
+            hits: Vec::new(),
         }
     }
 
-    pub fn hit(&mut self) {
-        self.hits += 1;
+    pub fn hit(&mut self, target: &Agent) {
+        self.hits.push(Hit {
+            target: target.prof,
+        })
     }
 
     pub fn complete(&mut self, result: CastState, duration: i32) {
@@ -65,4 +67,10 @@ impl From<Activation> for CastState {
             _ => Self::Unknown,
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Hit {
+    /// Target species.
+    pub target: u32,
 }

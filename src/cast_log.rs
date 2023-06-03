@@ -8,7 +8,7 @@ use arc_util::{
     ui::{Component, Windowable},
 };
 use arcdps::{
-    exports::{self, CoreColor},
+    exports::{self, Color, Colors, CoreColor},
     imgui::Ui,
 };
 use serde::{Deserialize, Serialize};
@@ -28,12 +28,65 @@ impl CastLog {
             last_scroll_max: 0.0,
         }
     }
+
+    fn format_hits(
+        colors: &Colors,
+        hits: usize,
+        max: u32,
+        expected: Option<u32>,
+    ) -> (Color, String) {
+        let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
+        let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
+        let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
+        let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
+
+        let max = max as usize;
+        let has_hits = max > 0;
+        let color = if has_hits {
+            if hits > max {
+                blue
+            } else if hits == max {
+                green
+            } else if hits
+                >= expected
+                    .map(|expected| expected as usize)
+                    .unwrap_or((max + 1) / 2)
+            {
+                yellow
+            } else {
+                red
+            }
+        } else if max > 0 {
+            yellow
+        } else {
+            red
+        };
+
+        let text = if has_hits {
+            format!("{hits}/{max}")
+        } else {
+            format!("{hits}/X")
+        };
+
+        (color, text)
+    }
 }
 
-pub type CastLogProps<'a> = (&'a SkillData, &'a [Cast]);
+#[derive(Debug, Clone)]
+pub struct CastLogProps<'a> {
+    pub data: &'a SkillData,
+    pub casts: &'a [Cast],
+    pub target: u32,
+}
 
 impl Component<CastLogProps<'_>> for CastLog {
-    fn render(&mut self, ui: &Ui, (data, casts): CastLogProps) {
+    fn render(&mut self, ui: &Ui, props: CastLogProps) {
+        let CastLogProps {
+            data,
+            casts,
+            target,
+        } = props;
+
         if casts.is_empty() {
             ui.text("No casts");
         } else {
@@ -41,7 +94,6 @@ impl Component<CastLogProps<'_>> for CastLog {
             let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
             let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
             let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
-            let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
             let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
             for cast in casts {
@@ -54,32 +106,19 @@ impl Component<CastLogProps<'_>> for CastLog {
                     ui.same_line();
                     ui.text(&cast.skill.name);
 
-                    if let Some(hits) = def.hits {
-                        let has_hits = hits > 0;
-                        let color = if has_hits {
-                            if cast.hits > hits {
-                                blue
-                            } else if cast.hits == hits {
-                                green
-                            } else if cast.hits >= def.expected.unwrap_or((hits + 1) / 2) {
-                                yellow
-                            } else {
-                                red
-                            }
-                        } else if hits > 0 {
-                            yellow
-                        } else {
-                            red
-                        };
+                    if let Some(max) = def.hits {
+                        let target_hits =
+                            cast.hits.iter().filter(|hit| hit.target == target).count();
+                        let (color, text) =
+                            Self::format_hits(&colors, target_hits, max, def.expected);
                         ui.same_line();
-                        ui.text_colored(
-                            color,
-                            if has_hits {
-                                format!("{}/{}", cast.hits, hits)
-                            } else {
-                                format!("{}/X", cast.hits)
-                            },
-                        );
+                        ui.text_colored(color, text);
+
+                        let cleave_hits = cast.hits.len();
+                        let (color, text) =
+                            Self::format_hits(&colors, cleave_hits, max, def.expected);
+                        ui.same_line();
+                        ui.text_colored(color, format!("({text})"));
                     }
 
                     let text = format!("{}ms", cast.duration);
@@ -99,7 +138,6 @@ impl Component<CastLogProps<'_>> for CastLog {
         if ui.scroll_y() == self.last_scroll_max {
             ui.set_scroll_here_y_with_ratio(1.0);
         }
-
         self.last_scroll_max = ui.scroll_max_y();
     }
 }

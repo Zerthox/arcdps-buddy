@@ -1,6 +1,5 @@
-use crate::data::LoadError;
-
 use super::Plugin;
+use crate::{cast_log::CastLogProps, data::LoadError};
 use arc_util::{
     colors::{GREEN, GREY, RED, YELLOW},
     ui::{render, Component, Hideable},
@@ -16,7 +15,14 @@ impl Plugin {
         let ui_settings = exports::ui_settings();
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
             let plugin = &mut *Self::lock();
-            plugin.cast_log.render(ui, (&plugin.data, &plugin.casts));
+            plugin.cast_log.render(
+                ui,
+                CastLogProps {
+                    data: &plugin.data,
+                    casts: &plugin.casts,
+                    target: plugin.target,
+                },
+            );
         }
     }
 

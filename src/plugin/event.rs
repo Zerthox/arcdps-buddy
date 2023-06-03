@@ -25,28 +25,38 @@ impl Plugin {
     pub fn area_event(
         event: Option<CombatEvent>,
         src: Option<Agent>,
-        _dst: Option<Agent>,
+        dst: Option<Agent>,
         skill_name: Option<&str>,
         _event_id: u64,
         _revision: u64,
     ) {
-        if matches!(src, Some(Agent { is_self,..}) if is_self != 0) {
+        if let Some(src) = src {
             if let Some(event) = event {
+                let is_self = src.is_self != 0;
                 match event.is_statechange {
-                    StateChange::EnterCombat => {
-                        debug!("combat enter");
+                    StateChange::LogStart => {
+                        let species = event.src_agent;
+                        debug!("log start {species}");
                         let mut plugin = Self::lock();
                         plugin.casts.clear();
+                        plugin.target = species as u32;
                         plugin.start = Some(event.time);
                     }
 
-                    StateChange::ExitCombat => {
-                        debug!("combat exit");
+                    StateChange::LogNPCUpdate => {
+                        let species = event.src_agent;
+                        debug!("log target change {species}");
+                        let mut plugin = Self::lock();
+                        plugin.target = species as u32;
+                    }
+
+                    StateChange::LogEnd => {
+                        debug!("log end");
                         let mut plugin = Self::lock();
                         plugin.start = None;
                     }
 
-                    StateChange::None => {
+                    StateChange::None if is_self => {
                         let mut plugin = Self::lock();
                         if let Some(start) = plugin.start {
                             if plugin.data.contains(event.skill_id) {
@@ -89,16 +99,21 @@ impl Plugin {
                                             ) = event.result.try_into()
                                             {
                                                 // TODO: use local combat events for hits?
-                                                // TODO: filter hits to main target?
-                                                let skill = plugin.data.map_hit_id(event.skill_id);
-                                                if let Some(cast) = plugin.latest_cast_mut(skill) {
-                                                    cast.hit();
-                                                    debug!("hit {cast:?}");
-                                                } else {
-                                                    let skill = Skill::new(skill, skill_name);
-                                                    let cast = Cast::new(skill, event.time - start);
-                                                    debug!("hit without start {cast:?}");
-                                                    plugin.add_cast(cast);
+                                                if let Some(dst) = dst {
+                                                    let skill =
+                                                        plugin.data.map_hit_id(event.skill_id);
+                                                    if let Some(cast) =
+                                                        plugin.latest_cast_mut(skill)
+                                                    {
+                                                        cast.hit(&dst);
+                                                        debug!("hit {cast:?}");
+                                                    } else {
+                                                        let skill = Skill::new(skill, skill_name);
+                                                        let cast =
+                                                            Cast::new(skill, event.time - start);
+                                                        debug!("hit without start {cast:?}");
+                                                        plugin.add_cast(cast);
+                                                    }
                                                 }
                                             }
                                         }
