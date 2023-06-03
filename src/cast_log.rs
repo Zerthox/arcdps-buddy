@@ -56,11 +56,17 @@ impl Component<CastLogProps<'_>> for CastLog {
 
                     if let Some(hits) = def.hits {
                         let has_hits = hits > 0;
-                        let color = if has_hits && cast.hits > hits {
-                            blue
-                        } else if has_hits && cast.hits == hits {
-                            green
-                        } else if cast.hits >= def.expected.unwrap_or((hits + 1) / 2) {
+                        let color = if has_hits {
+                            if cast.hits > hits {
+                                blue
+                            } else if cast.hits == hits {
+                                green
+                            } else if cast.hits >= def.expected.unwrap_or((hits + 1) / 2) {
+                                yellow
+                            } else {
+                                red
+                            }
+                        } else if hits > 0 {
                             yellow
                         } else {
                             red
