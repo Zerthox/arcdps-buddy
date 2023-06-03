@@ -93,6 +93,8 @@ impl Component<CastLogProps<'_>> for CastLog {
         if ui.scroll_y() == self.last_scroll_max {
             ui.set_scroll_here_y_with_ratio(1.0);
         }
+
+        self.last_scroll_max = ui.scroll_max_y();
     }
 }
 
