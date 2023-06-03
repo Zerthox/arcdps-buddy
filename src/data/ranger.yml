@@ -17,7 +17,6 @@
   hits: 1
 - id: 12638 # path of scars
   hits: 2
-  expected: 1
 - id: 12639 # whirling defense
   hits: 12
   expected: 10
@@ -30,13 +29,10 @@
 # slot
 - id: 12492 # frost trap
   hits: 5
-  expected: 3
 - id: 12499 # flame trap
   hits: 5
-  expected: 3
 - id: 12496 # vipers nest
   hits: 3
-  expected: 2
 - id: 45717 # one wolf pack
   hit_id: 42145 # different id for hits
   hits: 5

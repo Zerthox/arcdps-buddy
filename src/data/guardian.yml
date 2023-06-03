@@ -8,38 +8,30 @@
   expected: 10
 - id: 9146 # symbol of resolution
   hits: 5
-  expected: 3
 
 # sword
 - id: 9097 # symbol of blades
   hits: 5
-  expected: 3
 - id: 9107 # zealots defense
   hits: 8
-  expected: 5
 
 # mace
 - id: 9111 # symbol of faith
   hits: 5
-  expected: 3
 
 # scepter
 - id: 9090 # symbol of punishment
   hits: 8
-  expected: 5
 
 # staff
 - id: 9143 # symbol of swiftness
   hits: 5
-  expected: 3
 
 # longbow
 - id: 29789 # symbol of energy
   hits: 6
-  expected: 4
 - id: 30628 # hunters ward
   hits: 4
-  expected: 3
 
 # slot
 - id: 30364 # procession of blades

@@ -60,7 +60,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                             blue
                         } else if has_hits && cast.hits == hits {
                             green
-                        } else if cast.hits >= def.expected.unwrap_or(hits) {
+                        } else if cast.hits >= def.expected.unwrap_or((hits + 1) / 2) {
                             yellow
                         } else {
                             red

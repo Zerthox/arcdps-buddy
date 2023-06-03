@@ -11,4 +11,3 @@
 - id: 41220 # darkrazors daring
   hit_id: 41095 # different id for hits
   hits: 6
-  expected: 4
