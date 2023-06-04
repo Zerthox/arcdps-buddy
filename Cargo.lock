@@ -78,6 +78,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_yaml",
+ "strum",
 ]
 
 [[package]]

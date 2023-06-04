@@ -13,6 +13,7 @@ once_cell = "1.17.2"
 semver = { version = "1.0.17", features = ["serde"] }
 serde = { version = "1.0.163", features = ["derive"] }
 serde_yaml = "0.9.21"
+strum = { version = "0.24.1", features = ["derive"] }
 
 [build-dependencies]
 proc-macro2 = "1.0.59"

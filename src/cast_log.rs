@@ -12,19 +12,25 @@ use arcdps::{
     imgui::Ui,
 };
 use serde::{Deserialize, Serialize};
+use strum::{EnumVariantNames, VariantNames};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct CastLog {
     pub hotkey: Option<u32>,
+    display_time: bool,
+    display_hits: HitDisplay,
 
     #[serde(skip)]
     last_scroll_max: f32,
 }
 
 impl CastLog {
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             hotkey: None,
+            display_time: true,
+            display_hits: HitDisplay::default(),
             last_scroll_max: 0.0,
         }
     }
@@ -98,30 +104,43 @@ impl Component<CastLogProps<'_>> for CastLog {
 
             for cast in casts {
                 if let Some(def) = data.get(cast.skill.id) {
-                    ui.text_colored(
-                        grey,
-                        format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
-                    );
+                    if self.display_time {
+                        ui.text_colored(
+                            grey,
+                            format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
+                        );
+                    }
 
                     ui.same_line();
                     ui.text(&cast.skill.name);
 
                     if let Some(max) = def.hits {
-                        let target_hits = if let Some(target) = target {
-                            cast.hits.iter().filter(|hit| hit.target == target).count()
-                        } else {
-                            0
-                        };
-                        let (color, text) =
-                            Self::format_hits(&colors, target_hits, max, def.expected);
-                        ui.same_line();
-                        ui.text_colored(color, text);
+                        if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
+                            let target_hits = if let Some(target) = target {
+                                cast.hits.iter().filter(|hit| hit.target == target).count()
+                            } else {
+                                0
+                            };
+                            let (color, text) =
+                                Self::format_hits(&colors, target_hits, max, def.expected);
+                            ui.same_line();
+                            ui.text_colored(color, text);
+                        }
 
                         let cleave_hits = cast.hits.len();
                         let (color, text) =
                             Self::format_hits(&colors, cleave_hits, max, def.expected);
-                        ui.same_line();
-                        ui.text_colored(color, format!("({text})"));
+                        match self.display_hits {
+                            HitDisplay::Cleave => {
+                                ui.same_line();
+                                ui.text_colored(color, text)
+                            }
+                            HitDisplay::Both => {
+                                ui.same_line();
+                                ui.text_colored(color, format!("({text})"));
+                            }
+                            _ => {}
+                        }
                     }
 
                     let text = format!("{}ms", cast.duration);
@@ -145,8 +164,25 @@ impl Component<CastLogProps<'_>> for CastLog {
     }
 }
 
+impl Default for CastLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Windowable<CastLogProps<'_>> for CastLog {
     const CONTEXT_MENU: bool = true;
+
+    fn render_menu(&mut self, ui: &Ui, _props: &CastLogProps) {
+        ui.menu("Display", || {
+            ui.checkbox("Time", &mut self.display_time);
+
+            let mut index = self.display_hits as usize;
+            if ui.combo_simple_string("Hits", &mut index, HitDisplay::VARIANTS) {
+                self.display_hits = index.into();
+            }
+        });
+    }
 }
 
 impl HasSettings for CastLog {
@@ -159,6 +195,40 @@ impl HasSettings for CastLog {
     }
 
     fn load_settings(&mut self, loaded: Self::Settings) {
-        self.hotkey = loaded.hotkey;
+        let scroll = self.last_scroll_max;
+        *self = loaded;
+        self.last_scroll_max = scroll;
+    }
+}
+
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    EnumVariantNames,
+    Serialize,
+    Deserialize,
+)]
+enum HitDisplay {
+    #[default]
+    Both,
+    Target,
+    Cleave,
+}
+
+impl From<usize> for HitDisplay {
+    fn from(value: usize) -> Self {
+        match value {
+            0 => Self::Both,
+            1 => Self::Target,
+            2 => Self::Cleave,
+            _ => Self::default(),
+        }
     }
 }
