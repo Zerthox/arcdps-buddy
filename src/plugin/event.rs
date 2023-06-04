@@ -21,6 +21,10 @@ impl Plugin {
         self.casts.insert(self.casts.len() - index, cast);
     }
 
+    fn update_target(&mut self, target: u32) {
+        self.target = if target > 2 { Some(target) } else { None };
+    }
+
     /// Handles a combat event from area stats.
     pub fn area_event(
         event: Option<CombatEvent>,
@@ -35,23 +39,24 @@ impl Plugin {
                 let is_self = src.is_self != 0;
                 match event.is_statechange {
                     StateChange::LogStart => {
-                        let species = event.src_agent;
-                        debug!("log start {species}");
+                        let species = event.src_agent as u32;
+                        debug!("log start for {species}");
                         let mut plugin = Self::lock();
                         plugin.casts.clear();
-                        plugin.target = species as u32;
                         plugin.start = Some(event.time);
+                        plugin.update_target(species);
                     }
 
                     StateChange::LogNPCUpdate => {
-                        let species = event.src_agent;
-                        debug!("log target change {species}");
+                        let species = event.src_agent as u32;
+                        debug!("log target change to {species}");
                         let mut plugin = Self::lock();
-                        plugin.target = species as u32;
+                        plugin.update_target(species);
                     }
 
                     StateChange::LogEnd => {
-                        debug!("log end");
+                        let species = event.src_agent as u32;
+                        debug!("log end for {species}");
                         let mut plugin = Self::lock();
                         plugin.start = None;
                     }

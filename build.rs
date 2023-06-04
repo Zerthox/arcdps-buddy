@@ -30,26 +30,25 @@ fn main() {
         serde_yaml::from_reader::<_, Vec<SkillDef>>(File::open(file).unwrap()).unwrap()
     });
 
-    let contents = data.map(
-        |SkillDef {
-             id,
-             hit_id,
-             hits,
-             expected,
-         }| {
-            let hit_id = quote_option(hit_id);
-            let hits = quote_option(hits);
-            let expected = quote_option(expected);
-            quote! {
-                SkillDef {
-                    id: #id,
-                    hit_id: #hit_id,
-                    hits: #hits,
-                    expected: #expected,
-                }
+    let contents = data.map(|skill| {
+        let SkillDef {
+            id,
+            hit_id,
+            hits,
+            expected,
+        } = skill;
+        let hit_id = quote_option(hit_id);
+        let hits = quote_option(hits);
+        let expected = quote_option(expected);
+        quote! {
+            SkillDef {
+                id: #id,
+                hit_id: #hit_id,
+                hits: #hits,
+                expected: #expected,
             }
-        },
-    );
+        }
+    });
 
     let result = quote! { [ #(#contents),* ] };
 

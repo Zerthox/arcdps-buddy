@@ -76,7 +76,7 @@ impl CastLog {
 pub struct CastLogProps<'a> {
     pub data: &'a SkillData,
     pub casts: &'a [Cast],
-    pub target: u32,
+    pub target: Option<u32>,
 }
 
 impl Component<CastLogProps<'_>> for CastLog {
@@ -107,8 +107,11 @@ impl Component<CastLogProps<'_>> for CastLog {
                     ui.text(&cast.skill.name);
 
                     if let Some(max) = def.hits {
-                        let target_hits =
-                            cast.hits.iter().filter(|hit| hit.target == target).count();
+                        let target_hits = if let Some(target) = target {
+                            cast.hits.iter().filter(|hit| hit.target == target).count()
+                        } else {
+                            0
+                        };
                         let (color, text) =
                             Self::format_hits(&colors, target_hits, max, def.expected);
                         ui.same_line();

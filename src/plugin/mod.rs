@@ -34,7 +34,7 @@ pub struct Plugin {
     data: SkillData,
     data_state: Result<(), LoadError>,
     start: Option<u64>,
-    target: u32,
+    target: Option<u32>,
     casts: Vec<Cast>,
     cast_log: Window<CastLog>,
 }
@@ -46,7 +46,7 @@ impl Plugin {
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
             start: None,
-            target: 0,
+            target: None,
             casts: Vec::new(),
             cast_log: Window::new(
                 WindowOptions {
