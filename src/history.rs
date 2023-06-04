@@ -113,6 +113,6 @@ impl<T> Fight<T> {
     }
 
     pub fn end(&mut self, time: u64) {
-        self.end = 0;
+        self.end = time;
     }
 }

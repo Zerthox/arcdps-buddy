@@ -196,18 +196,32 @@ impl Windowable<CastLogProps<'_>> for CastLog {
         let input_width = render::ch_width(ui, 16);
 
         ui.menu("History", || {
-            for (i, fight) in casts.fights().enumerate() {
-                let text = format!("{} ({}s)", fight.name, fight.duration());
-                if i == self.viewed {
-                    ui.text(text);
-                } else {
-                    ui.text_colored(grey, text);
-                    if ui.is_item_clicked() {
-                        self.viewed = i;
+            if casts.fight_count() == 0 {
+                ui.text("No history");
+            } else {
+                for (i, fight) in casts.fights().enumerate() {
+                    // TODO: display log start time
+                    let duration = fight.duration();
+                    let text = if duration > 0 {
+                        format!("{} ({}s)", fight.name, Self::format_time(duration))
+                    } else {
+                        format!("{} (?ms)", fight.name)
+                    };
+
+                    if i == self.viewed {
+                        ui.text(text);
+                    } else {
+                        ui.text_colored(grey, text);
+                        if ui.is_item_clicked() {
+                            self.viewed = i;
+                        }
                     }
                 }
             }
         });
+
+        ui.spacing();
+        ui.spacing();
 
         ui.menu("Display", || {
             ui.checkbox("Display time", &mut self.display_time);

@@ -24,7 +24,7 @@ impl Casts {
         }
     }
 
-    pub fn len(&self) -> usize {
+    pub fn fight_count(&self) -> usize {
         self.history.len()
     }
 

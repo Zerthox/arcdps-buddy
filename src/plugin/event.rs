@@ -23,7 +23,7 @@ impl Plugin {
                         let mut plugin = &mut *Self::lock(); // for borrowing
                         plugin.start = Some(event.time);
                         plugin.casts.add_fight(species, dst, event.time);
-                        plugin.cast_log.update_viewed(plugin.casts.len());
+                        plugin.cast_log.update_viewed(plugin.casts.fight_count());
                     }
 
                     StateChange::LogNPCUpdate => {
@@ -44,7 +44,8 @@ impl Plugin {
                     StateChange::None if is_self => {
                         let mut plugin = Self::lock();
                         if let Some(start) = plugin.start {
-                            if plugin.data.contains(event.skill_id) {
+                            // TODO: add data to previous fight?
+                            if event.time >= start && plugin.data.contains(event.skill_id) {
                                 match event.is_activation {
                                     Activation::Start => {
                                         let skill = Skill::new(event.skill_id, skill_name);
