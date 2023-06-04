@@ -3,8 +3,8 @@ pub mod ui;
 
 use crate::{
     cast::Cast,
-    cast_log::CastLog,
     data::{LoadError, SkillData},
+    ui::CastLog,
 };
 use arc_util::{
     settings::Settings,

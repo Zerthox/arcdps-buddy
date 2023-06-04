@@ -1,8 +1,8 @@
 mod cast;
-mod cast_log;
 mod data;
 mod plugin;
 mod skill;
+mod ui;
 
 use arcdps::{imgui::Ui, Agent, CombatEvent};
 use plugin::Plugin;

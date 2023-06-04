@@ -1,5 +1,5 @@
 use super::Plugin;
-use crate::{cast_log::CastLogProps, data::LoadError};
+use crate::{data::LoadError, ui::CastLogProps};
 use arc_util::{
     colors::{GREEN, GREY, RED, YELLOW},
     ui::{render, Component, Hideable},
