@@ -82,27 +82,25 @@ impl<T> Fight<T> {
     {
         Self {
             id: None,
-            name: Self::default_name(),
+            name: Self::DEFAULT_NAME.into(),
             start,
             end: 0,
             data: T::default(),
         }
     }
 
-    fn default_name() -> String {
-        "Unknown".into()
-    }
+    const DEFAULT_NAME: &str = "Unknown";
 
     pub fn update_target(&mut self, species: u32, target: Option<Agent>) {
         if species > 2 {
             self.id = Some(species);
-            self.name = target
-                .and_then(|agent| agent.name)
-                .map(Into::into)
-                .unwrap_or_else(Self::default_name);
+            self.name = match target.and_then(|agent| agent.name) {
+                Some(name) if !name.is_empty() => name.into(),
+                _ => Self::DEFAULT_NAME.into(),
+            };
         } else {
             self.id = None;
-            self.name = Self::default_name();
+            self.name = Self::DEFAULT_NAME.into();
         }
     }
 
