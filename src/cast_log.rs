@@ -5,7 +5,7 @@ use crate::{
 use arc_util::{
     colors::{CYAN, GREEN, GREY, RED, YELLOW},
     settings::HasSettings,
-    ui::{Component, Windowable},
+    ui::{render, Component, Windowable},
 };
 use arcdps::{
     exports::{self, Color, Colors, CoreColor},
@@ -109,9 +109,9 @@ impl Component<CastLogProps<'_>> for CastLog {
                             grey,
                             format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
                         );
+                        ui.same_line();
                     }
 
-                    ui.same_line();
                     ui.text(&cast.skill.name);
 
                     if let Some(max) = def.hits {
@@ -174,10 +174,13 @@ impl Windowable<CastLogProps<'_>> for CastLog {
     const CONTEXT_MENU: bool = true;
 
     fn render_menu(&mut self, ui: &Ui, _props: &CastLogProps) {
+        let input_width = render::ch_width(ui, 16);
+
         ui.menu("Display", || {
-            ui.checkbox("Time", &mut self.display_time);
+            ui.checkbox("Display time", &mut self.display_time);
 
             let mut index = self.display_hits as usize;
+            ui.set_next_item_width(input_width);
             if ui.combo_simple_string("Hits", &mut index, HitDisplay::VARIANTS) {
                 self.display_hits = index.into();
             }
