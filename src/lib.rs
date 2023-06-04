@@ -1,7 +1,7 @@
-mod cast;
+mod casts;
 mod data;
+mod history;
 mod plugin;
-mod skill;
 mod ui;
 
 use arcdps::{imgui::Ui, Agent, CombatEvent};

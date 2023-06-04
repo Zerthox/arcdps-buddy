@@ -1,5 +1,5 @@
 use crate::{
-    cast::{Cast, CastState},
+    casts::{CastState, Casts},
     data::SkillData,
 };
 use arc_util::{
@@ -22,6 +22,9 @@ pub struct CastLog {
     display_hits: HitDisplay,
 
     #[serde(skip)]
+    viewed: usize,
+
+    #[serde(skip)]
     last_scroll_max: f32,
 }
 
@@ -31,8 +34,22 @@ impl CastLog {
             hotkey: None,
             display_time: true,
             display_hits: HitDisplay::default(),
+            viewed: 0,
             last_scroll_max: 0.0,
         }
+    }
+
+    pub fn update_viewed(&mut self, len: usize) {
+        if self.viewed != 0 {
+            self.viewed += 1;
+            if self.viewed >= len {
+                self.viewed = 0;
+            }
+        }
+    }
+
+    fn format_time(time: u64) -> String {
+        format!("{:>3}.{:03}", time / 1000, time % 1000)
     }
 
     fn format_hits(
@@ -81,7 +98,7 @@ impl CastLog {
 #[derive(Debug, Clone)]
 pub struct CastLogProps<'a> {
     pub data: &'a SkillData,
-    pub casts: &'a [Cast],
+    pub casts: &'a Casts,
     pub target: Option<u32>,
 }
 
@@ -92,6 +109,7 @@ impl Component<CastLogProps<'_>> for CastLog {
             casts,
             target,
         } = props;
+        let casts = casts.casts(self.viewed);
 
         if casts.is_empty() {
             ui.text("No casts");
@@ -105,10 +123,7 @@ impl Component<CastLogProps<'_>> for CastLog {
             for cast in casts {
                 if let Some(def) = data.get(cast.skill.id) {
                     if self.display_time {
-                        ui.text_colored(
-                            grey,
-                            format!("{:>3}.{:03}", cast.time / 1000, cast.time % 1000),
-                        );
+                        ui.text_colored(grey, Self::format_time(cast.time));
                         ui.same_line();
                     }
 
@@ -173,8 +188,26 @@ impl Default for CastLog {
 impl Windowable<CastLogProps<'_>> for CastLog {
     const CONTEXT_MENU: bool = true;
 
-    fn render_menu(&mut self, ui: &Ui, _props: &CastLogProps) {
+    fn render_menu(&mut self, ui: &Ui, props: &CastLogProps) {
+        let CastLogProps { casts, .. } = props;
+
+        let colors = exports::colors();
+        let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
         let input_width = render::ch_width(ui, 16);
+
+        ui.menu("History", || {
+            for (i, fight) in casts.fights().enumerate() {
+                let text = format!("{} ({}s)", fight.name, fight.duration());
+                if i == self.viewed {
+                    ui.text(text);
+                } else {
+                    ui.text_colored(grey, text);
+                    if ui.is_item_clicked() {
+                        self.viewed = i;
+                    }
+                }
+            }
+        });
 
         ui.menu("Display", || {
             ui.checkbox("Display time", &mut self.display_time);

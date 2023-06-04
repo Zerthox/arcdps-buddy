@@ -14,7 +14,7 @@ impl Plugin {
     pub fn render_windows(ui: &Ui, not_loading: bool) {
         let ui_settings = exports::ui_settings();
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
-            let plugin = &mut *Self::lock();
+            let plugin = &mut *Self::lock(); // for borrowing
             plugin.cast_log.render(
                 ui,
                 CastLogProps {

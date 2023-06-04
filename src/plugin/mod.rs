@@ -2,7 +2,7 @@ pub mod event;
 pub mod ui;
 
 use crate::{
-    cast::Cast,
+    casts::Casts,
     data::{LoadError, SkillData},
     ui::CastLog,
 };
@@ -35,7 +35,7 @@ pub struct Plugin {
     data_state: Result<(), LoadError>,
     start: Option<u64>,
     target: Option<u32>,
-    casts: Vec<Cast>,
+    casts: Casts,
     cast_log: Window<CastLog>,
 }
 
@@ -47,7 +47,7 @@ impl Plugin {
             data_state: Err(LoadError::NotFound),
             start: None,
             target: None,
-            casts: Vec::new(),
+            casts: Casts::new(),
             cast_log: Window::new(
                 WindowOptions {
                     width: 350.0,
