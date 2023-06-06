@@ -1,6 +1,6 @@
 use super::Plugin;
 use crate::casts::{Cast, Skill};
-use arcdps::{evtc::EventKind, Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
+use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
 impl Plugin {
