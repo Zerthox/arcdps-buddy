@@ -196,13 +196,10 @@ impl Windowable<CastLogProps<'_>> for CastLog {
             } else {
                 for (i, fight) in casts.fights().enumerate() {
                     // TODO: display log start time
-                    let duration = fight.duration();
-                    let text = if duration > 0 {
-                        format!("{} ({}s)", fight.name, duration / 1000)
-                    } else {
-                        format!("{} (?s)", fight.name)
+                    let text = match fight.duration() {
+                        Some(duration) => format!("{} ({}s)", fight.name, duration / 1000),
+                        None => format!("{} (?s)", fight.name),
                     };
-
                     if i == self.viewed {
                         ui.text(text);
                     } else {

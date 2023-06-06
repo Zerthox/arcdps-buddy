@@ -9,6 +9,8 @@ pub struct History<T> {
 }
 
 impl<T> History<T> {
+    pub const MIN_DURATION: u64 = 5 * 1000;
+
     pub const fn new() -> Self {
         Self {
             fights: VecDeque::new(),
@@ -43,14 +45,25 @@ impl<T> History<T> {
         self.fights.front_mut()
     }
 
-    pub fn add_fight(&mut self, time: u64, max: usize)
+    pub fn add_fight(&mut self, time: u64, data: T, max: usize)
     where
         T: Default,
     {
+        self.fights.retain(|fight| match fight.duration() {
+            Some(duration) => duration > Self::MIN_DURATION,
+            None => true,
+        });
         if self.fights.len() > max {
             self.fights.pop_back();
         }
-        self.fights.push_front(Fight::new(time));
+        self.fights.push_front(Fight::new(time, data));
+    }
+
+    pub fn add_fight_with_default(&mut self, time: u64, max: usize)
+    where
+        T: Default,
+    {
+        self.add_fight(time, T::default(), max)
     }
 
     pub fn update_latest_target(&mut self, species: u32, target: Option<Agent>) {
@@ -76,7 +89,7 @@ pub struct Fight<T> {
 }
 
 impl<T> Fight<T> {
-    pub fn new(start: u64) -> Self
+    pub fn new(start: u64, data: T) -> Self
     where
         T: Default,
     {
@@ -85,8 +98,15 @@ impl<T> Fight<T> {
             name: Self::DEFAULT_NAME.into(),
             start,
             end: 0,
-            data: T::default(),
+            data,
         }
+    }
+
+    pub fn with_default(start: u64) -> Self
+    where
+        T: Default,
+    {
+        Self::new(start, T::default())
     }
 
     const DEFAULT_NAME: &str = "Unknown";
@@ -104,11 +124,11 @@ impl<T> Fight<T> {
         }
     }
 
-    pub fn duration(&self) -> u64 {
+    pub fn duration(&self) -> Option<u64> {
         if self.end != 0 {
-            self.end - self.start
+            Some(self.end - self.start)
         } else {
-            0
+            None
         }
     }
 

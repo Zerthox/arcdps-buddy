@@ -37,7 +37,7 @@ impl Casts {
     }
 
     pub fn add_fight(&mut self, species: u32, target: Option<Agent>, time: u64) {
-        self.history.add_fight(time, Self::MAX_HISTORY);
+        self.history.add_fight_with_default(time, Self::MAX_HISTORY);
         self.update_target(species, target);
     }
 
