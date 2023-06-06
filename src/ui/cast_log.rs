@@ -104,10 +104,9 @@ pub struct CastLogProps<'a> {
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
         let CastLogProps { data, casts } = props;
+
         match casts.fight_at(self.viewed) {
-            None => ui.text("No casts"),
-            Some(fight) if fight.data.is_empty() => ui.text("No casts"),
-            Some(fight) => {
+            Some(fight) if !fight.data.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
@@ -163,6 +162,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                     }
                 }
             }
+            _ => ui.text("No casts"),
         }
 
         // auto scroll
