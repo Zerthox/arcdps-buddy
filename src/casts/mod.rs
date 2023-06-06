@@ -32,6 +32,10 @@ impl Casts {
         self.history.all_fights()
     }
 
+    pub fn fight_at(&self, index: usize) -> Option<&Fight<CastData>> {
+        self.history.fight_at(index)
+    }
+
     pub fn add_fight(&mut self, species: u32, target: Option<Agent>, time: u64) {
         self.history.add_fight(time, Self::MAX_HISTORY);
         self.update_target(species, target);
@@ -43,14 +47,6 @@ impl Casts {
 
     pub fn end_fight(&mut self, time: u64) {
         self.history.end_latest_fight(time)
-    }
-
-    pub fn casts(&self, index: usize) -> &[Cast] {
-        if let Some(fight) = self.history.fight_at(index) {
-            &fight.data
-        } else {
-            &[]
-        }
     }
 
     pub fn latest_cast_mut(&mut self, skill: u32) -> Option<&mut Cast> {

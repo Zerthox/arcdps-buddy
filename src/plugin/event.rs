@@ -1,6 +1,6 @@
 use super::Plugin;
 use crate::casts::{Cast, Skill};
-use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
+use arcdps::{evtc::EventKind, Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
 impl Plugin {
@@ -19,7 +19,7 @@ impl Plugin {
                 match event.is_statechange {
                     StateChange::LogStart => {
                         let species = event.src_agent as u32;
-                        debug!("log start for {species}");
+                        debug!("log start for {species} {dst:?}");
                         let mut plugin = &mut *Self::lock(); // for borrowing
                         plugin.start = Some(event.time);
                         plugin.casts.add_fight(species, dst, event.time);
@@ -28,14 +28,14 @@ impl Plugin {
 
                     StateChange::LogNPCUpdate => {
                         let species = event.src_agent as u32;
-                        debug!("log target change to {species}");
+                        debug!("log target change to {species} {dst:?}");
                         let mut plugin = Self::lock();
                         plugin.casts.update_target(species, dst);
                     }
 
                     StateChange::LogEnd => {
                         let species = event.src_agent as u32;
-                        debug!("log end for {species}");
+                        debug!("log end for {species} {dst:?}");
                         let mut plugin = Self::lock();
                         plugin.start = None;
                         plugin.casts.end_fight(event.time);
@@ -94,11 +94,12 @@ impl Plugin {
                                                         plugin.casts.latest_cast_mut(skill)
                                                     {
                                                         cast.hit(&dst);
-                                                        debug!("hit {cast:?}");
+                                                        debug!("hit {:?} {dst:?}", cast.skill);
                                                     } else {
                                                         let skill = Skill::new(skill, skill_name);
-                                                        let cast =
+                                                        let mut cast =
                                                             Cast::new(skill, event.time - start);
+                                                        cast.hit(&dst);
                                                         debug!("hit without start {cast:?}");
                                                         plugin.casts.add_cast(cast);
                                                     }

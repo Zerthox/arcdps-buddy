@@ -20,7 +20,6 @@ impl Plugin {
                 CastLogProps {
                     data: &plugin.data,
                     casts: &plugin.casts,
-                    target: plugin.target,
                 },
             );
         }

@@ -34,7 +34,6 @@ pub struct Plugin {
     data: SkillData,
     data_state: Result<(), LoadError>,
     start: Option<u64>,
-    target: Option<u32>,
     casts: Casts,
     cast_log: Window<CastLog>,
 }
@@ -46,7 +45,6 @@ impl Plugin {
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
             start: None,
-            target: None,
             casts: Casts::new(),
             cast_log: Window::new(
                 WindowOptions {

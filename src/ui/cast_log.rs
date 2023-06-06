@@ -99,72 +99,67 @@ impl CastLog {
 pub struct CastLogProps<'a> {
     pub data: &'a SkillData,
     pub casts: &'a Casts,
-    pub target: Option<u32>,
 }
 
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
-        let CastLogProps {
-            data,
-            casts,
-            target,
-        } = props;
-        let casts = casts.casts(self.viewed);
+        let CastLogProps { data, casts } = props;
+        match casts.fight_at(self.viewed) {
+            None => ui.text("No casts"),
+            Some(fight) if fight.data.is_empty() => ui.text("No casts"),
+            Some(fight) => {
+                let colors = exports::colors();
+                let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
+                let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
+                let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
+                let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-        if casts.is_empty() {
-            ui.text("No casts");
-        } else {
-            let colors = exports::colors();
-            let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-            let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
-            let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
-            let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
-
-            for cast in casts {
-                if let Some(def) = data.get(cast.skill.id) {
-                    if self.display_time {
-                        ui.text_colored(grey, Self::format_time(cast.time));
-                        ui.same_line();
-                    }
-
-                    ui.text(&cast.skill.name);
-
-                    if let Some(max) = def.hits {
-                        if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
-                            let target_hits = if let Some(target) = target {
-                                cast.hits.iter().filter(|hit| hit.target == target).count()
-                            } else {
-                                0
-                            };
-                            let (color, text) =
-                                Self::format_hits(&colors, target_hits, max, def.expected);
+                for cast in &fight.data {
+                    if let Some(def) = data.get(cast.skill.id) {
+                        if self.display_time {
+                            ui.text_colored(grey, Self::format_time(cast.time));
                             ui.same_line();
-                            ui.text_colored(color, text);
                         }
 
-                        let cleave_hits = cast.hits.len();
-                        let (color, text) =
-                            Self::format_hits(&colors, cleave_hits, max, def.expected);
-                        match self.display_hits {
-                            HitDisplay::Cleave => {
-                                ui.same_line();
-                                ui.text_colored(color, text)
-                            }
-                            HitDisplay::Both => {
-                                ui.same_line();
-                                ui.text_colored(color, format!("({text})"));
-                            }
-                            _ => {}
-                        }
-                    }
+                        ui.text(&cast.skill.name);
 
-                    let text = format!("{}ms", cast.duration);
-                    ui.same_line();
-                    match cast.state {
-                        CastState::Unknown => ui.text("?ms"),
-                        CastState::Cancel => ui.text_colored(yellow, text),
-                        CastState::Fire => ui.text_colored(green, text),
-                        CastState::Interrupt => ui.text_colored(red, text),
+                        if let Some(max) = def.hits {
+                            if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
+                                let target_hits = if let Some(species) = fight.id {
+                                    cast.hits.iter().filter(|hit| hit.target == species).count()
+                                } else {
+                                    0
+                                };
+                                let (color, text) =
+                                    Self::format_hits(&colors, target_hits, max, def.expected);
+                                ui.same_line();
+                                ui.text_colored(color, text);
+                            }
+
+                            let cleave_hits = cast.hits.len();
+                            let (color, text) =
+                                Self::format_hits(&colors, cleave_hits, max, def.expected);
+                            match self.display_hits {
+                                HitDisplay::Cleave => {
+                                    ui.same_line();
+                                    ui.text_colored(color, text)
+                                }
+                                HitDisplay::Both => {
+                                    ui.same_line();
+                                    ui.text_colored(color, format!("({text})"));
+                                }
+                                _ => {}
+                            }
+                        }
+
+                        let text = format!("{}ms", cast.duration);
+                        ui.same_line();
+                        match cast.state {
+                            CastState::Unknown => ui.text("?ms"),
+                            CastState::Cancel => ui.text_colored(yellow, text),
+                            CastState::Fire => ui.text_colored(green, text),
+                            CastState::Interrupt => ui.text_colored(red, text),
+                        }
                     }
                 }
             }
@@ -203,9 +198,9 @@ impl Windowable<CastLogProps<'_>> for CastLog {
                     // TODO: display log start time
                     let duration = fight.duration();
                     let text = if duration > 0 {
-                        format!("{} ({}s)", fight.name, Self::format_time(duration))
+                        format!("{} ({}s)", fight.name, duration / 1000)
                     } else {
-                        format!("{} (?ms)", fight.name)
+                        format!("{} (?s)", fight.name)
                     };
 
                     if i == self.viewed {
