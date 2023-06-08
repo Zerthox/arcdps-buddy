@@ -35,7 +35,7 @@ impl Plugin {
 
         let _style = render::small_padding(ui);
 
-        ui.text_colored(grey, "Custom definitions");
+        ui.text_colored(grey, "Casts");
         render::input_key(
             ui,
             "##castlog-key",
