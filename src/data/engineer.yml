@@ -1,0 +1,27 @@
+# toolbelt
+- id: 5813 # big ol bomb
+  hits: 1
+- id: 6164 # mine field
+  hits: 5
+- id: 31167 # spare capacitor
+  hits: 4
+
+# grenade kit
+- id: 5807 # shrapnel grenade
+  hits: 3
+- id: 5809 # freeze grenade
+  hits: 3
+- id: 5806 # poison grenade
+  hits: 3
+
+# hammer
+- id: 30088 # electro whirl
+  hits: 2
+- id: 30713 # thunderclap
+  hits: 5
+
+# slot
+- id: 29921 # shredder gyro
+  hits: 12
+- id: 31248 # blast gyro
+  hits: 1
