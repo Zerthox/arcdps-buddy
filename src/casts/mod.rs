@@ -1,8 +1,6 @@
 mod cast;
-mod skill;
 
 pub use self::cast::*;
-pub use self::skill::*;
 
 use crate::history::{Fight, History};
 use arcdps::Agent;

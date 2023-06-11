@@ -1,5 +1,5 @@
 use super::Plugin;
-use crate::casts::{Cast, Skill};
+use crate::{casts::Cast, skill::Skill};
 use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
