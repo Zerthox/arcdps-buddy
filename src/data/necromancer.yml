@@ -18,6 +18,8 @@
 # dagger
 - id: 10705 # deathly swarm
   hits: 1
+- id: 10706 # enfeebling blood
+  hits: 1
 
 # scepter
 - id: 10532 # grasping dead
@@ -34,6 +36,8 @@
   hits: 1
 
 # slot
+- id: 10544 # blood is power
+  hits: 1
 - id: 10546 # well of power
   hits: 5
 - id: 10607 # well of darkness
@@ -42,5 +46,5 @@
   hits: 1
 
 # lich form
-- id: 10636 # summon madness (lich form)
+- id: 10636 # summon madness
   hits: 8
