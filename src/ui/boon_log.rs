@@ -4,6 +4,7 @@ use crate::{
 };
 use arc_util::{
     colors::{GREEN, GREY, YELLOW},
+    settings::HasSettings,
     ui::{Component, Windowable},
 };
 use arcdps::{
@@ -53,7 +54,7 @@ impl Component<BoonLogProps<'_>> for BoonLog {
                     ui.text_colored(if apply.to_player { green } else { yellow }, &apply.target);
                 }
             }
-            _ => ui.text("No casts"),
+            _ => ui.text("No boons"),
         }
 
         self.scroll.update(ui);
@@ -74,4 +75,14 @@ impl Windowable<BoonLogProps<'_>> for BoonLog {
 
         ui.menu("History", || self.view.render(ui, &boons.history));
     }
+}
+
+impl HasSettings for BoonLog {
+    type Settings = ();
+
+    const SETTINGS_ID: &'static str = "boon_log";
+
+    fn current_settings(&self) -> Self::Settings {}
+
+    fn load_settings(&mut self, _loaded: Self::Settings) {}
 }

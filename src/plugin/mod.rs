@@ -93,6 +93,7 @@ impl Plugin {
             }
         );
         settings.load_component(&mut self.cast_log);
+        settings.load_component(&mut self.boon_log);
 
         self.load_data();
     }
@@ -124,6 +125,7 @@ impl Plugin {
         let mut settings = Settings::from_file(SETTINGS_FILE);
         settings.store_data("version", VERSION);
         settings.store_component(&self.cast_log);
+        settings.store_component(&self.boon_log);
         settings.save_file();
     }
 }
