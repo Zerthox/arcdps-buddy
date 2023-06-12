@@ -1,6 +1,10 @@
 use crate::{
     casts::{CastState, Casts},
     data::SkillData,
+    ui::{
+        format_time,
+        {history::HistoryView, scroll::AutoScroll},
+    },
 };
 use arc_util::{
     colors::{CYAN, GREEN, GREY, RED, YELLOW},
@@ -22,10 +26,10 @@ pub struct CastLog {
     display_hits: HitDisplay,
 
     #[serde(skip)]
-    viewed: usize,
+    pub view: HistoryView,
 
     #[serde(skip)]
-    last_scroll_max: f32,
+    scroll: AutoScroll,
 }
 
 impl CastLog {
@@ -34,22 +38,9 @@ impl CastLog {
             hotkey: None,
             display_time: true,
             display_hits: HitDisplay::default(),
-            viewed: 0,
-            last_scroll_max: 0.0,
+            view: HistoryView::new(),
+            scroll: AutoScroll::new(),
         }
-    }
-
-    pub fn update_viewed(&mut self, len: usize) {
-        if self.viewed != 0 {
-            self.viewed += 1;
-            if self.viewed >= len {
-                self.viewed = 0;
-            }
-        }
-    }
-
-    fn format_time(time: u64) -> String {
-        format!("{:>3}.{:03}", time / 1000, time % 1000)
     }
 
     fn format_hits(
@@ -105,7 +96,7 @@ impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
         let CastLogProps { data, casts } = props;
 
-        match casts.fight_at(self.viewed) {
+        match self.view.fight(&casts.history) {
             Some(fight) if !fight.data.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
@@ -116,7 +107,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                 for cast in &fight.data {
                     if let Some(def) = data.get(cast.skill.id) {
                         if self.display_time {
-                            ui.text_colored(grey, Self::format_time(cast.time));
+                            ui.text_colored(grey, format_time(cast.time));
                             ui.same_line();
                         }
 
@@ -165,12 +156,7 @@ impl Component<CastLogProps<'_>> for CastLog {
             _ => ui.text("No casts"),
         }
 
-        // auto scroll
-        #[allow(clippy::float_cmp)]
-        if ui.scroll_y() == self.last_scroll_max {
-            ui.set_scroll_here_y_with_ratio(1.0);
-        }
-        self.last_scroll_max = ui.scroll_max_y();
+        self.scroll.update(ui);
     }
 }
 
@@ -185,32 +171,9 @@ impl Windowable<CastLogProps<'_>> for CastLog {
 
     fn render_menu(&mut self, ui: &Ui, props: &CastLogProps) {
         let CastLogProps { casts, .. } = props;
-
-        let colors = exports::colors();
-        let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
         let input_width = render::ch_width(ui, 16);
 
-        ui.menu("History", || {
-            if casts.fight_count() == 0 {
-                ui.text("No history");
-            } else {
-                for (i, fight) in casts.fights().enumerate() {
-                    // TODO: display log start time
-                    let text = match fight.duration() {
-                        Some(duration) => format!("{} ({}s)", fight.name, duration / 1000),
-                        None => format!("{} (?s)", fight.name),
-                    };
-                    if i == self.viewed {
-                        ui.text(text);
-                    } else {
-                        ui.text_colored(grey, text);
-                        if ui.is_item_clicked() {
-                            self.viewed = i;
-                        }
-                    }
-                }
-            }
-        });
+        ui.menu("History", || self.view.render(ui, &casts.history));
 
         ui.spacing();
         ui.spacing();
@@ -237,9 +200,7 @@ impl HasSettings for CastLog {
     }
 
     fn load_settings(&mut self, loaded: Self::Settings) {
-        let scroll = self.last_scroll_max;
         *self = loaded;
-        self.last_scroll_max = scroll;
     }
 }
 

@@ -5,14 +5,16 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct History<T> {
+    pub max: usize,
     fights: VecDeque<Fight<T>>,
 }
 
 impl<T> History<T> {
-    pub const MIN_DURATION: u64 = 5 * 1000;
+    pub const MIN_DURATION: u64 = 10 * 1000;
 
-    pub const fn new() -> Self {
+    pub const fn new(max: usize) -> Self {
         Self {
+            max,
             fights: VecDeque::new(),
         }
     }
@@ -45,7 +47,7 @@ impl<T> History<T> {
         self.fights.front_mut()
     }
 
-    pub fn add_fight(&mut self, time: u64, data: T, max: usize)
+    pub fn add_fight(&mut self, time: u64, data: T)
     where
         T: Default,
     {
@@ -53,17 +55,25 @@ impl<T> History<T> {
             Some(duration) => duration > Self::MIN_DURATION,
             None => true,
         });
-        if self.fights.len() > max {
+        if self.fights.len() > self.max {
             self.fights.pop_back();
         }
         self.fights.push_front(Fight::new(time, data));
     }
 
-    pub fn add_fight_with_default(&mut self, time: u64, max: usize)
+    pub fn add_fight_default(&mut self, time: u64)
     where
         T: Default,
     {
-        self.add_fight(time, T::default(), max)
+        self.add_fight(time, T::default())
+    }
+
+    pub fn add_fight_with_target(&mut self, time: u64, species: u32, target: Option<Agent>)
+    where
+        T: Default,
+    {
+        self.add_fight_default(time);
+        self.update_latest_target(species, target);
     }
 
     pub fn update_latest_target(&mut self, species: u32, target: Option<Agent>) {

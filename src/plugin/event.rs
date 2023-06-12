@@ -20,17 +20,26 @@ impl Plugin {
                     StateChange::LogStart => {
                         let species = event.src_agent as u32;
                         debug!("log start for {species} {dst:?}");
-                        let mut plugin = &mut *Self::lock(); // for borrowing
-                        plugin.start = Some(event.time);
-                        plugin.casts.add_fight(species, dst, event.time);
-                        plugin.cast_log.update_viewed(plugin.casts.fight_count());
+                        let Plugin {
+                            start,
+                            casts,
+                            cast_log,
+                            boon_log,
+                            ..
+                        } = &mut *Self::lock(); // for borrowing
+                        *start = Some(event.time);
+                        casts
+                            .history
+                            .add_fight_with_target(event.time, species, dst);
+                        cast_log.view.update(&casts.history);
+                        boon_log.view.update(&casts.history);
                     }
 
                     StateChange::LogNPCUpdate => {
                         let species = event.src_agent as u32;
                         debug!("log target change to {species} {dst:?}");
                         let mut plugin = Self::lock();
-                        plugin.casts.update_target(species, dst);
+                        plugin.casts.history.update_latest_target(species, dst);
                     }
 
                     StateChange::LogEnd => {
@@ -38,7 +47,7 @@ impl Plugin {
                         debug!("log end for {species} {dst:?}");
                         let mut plugin = Self::lock();
                         plugin.start = None;
-                        plugin.casts.end_fight(event.time);
+                        plugin.casts.history.end_latest_fight(event.time);
                     }
 
                     StateChange::None if is_self => {
@@ -79,30 +88,34 @@ impl Plugin {
                                     }
 
                                     Activation::None => {
-                                        if event.is_buff_remove == BuffRemove::None
-                                            && event.buff == 0
+                                        if let (BuffRemove::None, Some(dst)) =
+                                            (event.is_buff_remove, dst)
                                         {
-                                            if let Ok(
+                                            if event.buff != 0 {
+                                                plugin.boons.apply(
+                                                    event.time,
+                                                    event.skill_id,
+                                                    &dst,
+                                                );
+                                            } else if let Ok(
                                                 Strike::Normal | Strike::Crit | Strike::Glance,
                                             ) = event.result.try_into()
                                             {
                                                 // TODO: use local combat events for hits?
-                                                if let Some(dst) = dst {
-                                                    let skill =
-                                                        plugin.data.map_hit_id(event.skill_id);
-                                                    if let Some(cast) =
-                                                        plugin.casts.latest_cast_mut(skill)
-                                                    {
-                                                        cast.hit(&dst);
-                                                        debug!("hit {:?} {dst:?}", cast.skill);
-                                                    } else {
-                                                        let skill = Skill::new(skill, skill_name);
-                                                        let mut cast =
-                                                            Cast::new(skill, event.time - start);
-                                                        cast.hit(&dst);
-                                                        debug!("hit without start {cast:?}");
-                                                        plugin.casts.add_cast(cast);
-                                                    }
+
+                                                let skill = plugin.data.map_hit_id(event.skill_id);
+                                                if let Some(cast) =
+                                                    plugin.casts.latest_cast_mut(skill)
+                                                {
+                                                    cast.hit(&dst);
+                                                    debug!("hit {:?} {dst:?}", cast.skill);
+                                                } else {
+                                                    let skill = Skill::new(skill, skill_name);
+                                                    let mut cast =
+                                                        Cast::new(skill, event.time - start);
+                                                    cast.hit(&dst);
+                                                    debug!("hit without start {cast:?}");
+                                                    plugin.casts.add_cast(cast);
                                                 }
                                             }
                                         }

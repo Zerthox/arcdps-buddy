@@ -1,5 +1,8 @@
 use super::Plugin;
-use crate::{data::LoadError, ui::CastLogProps};
+use crate::{
+    data::LoadError,
+    ui::{boon_log::BoonLogProps, cast_log::CastLogProps},
+};
 use arc_util::{
     colors::{GREEN, GREY, RED, YELLOW},
     ui::{render, Component, Hideable},
@@ -14,14 +17,16 @@ impl Plugin {
     pub fn render_windows(ui: &Ui, not_loading: bool) {
         let ui_settings = exports::ui_settings();
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
-            let plugin = &mut *Self::lock(); // for borrowing
-            plugin.cast_log.render(
-                ui,
-                CastLogProps {
-                    data: &plugin.data,
-                    casts: &plugin.casts,
-                },
-            );
+            let Plugin {
+                data,
+                casts,
+                boons,
+                cast_log,
+                boon_log,
+                ..
+            } = &mut *Self::lock(); // for borrowing
+            cast_log.render(ui, CastLogProps { data, casts });
+            boon_log.render(ui, BoonLogProps { boons });
         }
     }
 
@@ -69,6 +74,7 @@ impl Plugin {
         if option_name.is_none() {
             let mut plugin = Self::lock();
             ui.checkbox("Buddy Casts", plugin.cast_log.visible_mut());
+            ui.checkbox("Buddy Boons", plugin.boon_log.visible_mut());
         }
         false
     }

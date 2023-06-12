@@ -1,3 +1,4 @@
+mod boons;
 mod casts;
 mod data;
 mod history;

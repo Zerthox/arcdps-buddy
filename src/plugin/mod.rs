@@ -2,9 +2,10 @@ pub mod event;
 pub mod ui;
 
 use crate::{
+    boons::Boons,
     casts::Casts,
     data::{LoadError, SkillData},
-    ui::CastLog,
+    ui::{boon_log::BoonLog, cast_log::CastLog},
 };
 use arc_util::{
     settings::Settings,
@@ -33,9 +34,13 @@ static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 pub struct Plugin {
     data: SkillData,
     data_state: Result<(), LoadError>,
+
     start: Option<u64>,
     casts: Casts,
+    boons: Boons,
+
     cast_log: Window<CastLog>,
+    boon_log: Window<BoonLog>,
 }
 
 impl Plugin {
@@ -44,8 +49,11 @@ impl Plugin {
         Self {
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
+
             start: None,
             casts: Casts::new(),
+            boons: Boons::new(),
+
             cast_log: Window::new(
                 WindowOptions {
                     width: 350.0,
@@ -53,6 +61,14 @@ impl Plugin {
                     ..WindowOptions::new("Casts")
                 },
                 CastLog::new(),
+            ),
+            boon_log: Window::new(
+                WindowOptions {
+                    width: 350.0,
+                    height: 450.0,
+                    ..WindowOptions::new("Boons")
+                },
+                BoonLog::new(),
             ),
         }
     }

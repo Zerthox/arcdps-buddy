@@ -3,7 +3,7 @@ use arcdps::{Activation, Agent};
 
 #[derive(Debug, Clone)]
 pub struct Cast {
-    /// Casted [´Skill´].
+    /// Casted skill.
     pub skill: Skill,
 
     /// Time of start event or first registered hit.

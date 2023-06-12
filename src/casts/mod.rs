@@ -2,49 +2,20 @@ mod cast;
 
 pub use self::cast::*;
 
-use crate::history::{Fight, History};
-use arcdps::Agent;
+use crate::history::History;
 
 pub type CastData = Vec<Cast>;
 
 #[derive(Debug, Clone)]
 pub struct Casts {
-    history: History<CastData>,
+    pub history: History<CastData>,
 }
 
 impl Casts {
-    // TODO: make customizable
-    pub const MAX_HISTORY: usize = 10;
-
     pub const fn new() -> Self {
         Self {
-            history: History::new(),
+            history: History::new(10),
         }
-    }
-
-    pub fn fight_count(&self) -> usize {
-        self.history.len()
-    }
-
-    pub fn fights(&self) -> impl Iterator<Item = &Fight<CastData>> {
-        self.history.all_fights()
-    }
-
-    pub fn fight_at(&self, index: usize) -> Option<&Fight<CastData>> {
-        self.history.fight_at(index)
-    }
-
-    pub fn add_fight(&mut self, species: u32, target: Option<Agent>, time: u64) {
-        self.history.add_fight_with_default(time, Self::MAX_HISTORY);
-        self.update_target(species, target);
-    }
-
-    pub fn update_target(&mut self, species: u32, target: Option<Agent>) {
-        self.history.update_latest_target(species, target)
-    }
-
-    pub fn end_fight(&mut self, time: u64) {
-        self.history.end_latest_fight(time)
     }
 
     pub fn latest_cast_mut(&mut self, skill: u32) -> Option<&mut Cast> {
