@@ -68,7 +68,7 @@ impl<T> History<T> {
         self.add_fight(time, T::default())
     }
 
-    pub fn add_fight_with_target(&mut self, time: u64, species: u32, target: Option<Agent>)
+    pub fn add_fight_with_target(&mut self, time: u64, species: u32, target: Option<&Agent>)
     where
         T: Default,
     {
@@ -76,7 +76,7 @@ impl<T> History<T> {
         self.update_latest_target(species, target);
     }
 
-    pub fn update_latest_target(&mut self, species: u32, target: Option<Agent>) {
+    pub fn update_latest_target(&mut self, species: u32, target: Option<&Agent>) {
         if let Some(fight) = self.latest_fight_mut() {
             fight.update_target(species, target);
         }
@@ -121,7 +121,7 @@ impl<T> Fight<T> {
 
     const DEFAULT_NAME: &str = "Unknown";
 
-    pub fn update_target(&mut self, species: u32, target: Option<Agent>) {
+    pub fn update_target(&mut self, species: u32, target: Option<&Agent>) {
         if species > 2 {
             self.id = Some(species);
             self.name = match target.and_then(|agent| agent.name) {

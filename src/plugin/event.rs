@@ -17,38 +17,9 @@ impl Plugin {
             if let Some(event) = event {
                 let is_self = src.is_self != 0;
                 match event.is_statechange {
-                    StateChange::LogStart => {
-                        let species = event.src_agent as u32;
-                        debug!("log start for {species} {dst:?}");
-                        let Plugin {
-                            start,
-                            casts,
-                            cast_log,
-                            boon_log,
-                            ..
-                        } = &mut *Self::lock(); // for borrowing
-                        *start = Some(event.time);
-                        casts
-                            .history
-                            .add_fight_with_target(event.time, species, dst);
-                        cast_log.view.update(&casts.history);
-                        boon_log.view.update(&casts.history);
-                    }
-
-                    StateChange::LogNPCUpdate => {
-                        let species = event.src_agent as u32;
-                        debug!("log target change to {species} {dst:?}");
-                        let mut plugin = Self::lock();
-                        plugin.casts.history.update_latest_target(species, dst);
-                    }
-
-                    StateChange::LogEnd => {
-                        let species = event.src_agent as u32;
-                        debug!("log end for {species} {dst:?}");
-                        let mut plugin = Self::lock();
-                        plugin.start = None;
-                        plugin.casts.history.end_latest_fight(event.time);
-                    }
+                    StateChange::LogStart => Plugin::lock().start_fight(event, dst),
+                    StateChange::LogNPCUpdate => Plugin::lock().fight_target(event, dst),
+                    StateChange::LogEnd => Plugin::lock().end_fight(event, dst),
 
                     StateChange::None if is_self => {
                         let mut plugin = Self::lock();
@@ -131,5 +102,39 @@ impl Plugin {
                 }
             }
         }
+    }
+
+    fn start_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
+        let species = event.src_agent as u32;
+        debug!("log start for {species} {dst:?}");
+        self.start = Some(event.time);
+        self.casts
+            .history
+            .add_fight_with_target(event.time, species, dst.as_ref());
+        self.boons
+            .history
+            .add_fight_with_target(event.time, species, dst.as_ref());
+
+        self.cast_log.view.update(&self.casts.history);
+        self.boon_log.view.update(&self.boons.history);
+    }
+
+    fn fight_target(&mut self, event: CombatEvent, dst: Option<Agent>) {
+        let species = event.src_agent as u32;
+        debug!("log target change to {species} {dst:?}");
+        self.casts
+            .history
+            .update_latest_target(species, dst.as_ref());
+        self.boons
+            .history
+            .update_latest_target(species, dst.as_ref());
+    }
+
+    fn end_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
+        let species = event.src_agent as u32;
+        debug!("log end for {species} {dst:?}");
+        self.start = None;
+        self.casts.history.end_latest_fight(event.time);
+        self.boons.history.end_latest_fight(event.time);
     }
 }
