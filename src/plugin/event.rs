@@ -63,11 +63,14 @@ impl Plugin {
                                             (event.is_buff_remove, dst)
                                         {
                                             if event.buff != 0 {
-                                                plugin.boons.apply(
-                                                    event.time,
-                                                    event.skill_id,
-                                                    &dst,
-                                                );
+                                                if dst.is_self != 0 {
+                                                    // TODO: duration applied
+                                                    plugin.boons.apply(
+                                                        event.time,
+                                                        event.skill_id,
+                                                        &dst,
+                                                    );
+                                                }
                                             } else if let Ok(
                                                 Strike::Normal | Strike::Crit | Strike::Glance,
                                             ) = event.result.try_into()
