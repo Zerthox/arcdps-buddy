@@ -16,6 +16,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct BoonLog {
+    display_time: bool,
+
     #[serde(skip)]
     pub view: HistoryView,
 
@@ -24,8 +26,9 @@ pub struct BoonLog {
 }
 
 impl BoonLog {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
+            display_time: true,
             view: HistoryView::new(),
             scroll: AutoScroll::new(),
         }
@@ -74,15 +77,26 @@ impl Windowable<BoonLogProps<'_>> for BoonLog {
         let BoonLogProps { boons, .. } = props;
 
         ui.menu("History", || self.view.render(ui, &boons.history));
+
+        ui.spacing();
+        ui.spacing();
+
+        ui.menu("Display", || {
+            ui.checkbox("Display time", &mut self.display_time);
+        });
     }
 }
 
 impl HasSettings for BoonLog {
-    type Settings = ();
+    type Settings = Self;
 
     const SETTINGS_ID: &'static str = "boon_log";
 
-    fn current_settings(&self) -> Self::Settings {}
+    fn current_settings(&self) -> Self::Settings {
+        self.clone()
+    }
 
-    fn load_settings(&mut self, _loaded: Self::Settings) {}
+    fn load_settings(&mut self, loaded: Self::Settings) {
+        *self = loaded;
+    }
 }

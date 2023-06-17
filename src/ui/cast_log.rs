@@ -21,7 +21,6 @@ use strum::{EnumVariantNames, VariantNames};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CastLog {
-    pub hotkey: Option<u32>,
     display_time: bool,
     display_hits: HitDisplay,
 
@@ -35,7 +34,6 @@ pub struct CastLog {
 impl CastLog {
     pub fn new() -> Self {
         Self {
-            hotkey: None,
             display_time: true,
             display_hits: HitDisplay::default(),
             view: HistoryView::new(),
@@ -191,7 +189,7 @@ impl Windowable<CastLogProps<'_>> for CastLog {
 }
 
 impl HasSettings for CastLog {
-    type Settings = CastLog;
+    type Settings = Self;
 
     const SETTINGS_ID: &'static str = "cast_log";
 

@@ -5,7 +5,7 @@ use crate::{
     boons::Boons,
     casts::Casts,
     data::{LoadError, SkillData},
-    ui::{boon_log::BoonLog, cast_log::CastLog},
+    ui::{boon_log::BoonLog, cast_log::CastLog, multi_view::MultiView},
 };
 use arc_util::{
     settings::Settings,
@@ -39,6 +39,7 @@ pub struct Plugin {
     casts: Casts,
     boons: Boons,
 
+    multi_view: Window<MultiView>,
     cast_log: Window<CastLog>,
     boon_log: Window<BoonLog>,
 }
@@ -54,21 +55,29 @@ impl Plugin {
             casts: Casts::new(),
             boons: Boons::new(),
 
-            cast_log: Window::new(
+            multi_view: Window::with_default(
+                "Buddy Multi",
                 WindowOptions {
                     width: 350.0,
                     height: 450.0,
-                    ..WindowOptions::new("Casts")
+                    ..Default::default()
                 },
-                CastLog::new(),
             ),
-            boon_log: Window::new(
+            cast_log: Window::with_default(
+                "Buddy Casts",
                 WindowOptions {
                     width: 350.0,
                     height: 450.0,
-                    ..WindowOptions::new("Boons")
+                    ..Default::default()
                 },
-                BoonLog::new(),
+            ),
+            boon_log: Window::with_default(
+                "Buddy Boons",
+                WindowOptions {
+                    width: 350.0,
+                    height: 450.0,
+                    ..Default::default()
+                },
             ),
         }
     }
@@ -92,6 +101,7 @@ impl Plugin {
                 None => "unknown".into(),
             }
         );
+        settings.load_component(&mut self.multi_view);
         settings.load_component(&mut self.cast_log);
         settings.load_component(&mut self.boon_log);
 
@@ -124,6 +134,7 @@ impl Plugin {
     pub fn unload(&mut self) {
         let mut settings = Settings::from_file(SETTINGS_FILE);
         settings.store_data("version", VERSION);
+        settings.store_component(&self.multi_view);
         settings.store_component(&self.cast_log);
         settings.store_component(&self.boon_log);
         settings.save_file();

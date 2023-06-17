@@ -11,7 +11,7 @@ pub struct HistoryView {
 }
 
 impl HistoryView {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { viewed: 0 }
     }
 

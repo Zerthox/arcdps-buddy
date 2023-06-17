@@ -23,10 +23,16 @@ impl Plugin {
                 boons,
                 cast_log,
                 boon_log,
+                multi_view,
                 ..
             } = &mut *Self::lock(); // for borrowing
-            cast_log.render(ui, CastLogProps { data, casts });
-            boon_log.render(ui, BoonLogProps { boons });
+
+            let cast_props = CastLogProps { data, casts };
+            cast_log.render(ui, cast_props.clone());
+            let boon_props = BoonLogProps { boons };
+            boon_log.render(ui, boon_props.clone());
+
+            multi_view.render(ui, (cast_props, boon_props));
         }
     }
 
@@ -40,12 +46,24 @@ impl Plugin {
 
         let _style = render::small_padding(ui);
 
-        ui.text_colored(grey, "Casts");
+        ui.text_colored(grey, "Hotkeys");
         render::input_key(
             ui,
-            "##castlog-key",
-            "Casts Hotkey",
-            &mut self.cast_log.hotkey,
+            "##multi-key",
+            "Multi",
+            &mut self.multi_view.options.hotkey,
+        );
+        render::input_key(
+            ui,
+            "##casts-key",
+            "Casts",
+            &mut self.cast_log.options.hotkey,
+        );
+        render::input_key(
+            ui,
+            "##boons-key",
+            "Boons",
+            &mut self.boon_log.options.hotkey,
         );
 
         ui.spacing();
@@ -73,6 +91,7 @@ impl Plugin {
     pub fn render_window_options(ui: &Ui, option_name: Option<&str>) -> bool {
         if option_name.is_none() {
             let mut plugin = Self::lock();
+            ui.checkbox("Buddy Multi", plugin.multi_view.visible_mut());
             ui.checkbox("Buddy Casts", plugin.cast_log.visible_mut());
             ui.checkbox("Buddy Boons", plugin.boon_log.visible_mut());
         }
@@ -82,13 +101,19 @@ impl Plugin {
     /// Handles a key event.
     pub fn key_event(key: usize, down: bool, prev_down: bool) -> bool {
         if down && !prev_down {
+            let Plugin {
+                multi_view,
+                cast_log,
+                boon_log,
+                ..
+            } = &mut *Self::lock();
+
             // check for hotkeys
-            let mut plugin = Self::lock();
-            if matches!(plugin.cast_log.hotkey, Some(hotkey) if hotkey as usize == key) {
-                plugin.cast_log.toggle_visibility();
-                return false;
-            }
+            !multi_view.options.key_press(key)
+                && !cast_log.options.key_press(key)
+                && !boon_log.options.key_press(key)
+        } else {
+            true
         }
-        true
     }
 }
