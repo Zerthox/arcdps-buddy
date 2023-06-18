@@ -1,6 +1,7 @@
 use crate::{
-    casts::{CastState, Casts},
+    combat::{cast::CastState, FightData},
     data::SkillData,
+    history::History,
     ui::{
         format_time,
         {history::HistoryView, scroll::AutoScroll},
@@ -25,9 +26,6 @@ pub struct CastLog {
     display_hits: HitDisplay,
 
     #[serde(skip)]
-    pub view: HistoryView,
-
-    #[serde(skip)]
     scroll: AutoScroll,
 }
 
@@ -36,8 +34,19 @@ impl CastLog {
         Self {
             display_time: true,
             display_hits: HitDisplay::default(),
-            view: HistoryView::new(),
             scroll: AutoScroll::new(),
+        }
+    }
+
+    pub fn render_display(&mut self, ui: &Ui) {
+        let input_width = render::ch_width(ui, 16);
+
+        ui.checkbox("Display time", &mut self.display_time);
+
+        let mut index = self.display_hits as usize;
+        ui.set_next_item_width(input_width);
+        if ui.combo_simple_string("Hits", &mut index, HitDisplay::VARIANTS) {
+            self.display_hits = index.into();
         }
     }
 
@@ -84,25 +93,30 @@ impl CastLog {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct CastLogProps<'a> {
     pub data: &'a SkillData,
-    pub casts: &'a Casts,
+    pub history: &'a History<FightData>,
+    pub view: &'a mut HistoryView,
 }
 
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
-        let CastLogProps { data, casts } = props;
+        let CastLogProps {
+            data,
+            history,
+            view,
+        } = props;
 
-        match self.view.fight(&casts.history) {
-            Some(fight) if !fight.data.is_empty() => {
+        match view.fight(history) {
+            Some(fight) if !fight.data.casts.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
                 let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-                for cast in &fight.data {
+                for cast in &fight.data.casts {
                     if let Some(def) = data.get(cast.skill.id) {
                         if self.display_time {
                             ui.text_colored(grey, format_time(cast.time));
@@ -169,24 +183,15 @@ impl Default for CastLog {
 impl Windowable<CastLogProps<'_>> for CastLog {
     const CONTEXT_MENU: bool = true;
 
-    fn render_menu(&mut self, ui: &Ui, props: &CastLogProps) {
-        let CastLogProps { casts, .. } = props;
-        let input_width = render::ch_width(ui, 16);
+    fn render_menu(&mut self, ui: &Ui, props: &mut CastLogProps) {
+        let CastLogProps { history, view, .. } = props;
 
-        ui.menu("History", || self.view.render(ui, &casts.history));
+        ui.menu("History", || view.render(ui, history));
 
         ui.spacing();
         ui.spacing();
 
-        ui.menu("Display", || {
-            ui.checkbox("Display time", &mut self.display_time);
-
-            let mut index = self.display_hits as usize;
-            ui.set_next_item_width(input_width);
-            if ui.combo_simple_string("Hits", &mut index, HitDisplay::VARIANTS) {
-                self.display_hits = index.into();
-            }
-        });
+        ui.menu("Display", || self.render_display(ui));
     }
 }
 

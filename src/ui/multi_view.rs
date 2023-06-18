@@ -1,7 +1,9 @@
 use super::{
     boon_log::{BoonLog, BoonLogProps},
     cast_log::{CastLog, CastLogProps},
+    history::HistoryView,
 };
+use crate::{combat::FightData, data::SkillData, history::History};
 use arc_util::{
     settings::HasSettings,
     ui::{Component, Windowable},
@@ -13,7 +15,6 @@ use serde::{Deserialize, Serialize};
 pub struct MultiView {
     pub casts: CastLog,
     pub boons: BoonLog,
-    selected: Tab,
 }
 
 impl MultiView {
@@ -21,26 +22,39 @@ impl MultiView {
         Self {
             casts: CastLog::new(),
             boons: BoonLog::new(),
-            selected: Tab::Casts,
         }
     }
 }
 
-pub type MultiViewProps<'a> = (CastLogProps<'a>, BoonLogProps<'a>);
+#[derive(Debug)]
+pub struct MultiViewProps<'a> {
+    pub data: &'a SkillData,
+    pub history: &'a History<FightData>,
+    pub view: &'a mut HistoryView,
+}
 
 impl Component<MultiViewProps<'_>> for MultiView {
     fn render(&mut self, ui: &Ui, props: MultiViewProps) {
-        let (cast_props, boon_props) = props;
+        let MultiViewProps {
+            data,
+            history,
+            view,
+        } = props;
+
         TabBar::new("##tabs").build(ui, || {
-            // TODO: propagate history? display settings?
             TabItem::new("Casts").build(ui, || {
-                self.selected = Tab::Casts;
-                self.casts.render(ui, cast_props);
+                self.casts.render(
+                    ui,
+                    CastLogProps {
+                        data,
+                        history,
+                        view,
+                    },
+                )
             });
-            TabItem::new("Boons").build(ui, || {
-                self.selected = Tab::Boons;
-                self.boons.render(ui, boon_props);
-            });
+
+            TabItem::new("Boons")
+                .build(ui, || self.boons.render(ui, BoonLogProps { history, view }));
         });
     }
 }
@@ -54,19 +68,15 @@ impl Default for MultiView {
 impl Windowable<MultiViewProps<'_>> for MultiView {
     const CONTEXT_MENU: bool = true;
 
-    fn render_menu(&mut self, ui: &Ui, props: &MultiViewProps) {
-        let (cast_props, boon_props) = props;
-        match self.selected {
-            Tab::Casts => self.casts.render_menu(ui, cast_props),
-            Tab::Boons => self.boons.render_menu(ui, boon_props),
-        }
-    }
-}
+    fn render_menu(&mut self, ui: &Ui, props: &mut MultiViewProps) {
+        ui.menu("History", || props.view.render(ui, props.history));
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum Tab {
-    Casts,
-    Boons,
+        ui.spacing();
+        ui.spacing();
+
+        ui.menu("Casts Display", || self.casts.render_display(ui));
+        ui.menu("Boons Display", || self.boons.render_display(ui));
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

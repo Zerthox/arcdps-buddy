@@ -1,5 +1,6 @@
 use crate::{
-    boons::Boons,
+    combat::FightData,
+    history::History,
     ui::{format_time, history::HistoryView, scroll::AutoScroll},
 };
 use arc_util::{
@@ -19,9 +20,6 @@ pub struct BoonLog {
     display_time: bool,
 
     #[serde(skip)]
-    pub view: HistoryView,
-
-    #[serde(skip)]
     scroll: AutoScroll,
 }
 
@@ -29,32 +27,44 @@ impl BoonLog {
     pub const fn new() -> Self {
         Self {
             display_time: true,
-            view: HistoryView::new(),
             scroll: AutoScroll::new(),
         }
     }
+
+    pub fn render_display(&mut self, ui: &Ui) {
+        ui.checkbox("Display time", &mut self.display_time);
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct BoonLogProps<'a> {
-    pub boons: &'a Boons,
+    pub history: &'a History<FightData>,
+    pub view: &'a mut HistoryView,
 }
 
 impl Component<BoonLogProps<'_>> for BoonLog {
     fn render(&mut self, ui: &Ui, props: BoonLogProps) {
-        let BoonLogProps { boons: casts } = props;
+        let BoonLogProps { history, view } = props;
 
-        match self.view.fight(&casts.history) {
-            Some(fight) if !fight.data.is_empty() => {
+        match view.fight(history) {
+            Some(fight) if !fight.data.boons.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-                for apply in &fight.data {
-                    ui.text_colored(grey, format_time(apply.time));
+                for apply in &fight.data.boons {
+                    if self.display_time {
+                        ui.text_colored(grey, format_time(apply.time));
+                        ui.same_line();
+                    }
+
                     ui.text(apply.boon.as_ref());
+
+                    ui.same_line();
                     ui.text(format!("{}ms", apply.duration));
+
+                    ui.same_line();
                     ui.text_colored(if apply.to_player { green } else { yellow }, &apply.target);
                 }
             }
@@ -74,17 +84,15 @@ impl Default for BoonLog {
 impl Windowable<BoonLogProps<'_>> for BoonLog {
     const CONTEXT_MENU: bool = true;
 
-    fn render_menu(&mut self, ui: &Ui, props: &BoonLogProps) {
-        let BoonLogProps { boons, .. } = props;
+    fn render_menu(&mut self, ui: &Ui, props: &mut BoonLogProps) {
+        let BoonLogProps { history, view } = props;
 
-        ui.menu("History", || self.view.render(ui, &boons.history));
+        ui.menu("History", || view.render(ui, history));
 
         ui.spacing();
         ui.spacing();
 
-        ui.menu("Display", || {
-            ui.checkbox("Display time", &mut self.display_time);
-        });
+        ui.menu("Display", || self.render_display(ui));
     }
 }
 

@@ -2,10 +2,10 @@ pub mod event;
 pub mod ui;
 
 use crate::{
-    boons::Boons,
-    casts::Casts,
+    combat::FightData,
     data::{LoadError, SkillData},
-    ui::{boon_log::BoonLog, cast_log::CastLog, multi_view::MultiView},
+    history::History,
+    ui::{boon_log::BoonLog, cast_log::CastLog, history::HistoryView, multi_view::MultiView},
 };
 use arc_util::{
     settings::Settings,
@@ -36,9 +36,9 @@ pub struct Plugin {
     data_state: Result<(), LoadError>,
 
     start: Option<u64>,
-    casts: Casts,
-    boons: Boons,
+    history: History<FightData>,
 
+    view: HistoryView,
     multi_view: Window<MultiView>,
     cast_log: Window<CastLog>,
     boon_log: Window<BoonLog>,
@@ -52,9 +52,9 @@ impl Plugin {
             data_state: Err(LoadError::NotFound),
 
             start: None,
-            casts: Casts::new(),
-            boons: Boons::new(),
+            history: History::new(10),
 
+            view: HistoryView::new(),
             multi_view: Window::with_default(
                 "Buddy Multi",
                 WindowOptions {

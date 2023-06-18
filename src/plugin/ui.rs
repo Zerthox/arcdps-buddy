@@ -1,7 +1,7 @@
 use super::Plugin;
 use crate::{
     data::LoadError,
-    ui::{boon_log::BoonLogProps, cast_log::CastLogProps},
+    ui::{boon_log::BoonLogProps, cast_log::CastLogProps, multi_view::MultiViewProps},
 };
 use arc_util::{
     colors::{GREEN, GREY, RED, YELLOW},
@@ -19,20 +19,32 @@ impl Plugin {
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
             let Plugin {
                 data,
-                casts,
-                boons,
+                history,
+                view,
                 cast_log,
                 boon_log,
                 multi_view,
                 ..
             } = &mut *Self::lock(); // for borrowing
 
-            let cast_props = CastLogProps { data, casts };
-            cast_log.render(ui, cast_props.clone());
-            let boon_props = BoonLogProps { boons };
-            boon_log.render(ui, boon_props.clone());
+            cast_log.render(
+                ui,
+                CastLogProps {
+                    data,
+                    history,
+                    view,
+                },
+            );
+            boon_log.render(ui, BoonLogProps { history, view });
 
-            multi_view.render(ui, (cast_props, boon_props));
+            multi_view.render(
+                ui,
+                MultiViewProps {
+                    data,
+                    history,
+                    view,
+                },
+            );
         }
     }
 
