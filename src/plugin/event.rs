@@ -121,7 +121,6 @@ impl Plugin {
         self.start = Some(event.time);
         self.history
             .add_fight_with_target(event.time, species, dst.as_ref());
-        self.view.update(&self.history);
     }
 
     fn fight_target(&mut self, event: CombatEvent, dst: Option<Agent>) {

@@ -1,7 +1,7 @@
 use crate::{
-    combat::FightData,
+    combat::CombatData,
     history::History,
-    ui::{format_time, history::HistoryView, scroll::AutoScroll},
+    ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
     colors::{GREEN, GREY, YELLOW},
@@ -38,15 +38,14 @@ impl BoonLog {
 
 #[derive(Debug)]
 pub struct BoonLogProps<'a> {
-    pub history: &'a History<FightData>,
-    pub view: &'a mut HistoryView,
+    pub history: &'a mut History<CombatData>,
 }
 
 impl Component<BoonLogProps<'_>> for BoonLog {
     fn render(&mut self, ui: &Ui, props: BoonLogProps) {
-        let BoonLogProps { history, view } = props;
+        let BoonLogProps { history } = props;
 
-        match view.fight(history) {
+        match history.viewed_fight() {
             Some(fight) if !fight.data.boons.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
@@ -85,9 +84,7 @@ impl Windowable<BoonLogProps<'_>> for BoonLog {
     const CONTEXT_MENU: bool = true;
 
     fn render_menu(&mut self, ui: &Ui, props: &mut BoonLogProps) {
-        let BoonLogProps { history, view } = props;
-
-        ui.menu("History", || view.render(ui, history));
+        ui.menu("History", || props.history.render_select(ui));
 
         ui.spacing();
         ui.spacing();

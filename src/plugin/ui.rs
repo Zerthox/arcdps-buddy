@@ -20,31 +20,16 @@ impl Plugin {
             let Plugin {
                 data,
                 history,
-                view,
+
                 cast_log,
                 boon_log,
                 multi_view,
                 ..
             } = &mut *Self::lock(); // for borrowing
 
-            cast_log.render(
-                ui,
-                CastLogProps {
-                    data,
-                    history,
-                    view,
-                },
-            );
-            boon_log.render(ui, BoonLogProps { history, view });
-
-            multi_view.render(
-                ui,
-                MultiViewProps {
-                    data,
-                    history,
-                    view,
-                },
-            );
+            cast_log.render(ui, CastLogProps { data, history });
+            boon_log.render(ui, BoonLogProps { history });
+            multi_view.render(ui, MultiViewProps { data, history });
         }
     }
 

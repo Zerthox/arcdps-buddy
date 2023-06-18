@@ -1,9 +1,8 @@
 use super::{
     boon_log::{BoonLog, BoonLogProps},
     cast_log::{CastLog, CastLogProps},
-    history::HistoryView,
 };
-use crate::{combat::FightData, data::SkillData, history::History};
+use crate::{combat::CombatData, data::SkillData, history::History};
 use arc_util::{
     settings::HasSettings,
     ui::{Component, Windowable},
@@ -29,32 +28,18 @@ impl MultiView {
 #[derive(Debug)]
 pub struct MultiViewProps<'a> {
     pub data: &'a SkillData,
-    pub history: &'a History<FightData>,
-    pub view: &'a mut HistoryView,
+    pub history: &'a mut History<CombatData>,
 }
 
 impl Component<MultiViewProps<'_>> for MultiView {
     fn render(&mut self, ui: &Ui, props: MultiViewProps) {
-        let MultiViewProps {
-            data,
-            history,
-            view,
-        } = props;
+        let MultiViewProps { data, history } = props;
 
         TabBar::new("##tabs").build(ui, || {
-            TabItem::new("Casts").build(ui, || {
-                self.casts.render(
-                    ui,
-                    CastLogProps {
-                        data,
-                        history,
-                        view,
-                    },
-                )
-            });
+            TabItem::new("Casts")
+                .build(ui, || self.casts.render(ui, CastLogProps { data, history }));
 
-            TabItem::new("Boons")
-                .build(ui, || self.boons.render(ui, BoonLogProps { history, view }));
+            TabItem::new("Boons").build(ui, || self.boons.render(ui, BoonLogProps { history }));
         });
     }
 }
@@ -69,7 +54,7 @@ impl Windowable<MultiViewProps<'_>> for MultiView {
     const CONTEXT_MENU: bool = true;
 
     fn render_menu(&mut self, ui: &Ui, props: &mut MultiViewProps) {
-        ui.menu("History", || props.view.render(ui, props.history));
+        ui.menu("History", || props.history.render_select(ui));
 
         ui.spacing();
         ui.spacing();

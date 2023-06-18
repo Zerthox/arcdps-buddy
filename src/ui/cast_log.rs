@@ -1,11 +1,8 @@
 use crate::{
-    combat::{cast::CastState, FightData},
+    combat::{cast::CastState, CombatData},
     data::SkillData,
     history::History,
-    ui::{
-        format_time,
-        {history::HistoryView, scroll::AutoScroll},
-    },
+    ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
     colors::{CYAN, GREEN, GREY, RED, YELLOW},
@@ -96,19 +93,14 @@ impl CastLog {
 #[derive(Debug)]
 pub struct CastLogProps<'a> {
     pub data: &'a SkillData,
-    pub history: &'a History<FightData>,
-    pub view: &'a mut HistoryView,
+    pub history: &'a mut History<CombatData>,
 }
 
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
-        let CastLogProps {
-            data,
-            history,
-            view,
-        } = props;
+        let CastLogProps { data, history } = props;
 
-        match view.fight(history) {
+        match history.viewed_fight() {
             Some(fight) if !fight.data.casts.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
@@ -184,9 +176,7 @@ impl Windowable<CastLogProps<'_>> for CastLog {
     const CONTEXT_MENU: bool = true;
 
     fn render_menu(&mut self, ui: &Ui, props: &mut CastLogProps) {
-        let CastLogProps { history, view, .. } = props;
-
-        ui.menu("History", || view.render(ui, history));
+        ui.menu("History", || props.history.render_select(ui));
 
         ui.spacing();
         ui.spacing();

@@ -5,12 +5,12 @@ use self::boon::BoonApply;
 use self::cast::Cast;
 
 #[derive(Debug, Clone)]
-pub struct FightData {
+pub struct CombatData {
     pub casts: Vec<Cast>,
     pub boons: Vec<BoonApply>,
 }
 
-impl FightData {
+impl CombatData {
     pub const fn new() -> Self {
         Self {
             casts: Vec::new(),
@@ -19,7 +19,7 @@ impl FightData {
     }
 }
 
-impl Default for FightData {
+impl Default for CombatData {
     fn default() -> Self {
         Self::new()
     }

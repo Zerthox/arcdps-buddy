@@ -1,11 +1,17 @@
 #![allow(unused)]
 
-use arcdps::Agent;
-use std::collections::VecDeque;
+mod fight;
+mod ui;
 
-#[derive(Debug, Clone)]
+pub use self::fight::*;
+
+use arcdps::Agent;
+use std::{cell::Cell, collections::VecDeque, sync::atomic::AtomicUsize};
+
+#[derive(Debug)]
 pub struct History<T> {
     pub max: usize,
+    viewed: usize,
     fights: VecDeque<Fight<T>>,
 }
 
@@ -15,6 +21,7 @@ impl<T> History<T> {
     pub const fn new(max: usize) -> Self {
         Self {
             max,
+            viewed: 0,
             fights: VecDeque::new(),
         }
     }
@@ -27,8 +34,24 @@ impl<T> History<T> {
         self.fights.is_empty()
     }
 
-    pub fn all_fights(&self) -> impl Iterator<Item = &Fight<T>> {
-        self.fights.iter()
+    pub fn viewed(&self) -> usize {
+        self.viewed
+    }
+
+    pub fn viewed_fight(&self) -> Option<&Fight<T>> {
+        self.fight_at(self.viewed)
+    }
+
+    pub fn viewed_fight_mut(&mut self) -> Option<&mut Fight<T>> {
+        self.fight_at_mut(self.viewed)
+    }
+
+    pub fn latest_fight(&self) -> Option<&Fight<T>> {
+        self.fights.front()
+    }
+
+    pub fn latest_fight_mut(&mut self) -> Option<&mut Fight<T>> {
+        self.fights.front_mut()
     }
 
     pub fn fight_at(&self, index: usize) -> Option<&Fight<T>> {
@@ -39,12 +62,8 @@ impl<T> History<T> {
         self.fights.get_mut(index)
     }
 
-    pub fn latest_fight(&self) -> Option<&Fight<T>> {
-        self.fights.front()
-    }
-
-    pub fn latest_fight_mut(&mut self) -> Option<&mut Fight<T>> {
-        self.fights.front_mut()
+    pub fn all_fights(&self) -> impl Iterator<Item = &Fight<T>> {
+        self.fights.iter()
     }
 
     pub fn add_fight(&mut self, time: u64, data: T)
@@ -59,6 +78,16 @@ impl<T> History<T> {
             self.fights.pop_back();
         }
         self.fights.push_front(Fight::new(time, data));
+        self.update_viewed();
+    }
+
+    fn update_viewed(&mut self) {
+        if self.viewed != 0 {
+            self.viewed += 1;
+            if self.viewed >= self.len() {
+                self.viewed = 0;
+            }
+        }
     }
 
     pub fn add_fight_default(&mut self, time: u64)
@@ -86,63 +115,5 @@ impl<T> History<T> {
         if let Some(fight) = self.latest_fight_mut() {
             fight.end(time);
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Fight<T> {
-    pub id: Option<u32>,
-    pub name: String,
-    pub start: u64,
-    pub end: u64,
-    pub data: T,
-}
-
-impl<T> Fight<T> {
-    pub fn new(start: u64, data: T) -> Self
-    where
-        T: Default,
-    {
-        Self {
-            id: None,
-            name: Self::DEFAULT_NAME.into(),
-            start,
-            end: 0,
-            data,
-        }
-    }
-
-    pub fn with_default(start: u64) -> Self
-    where
-        T: Default,
-    {
-        Self::new(start, T::default())
-    }
-
-    const DEFAULT_NAME: &str = "Unknown";
-
-    pub fn update_target(&mut self, species: u32, target: Option<&Agent>) {
-        if species > 2 {
-            self.id = Some(species);
-            self.name = match target.and_then(|agent| agent.name) {
-                Some(name) if !name.is_empty() => name.into(),
-                _ => Self::DEFAULT_NAME.into(),
-            };
-        } else {
-            self.id = None;
-            self.name = Self::DEFAULT_NAME.into();
-        }
-    }
-
-    pub fn duration(&self) -> Option<u64> {
-        if self.end != 0 {
-            Some(self.end - self.start)
-        } else {
-            None
-        }
-    }
-
-    pub fn end(&mut self, time: u64) {
-        self.end = time;
     }
 }
