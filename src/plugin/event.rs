@@ -69,8 +69,13 @@ impl Plugin {
                                         {
                                             if event.buff != 0 {
                                                 if dst.is_self != 0 {
-                                                    // TODO: duration applied
-                                                    plugin.boons.apply(time, event.skill_id, &dst);
+                                                    // TODO: "effective" duration excluding overstack?
+                                                    plugin.boons.apply(
+                                                        event.skill_id,
+                                                        &dst,
+                                                        event.value,
+                                                        time,
+                                                    );
                                                 }
                                             } else if let Ok(
                                                 Strike::Normal | Strike::Crit | Strike::Glance,

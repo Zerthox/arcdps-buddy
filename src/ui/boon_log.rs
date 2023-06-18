@@ -54,6 +54,7 @@ impl Component<BoonLogProps<'_>> for BoonLog {
                 for apply in &fight.data {
                     ui.text_colored(grey, format_time(apply.time));
                     ui.text(apply.boon.as_ref());
+                    ui.text(format!("{}ms", apply.duration));
                     ui.text_colored(if apply.to_player { green } else { yellow }, &apply.target);
                 }
             }

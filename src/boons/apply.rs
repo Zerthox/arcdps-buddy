@@ -3,7 +3,10 @@ use strum::AsRefStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, AsRefStr)]
 pub enum Boon {
+    #[strum(serialize = "Quick")]
     Quickness,
+
+    #[strum(serialize = "Alac")]
     Alacrity,
 }
 
@@ -23,15 +26,17 @@ impl TryFrom<u32> for Boon {
 pub struct BoonApply {
     pub boon: Boon,
     pub time: i32,
+    pub duration: i32,
     pub target: String,
     pub to_player: bool,
 }
 
 impl BoonApply {
-    pub fn new(boon: Boon, time: i32, target: &Agent) -> Self {
+    pub fn new(boon: Boon, target: &Agent, duration: i32, time: i32) -> Self {
         Self {
             boon,
             time,
+            duration,
             target: target.name.map(Into::into).unwrap_or_default(),
             to_player: target.elite != u32::MAX,
         }
