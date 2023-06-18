@@ -35,8 +35,10 @@ impl<T> Fight<T> {
     pub fn update_target(&mut self, species: u32, target: Option<&Agent>) {
         if species > 2 {
             self.id = Some(species);
-            self.name = match target.and_then(|agent| agent.name) {
-                Some(name) if !name.is_empty() => name.into(),
+            self.name = match target {
+                Some(Agent {
+                    name: Some(name), ..
+                }) if !name.is_empty() => name.to_string(),
                 _ => Self::DEFAULT_NAME.into(),
             };
         } else {
