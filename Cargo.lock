@@ -20,7 +20,7 @@ dependencies = [
 [[package]]
 name = "arc_util"
 version = "0.10.0"
-source = "git+https://github.com/zerthox/arcdps-utils#8e8311630e5be45a6388c9e72d839f0a41397ee9"
+source = "git+https://github.com/zerthox/arcdps-utils#7dade69e28b1d8c6b7c6215172b029f3a51ca437"
 dependencies = [
  "arcdps",
  "serde",
@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "arcdps_buddy"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "arc_util",
  "arcdps",

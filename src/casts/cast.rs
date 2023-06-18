@@ -7,7 +7,7 @@ pub struct Cast {
     pub skill: Skill,
 
     /// Time of start event or first registered hit.
-    pub time: u64,
+    pub time: i32,
 
     /// Current [`CastState`] of the cast.
     pub state: CastState,
@@ -20,11 +20,11 @@ pub struct Cast {
 }
 
 impl Cast {
-    pub const fn new(skill: Skill, time: u64) -> Self {
+    pub const fn new(skill: Skill, state: CastState, time: i32) -> Self {
         Self {
             skill,
             time,
-            state: CastState::Unknown,
+            state,
             duration: 0,
             hits: Vec::new(),
         }
@@ -36,7 +36,10 @@ impl Cast {
         })
     }
 
-    pub fn complete(&mut self, result: CastState, duration: i32) {
+    pub fn complete(&mut self, result: CastState, duration: i32, time: i32) {
+        if let CastState::Pre = self.state {
+            self.time = time - duration;
+        }
         self.state = result;
         self.duration = duration;
     }
@@ -44,9 +47,15 @@ impl Cast {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CastState {
-    /// Unknown or initial state.
+    /// Unknown state.
     #[default]
     Unknown,
+
+    /// Cast is ongoing.
+    Casting,
+
+    /// Cast start is not registered.
+    Pre,
 
     /// Completed fully.
     Fire,

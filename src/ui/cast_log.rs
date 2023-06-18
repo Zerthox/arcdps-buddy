@@ -143,10 +143,12 @@ impl Component<CastLogProps<'_>> for CastLog {
                         let text = format!("{}ms", cast.duration);
                         ui.same_line();
                         match cast.state {
-                            CastState::Unknown => ui.text("?ms"),
                             CastState::Cancel => ui.text_colored(yellow, text),
                             CastState::Fire => ui.text_colored(green, text),
                             CastState::Interrupt => ui.text_colored(red, text),
+                            CastState::Unknown | CastState::Casting | CastState::Pre => {
+                                ui.text("?ms")
+                            }
                         }
                     }
                 }

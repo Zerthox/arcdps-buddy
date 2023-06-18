@@ -1,5 +1,8 @@
 use super::Plugin;
-use crate::{casts::Cast, skill::Skill};
+use crate::{
+    casts::{Cast, CastState},
+    skill::Skill,
+};
 use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
@@ -26,10 +29,11 @@ impl Plugin {
                         if let Some(start) = plugin.start {
                             // TODO: add data to previous fight?
                             if event.time >= start && plugin.data.contains(event.skill_id) {
+                                let time = (event.time - start) as i32;
                                 match event.is_activation {
                                     Activation::Start => {
                                         let skill = Skill::new(event.skill_id, skill_name);
-                                        let cast = Cast::new(skill, event.time - start);
+                                        let cast = Cast::new(skill, CastState::Casting, time);
                                         debug!("start {cast:?}");
                                         plugin.casts.add_cast(cast);
                                     }
@@ -39,20 +43,21 @@ impl Plugin {
                                     | Activation::Reset) => {
                                         let state = activation.into();
                                         let duration = event.value;
+                                        let start = time - duration;
 
                                         if let Some(cast) =
                                             plugin.casts.latest_cast_mut(event.skill_id)
                                         {
                                             debug!("complete {cast:?}");
-                                            cast.complete(state, duration);
+                                            if let CastState::Pre = cast.state {
+                                                cast.time = start;
+                                            }
+                                            cast.complete(state, duration, time);
                                         } else {
                                             let skill = Skill::new(event.skill_id, skill_name);
-                                            let mut cast = Cast::new(
-                                                skill,
-                                                event.time
-                                                    - u64::try_from(duration).unwrap_or_default(),
-                                            );
-                                            cast.complete(state, duration);
+                                            let mut cast =
+                                                Cast::new(skill, CastState::Casting, start);
+                                            cast.complete(state, duration, time);
                                             debug!("complete without start {cast:?}");
                                             plugin.casts.add_cast(cast);
                                         }
@@ -65,11 +70,7 @@ impl Plugin {
                                             if event.buff != 0 {
                                                 if dst.is_self != 0 {
                                                     // TODO: duration applied
-                                                    plugin.boons.apply(
-                                                        event.time,
-                                                        event.skill_id,
-                                                        &dst,
-                                                    );
+                                                    plugin.boons.apply(time, event.skill_id, &dst);
                                                 }
                                             } else if let Ok(
                                                 Strike::Normal | Strike::Crit | Strike::Glance,
@@ -86,7 +87,7 @@ impl Plugin {
                                                 } else {
                                                     let skill = Skill::new(skill, skill_name);
                                                     let mut cast =
-                                                        Cast::new(skill, event.time - start);
+                                                        Cast::new(skill, CastState::Pre, time);
                                                     cast.hit(&dst);
                                                     debug!("hit without start {cast:?}");
                                                     plugin.casts.add_cast(cast);
