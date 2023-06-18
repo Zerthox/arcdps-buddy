@@ -72,15 +72,13 @@ impl Plugin {
                                             (event.is_buff_remove, dst)
                                         {
                                             if event.buff != 0 {
-                                                if dst.is_self != 0 {
-                                                    // TODO: "effective" duration excluding overstack?
-                                                    plugin.apply_buff(
-                                                        event.skill_id,
-                                                        &dst,
-                                                        event.value,
-                                                        time,
-                                                    );
-                                                }
+                                                // TODO: "effective" duration excluding overstack?
+                                                plugin.apply_buff(
+                                                    event.skill_id,
+                                                    &dst,
+                                                    event.value,
+                                                    time,
+                                                );
                                             } else if let Ok(
                                                 Strike::Normal | Strike::Crit | Strike::Glance,
                                             ) = event.result.try_into()
@@ -160,8 +158,8 @@ impl Plugin {
     }
 
     pub fn apply_buff(&mut self, id: u32, target: &Agent, duration: i32, time: i32) {
-        if let Some(fight) = self.history.latest_fight_mut() {
-            if let Ok(boon) = id.try_into() {
+        if target.is_self == 0 {
+            if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), id.try_into()) {
                 fight
                     .data
                     .boons
