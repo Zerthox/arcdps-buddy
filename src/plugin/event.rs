@@ -28,20 +28,23 @@ impl Plugin {
                         let mut plugin = Self::lock();
                         if let Some(start) = plugin.start {
                             // TODO: add data to previous fight?
-                            if event.time >= start && plugin.data.contains(event.skill_id) {
+                            if event.time >= start {
                                 let time = (event.time - start) as i32;
+                                let in_data = plugin.data.contains(event.skill_id);
                                 match event.is_activation {
-                                    Activation::Start => {
+                                    Activation::Start if in_data => {
                                         let skill = Skill::new(event.skill_id, skill_name);
                                         let cast = Cast::new(skill, CastState::Casting, time);
                                         debug!("start {cast:?}");
                                         plugin.casts.add_cast(cast);
                                     }
 
-                                    activation @ (Activation::CancelFire
+                                    Activation::CancelFire
                                     | Activation::CancelCancel
-                                    | Activation::Reset) => {
-                                        let state = activation.into();
+                                    | Activation::Reset
+                                        if in_data =>
+                                    {
+                                        let state = event.is_activation.into();
                                         let duration = event.value;
                                         let start = time - duration;
 
