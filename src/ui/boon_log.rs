@@ -65,7 +65,11 @@ impl Component<BoonLogProps<'_>> for BoonLog {
 
                     if self.display_duration {
                         ui.same_line();
-                        ui.text(format!("{}ms", apply.duration));
+                        ui.text(format!(
+                            "{}.{}s",
+                            apply.duration / 1000,
+                            apply.duration % 1000
+                        ));
                     }
 
                     ui.same_line();
