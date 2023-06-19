@@ -20,6 +20,7 @@ use strum::{EnumVariantNames, VariantNames};
 #[serde(default)]
 pub struct CastLog {
     display_time: bool,
+    display_duration: bool,
     display_hits: HitDisplay,
 
     #[serde(skip)]
@@ -30,6 +31,7 @@ impl CastLog {
     pub fn new() -> Self {
         Self {
             display_time: true,
+            display_duration: true,
             display_hits: HitDisplay::default(),
             scroll: AutoScroll::new(),
         }
@@ -39,6 +41,7 @@ impl CastLog {
         let input_width = render::ch_width(ui, 16);
 
         ui.checkbox("Display time", &mut self.display_time);
+        ui.checkbox("Display duration", &mut self.display_duration);
 
         let mut index = self.display_hits as usize;
         ui.set_next_item_width(input_width);
@@ -146,14 +149,16 @@ impl Component<CastLogProps<'_>> for CastLog {
                             }
                         }
 
-                        let text = format!("{}ms", cast.duration);
-                        ui.same_line();
-                        match cast.state {
-                            CastState::Cancel => ui.text_colored(yellow, text),
-                            CastState::Fire => ui.text_colored(green, text),
-                            CastState::Interrupt => ui.text_colored(red, text),
-                            CastState::Unknown | CastState::Casting | CastState::Pre => {
-                                ui.text("?ms")
+                        if self.display_duration {
+                            let text = format!("{}ms", cast.duration);
+                            ui.same_line();
+                            match cast.state {
+                                CastState::Cancel => ui.text_colored(yellow, text),
+                                CastState::Fire => ui.text_colored(green, text),
+                                CastState::Interrupt => ui.text_colored(red, text),
+                                CastState::Unknown | CastState::Casting | CastState::Pre => {
+                                    ui.text("?ms")
+                                }
                             }
                         }
                     }
@@ -218,6 +223,7 @@ enum HitDisplay {
     Both,
     Target,
     Cleave,
+    None,
 }
 
 impl From<usize> for HitDisplay {
@@ -226,6 +232,7 @@ impl From<usize> for HitDisplay {
             0 => Self::Both,
             1 => Self::Target,
             2 => Self::Cleave,
+            3 => Self::None,
             _ => Self::default(),
         }
     }

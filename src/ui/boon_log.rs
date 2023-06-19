@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 #[serde(default)]
 pub struct BoonLog {
     display_time: bool,
+    display_duration: bool,
 
     #[serde(skip)]
     scroll: AutoScroll,
@@ -27,12 +28,14 @@ impl BoonLog {
     pub const fn new() -> Self {
         Self {
             display_time: true,
+            display_duration: true,
             scroll: AutoScroll::new(),
         }
     }
 
     pub fn render_display(&mut self, ui: &Ui) {
         ui.checkbox("Display time", &mut self.display_time);
+        ui.checkbox("Display duration", &mut self.display_duration);
     }
 }
 
@@ -60,8 +63,10 @@ impl Component<BoonLogProps<'_>> for BoonLog {
 
                     ui.text(apply.boon.as_ref());
 
-                    ui.same_line();
-                    ui.text(format!("{}ms", apply.duration));
+                    if self.display_duration {
+                        ui.same_line();
+                        ui.text(format!("{}ms", apply.duration));
+                    }
 
                     ui.same_line();
                     ui.text_colored(if apply.to_player { green } else { yellow }, &apply.target);
