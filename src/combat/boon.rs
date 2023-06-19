@@ -1,3 +1,4 @@
+use super::agent::agent_name;
 use arcdps::{evtc::AgentKind, Agent};
 use strum::AsRefStr;
 
@@ -33,20 +34,12 @@ pub struct BoonApply {
 
 impl BoonApply {
     pub fn new(boon: Boon, target: &Agent, duration: i32, time: i32) -> Self {
-        let kind = target.kind();
         Self {
             boon,
             time,
             duration,
-            target: match target.name {
-                Some(name) if !name.is_empty() => name.into(),
-                _ => match kind {
-                    AgentKind::Player => format!("Player:{}", target.id),
-                    AgentKind::Npc(species) => format!("NPC:{species}",),
-                    AgentKind::Gadget(species) => format!("Gadget:{species}"),
-                },
-            },
-            to_player: kind == AgentKind::Player,
+            target: agent_name(target),
+            to_player: target.kind() == AgentKind::Player,
         }
     }
 }
