@@ -1,5 +1,6 @@
 use super::{
     boon_log::{BoonLog, BoonLogProps},
+    breakbar_log::{BreakbarLog, BreakbarLogProps},
     cast_log::{CastLog, CastLogProps},
 };
 use crate::{combat::CombatData, data::SkillData, history::History};
@@ -14,6 +15,7 @@ use serde::{Deserialize, Serialize};
 pub struct MultiView {
     pub casts: CastLog,
     pub boons: BoonLog,
+    pub breakbars: BreakbarLog,
 }
 
 impl MultiView {
@@ -21,6 +23,7 @@ impl MultiView {
         Self {
             casts: CastLog::new(),
             boons: BoonLog::new(),
+            breakbars: BreakbarLog::new(),
         }
     }
 }
@@ -40,6 +43,10 @@ impl Component<MultiViewProps<'_>> for MultiView {
                 .build(ui, || self.casts.render(ui, CastLogProps { data, history }));
 
             TabItem::new("Boons").build(ui, || self.boons.render(ui, BoonLogProps { history }));
+
+            TabItem::new("Breakbar").build(ui, || {
+                self.breakbars.render(ui, BreakbarLogProps { history })
+            });
         });
     }
 }
@@ -68,6 +75,7 @@ impl Windowable<MultiViewProps<'_>> for MultiView {
 pub struct MultiViewSettings {
     pub casts: <CastLog as HasSettings>::Settings,
     pub boons: <BoonLog as HasSettings>::Settings,
+    pub breakbars: <BreakbarLog as HasSettings>::Settings,
 }
 
 impl HasSettings for MultiView {
@@ -79,12 +87,18 @@ impl HasSettings for MultiView {
         MultiViewSettings {
             casts: self.casts.current_settings(),
             boons: self.boons.current_settings(),
+            breakbars: self.breakbars.current_settings(),
         }
     }
 
     fn load_settings(&mut self, loaded: Self::Settings) {
-        let Self::Settings { casts, boons } = loaded;
+        let Self::Settings {
+            casts,
+            boons,
+            breakbars,
+        } = loaded;
         self.casts.load_settings(casts);
         self.boons.load_settings(boons);
+        self.breakbars.load_settings(breakbars);
     }
 }

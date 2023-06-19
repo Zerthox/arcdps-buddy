@@ -1,13 +1,16 @@
 pub mod boon;
+pub mod breakbar;
 pub mod cast;
 
 use self::boon::BoonApply;
+use self::breakbar::BreakbarHit;
 use self::cast::Cast;
 
 #[derive(Debug, Clone)]
 pub struct CombatData {
     pub casts: Vec<Cast>,
     pub boons: Vec<BoonApply>,
+    pub breakbar: Vec<BreakbarHit>,
 }
 
 impl CombatData {
@@ -15,6 +18,7 @@ impl CombatData {
         Self {
             casts: Vec::new(),
             boons: Vec::new(),
+            breakbar: Vec::new(),
         }
     }
 }

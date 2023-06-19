@@ -2,6 +2,7 @@ use super::Plugin;
 use crate::{
     combat::{
         boon::BoonApply,
+        breakbar::BreakbarHit,
         cast::{Cast, CastState},
     },
     skill::Skill,
@@ -36,10 +37,7 @@ impl Plugin {
                                 let in_data = plugin.data.contains(event.skill_id);
                                 match event.is_activation {
                                     Activation::Start if in_data => {
-                                        let skill = Skill::new(event.skill_id, skill_name);
-                                        let cast = Cast::new(skill, CastState::Casting, time);
-                                        debug!("start {cast:?}");
-                                        plugin.add_cast(cast);
+                                        plugin.cast_start(&event, skill_name, time)
                                     }
 
                                     Activation::CancelFire
@@ -47,24 +45,7 @@ impl Plugin {
                                     | Activation::Reset
                                         if in_data =>
                                     {
-                                        let state = event.is_activation.into();
-                                        let duration = event.value;
-                                        let start = time - duration;
-
-                                        if let Some(cast) = plugin.latest_cast_mut(event.skill_id) {
-                                            debug!("complete {cast:?}");
-                                            if let CastState::Pre = cast.state {
-                                                cast.time = start;
-                                            }
-                                            cast.complete(state, duration, time);
-                                        } else {
-                                            let skill = Skill::new(event.skill_id, skill_name);
-                                            let mut cast =
-                                                Cast::new(skill, CastState::Casting, start);
-                                            cast.complete(state, duration, time);
-                                            debug!("complete without start {cast:?}");
-                                            plugin.add_cast(cast);
-                                        }
+                                        plugin.cast_end(&event, skill_name, time)
                                     }
 
                                     Activation::None => {
@@ -79,24 +60,8 @@ impl Plugin {
                                                     event.value,
                                                     time,
                                                 );
-                                            } else if let Ok(
-                                                Strike::Normal | Strike::Crit | Strike::Glance,
-                                            ) = event.result.try_into()
-                                            {
-                                                // TODO: use local combat events for hits?
-
-                                                let skill = plugin.data.map_hit_id(event.skill_id);
-                                                if let Some(cast) = plugin.latest_cast_mut(skill) {
-                                                    cast.hit(&dst);
-                                                    debug!("hit {:?} {dst:?}", cast.skill);
-                                                } else {
-                                                    let skill = Skill::new(skill, skill_name);
-                                                    let mut cast =
-                                                        Cast::new(skill, CastState::Pre, time);
-                                                    cast.hit(&dst);
-                                                    debug!("hit without start {cast:?}");
-                                                    plugin.add_cast(cast);
-                                                }
+                                            } else {
+                                                plugin.strike(&event, skill_name, &dst, time);
                                             }
                                         }
                                     }
@@ -157,6 +122,33 @@ impl Plugin {
         }
     }
 
+    pub fn cast_start(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
+        let skill = Skill::new(event.skill_id, skill_name);
+        let cast = Cast::new(skill, CastState::Casting, time);
+        debug!("start {cast:?}");
+        self.add_cast(cast);
+    }
+
+    pub fn cast_end(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
+        let state = event.is_activation.into();
+        let duration = event.value;
+        let start = time - duration;
+
+        if let Some(cast) = self.latest_cast_mut(event.skill_id) {
+            debug!("complete {cast:?}");
+            if let CastState::Pre = cast.state {
+                cast.time = start;
+            }
+            cast.complete(state, duration, time);
+        } else {
+            let skill = Skill::new(event.skill_id, skill_name);
+            let mut cast = Cast::new(skill, CastState::Casting, start);
+            cast.complete(state, duration, time);
+            debug!("complete without start {cast:?}");
+            self.add_cast(cast);
+        }
+    }
+
     pub fn apply_buff(&mut self, id: u32, target: &Agent, duration: i32, time: i32) {
         if target.is_self == 0 {
             if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), id.try_into()) {
@@ -165,6 +157,45 @@ impl Plugin {
                     .boons
                     .push(BoonApply::new(boon, target, duration, time))
             }
+        }
+    }
+
+    pub fn strike(
+        &mut self,
+        event: &CombatEvent,
+        skill_name: Option<&str>,
+        target: &Agent,
+        time: i32,
+    ) {
+        let skill = Skill::new(event.skill_id, skill_name);
+        match event.result.try_into() {
+            Ok(Strike::Normal | Strike::Crit | Strike::Glance) => {
+                self.damage_hit(skill, target, time)
+            }
+            Ok(Strike::Breakbar) => self.breakbar_hit(skill, target, event.value, time),
+            _ => {}
+        }
+    }
+
+    pub fn damage_hit(&mut self, skill: Skill, target: &Agent, time: i32) {
+        // TODO: use local combat events for hits?
+        let skill_id = self.data.map_hit_id(skill.id);
+        if let Some(cast) = self.latest_cast_mut(skill_id) {
+            cast.hit(target);
+            debug!("hit {:?} {target:?}", cast.skill);
+        } else {
+            let mut cast = Cast::new(skill, CastState::Pre, time);
+            cast.hit(target);
+            debug!("hit without start {cast:?}");
+            self.add_cast(cast);
+        }
+    }
+
+    pub fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
+        if let Some(fight) = self.history.latest_fight_mut() {
+            dbg!("breakbar {damage} {skill:?} {target:?}");
+            let hit = BreakbarHit::new(skill, target, damage, time);
+            fight.data.breakbar.push(hit);
         }
     }
 }
