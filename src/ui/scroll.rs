@@ -16,7 +16,7 @@ impl AutoScroll {
         let scroll = ui.scroll_y();
 
         #[allow(clippy::float_cmp)]
-        if scroll != 0.0 && scroll == self.last_scroll_max {
+        if scroll == self.last_scroll_max {
             ui.set_scroll_here_y_with_ratio(1.0);
         }
         self.last_scroll_max = ui.scroll_max_y();

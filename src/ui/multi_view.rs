@@ -8,7 +8,7 @@ use arc_util::{
     settings::HasSettings,
     ui::{Component, Windowable},
 };
-use arcdps::imgui::{TabBar, TabItem, Ui};
+use arcdps::imgui::{ChildWindow, TabBar, TabItem, Ui};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
@@ -26,6 +26,10 @@ impl MultiView {
             breakbars: BreakbarLog::new(),
         }
     }
+
+    fn scroll_tab(ui: &Ui, name: impl AsRef<str>, render: impl FnOnce()) {
+        TabItem::new(name).build(ui, || ChildWindow::new("##scroller").build(ui, render));
+    }
 }
 
 #[derive(Debug)]
@@ -39,12 +43,13 @@ impl Component<MultiViewProps<'_>> for MultiView {
         let MultiViewProps { data, history } = props;
 
         TabBar::new("##tabs").build(ui, || {
-            TabItem::new("Casts")
-                .build(ui, || self.casts.render(ui, CastLogProps { data, history }));
-
-            TabItem::new("Boons").build(ui, || self.boons.render(ui, BoonLogProps { history }));
-
-            TabItem::new("Breakbar").build(ui, || {
+            Self::scroll_tab(ui, "Casts", || {
+                self.casts.render(ui, CastLogProps { data, history })
+            });
+            Self::scroll_tab(ui, "Boons", || {
+                self.boons.render(ui, BoonLogProps { history })
+            });
+            Self::scroll_tab(ui, "Breakbar", || {
                 self.breakbars.render(ui, BreakbarLogProps { history })
             });
         });
