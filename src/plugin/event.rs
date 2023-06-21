@@ -1,10 +1,8 @@
 use super::Plugin;
-use crate::{
-    combat::{
-        boon::BoonApply,
-        breakbar::BreakbarHit,
-        cast::{Cast, CastState},
-    },
+use crate::combat::{
+    boon::BoonApply,
+    breakbar::BreakbarHit,
+    cast::{Cast, CastState},
     skill::Skill,
 };
 use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
@@ -93,7 +91,7 @@ impl Plugin {
     }
 
     fn end_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
-        let species = event.src_agent as u32;
+        let species = event.src_agent;
         debug!("log end for {species} {dst:?}");
         self.start = None;
         self.history.end_latest_fight(event.time);

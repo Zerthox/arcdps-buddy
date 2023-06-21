@@ -1,4 +1,4 @@
-use crate::skill::Skill;
+use super::skill::Skill;
 use arcdps::{Activation, Agent};
 
 #[derive(Debug, Clone)]

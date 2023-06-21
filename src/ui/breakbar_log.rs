@@ -64,7 +64,7 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
                     ui.text_colored(cyan, format!("{}.{}", hit.damage / 10, hit.damage % 10));
 
                     ui.same_line();
-                    ui.text_colored(red, &hit.target);
+                    ui.text(&hit.target.name);
                 }
             }
             _ => ui.text("No breakbar damage"),

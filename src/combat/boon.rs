@@ -1,6 +1,7 @@
-use super::agent::agent_name;
 use arcdps::{evtc::AgentKind, Agent};
 use strum::AsRefStr;
+
+use super::agent::Target;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, AsRefStr)]
 pub enum Boon {
@@ -28,8 +29,7 @@ pub struct BoonApply {
     pub boon: Boon,
     pub time: i32,
     pub duration: i32,
-    pub target: String,
-    pub to_player: bool,
+    pub target: Target,
 }
 
 impl BoonApply {
@@ -38,8 +38,11 @@ impl BoonApply {
             boon,
             time,
             duration,
-            target: agent_name(target),
-            to_player: target.kind() == AgentKind::Player,
+            target: target.into(),
         }
+    }
+
+    pub fn to_player(&self) -> bool {
+        matches!(self.target.kind, AgentKind::Player)
     }
 }

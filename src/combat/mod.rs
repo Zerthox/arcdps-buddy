@@ -2,6 +2,7 @@ pub mod agent;
 pub mod boon;
 pub mod breakbar;
 pub mod cast;
+pub mod skill;
 
 use self::boon::BoonApply;
 use self::breakbar::BreakbarHit;

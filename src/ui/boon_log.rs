@@ -73,7 +73,10 @@ impl Component<BoonLogProps<'_>> for BoonLog {
                     }
 
                     ui.same_line();
-                    ui.text_colored(if apply.to_player { green } else { yellow }, &apply.target);
+                    ui.text_colored(
+                        if apply.to_player() { green } else { yellow },
+                        &apply.target.name,
+                    );
                 }
             }
             _ => ui.text("No boons"),
