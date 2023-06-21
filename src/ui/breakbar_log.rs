@@ -4,7 +4,7 @@ use crate::{
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
-    colors::{CYAN, GREY, RED},
+    colors::{CYAN, GREY, RED, YELLOW},
     settings::HasSettings,
     ui::{Component, Windowable},
 };
@@ -50,7 +50,8 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
-                let cyan = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
+                let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
+                let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
                 for hit in &fight.data.breakbar {
                     if self.display_time {
@@ -61,10 +62,15 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
                     ui.text(&hit.skill.name);
 
                     ui.same_line();
-                    ui.text_colored(cyan, format!("{}.{}", hit.damage / 10, hit.damage % 10));
+                    ui.text_colored(blue, format!("{}.{}", hit.damage / 10, hit.damage % 10));
 
+                    let color = if hit.target.matches_species(fight.id) {
+                        red
+                    } else {
+                        yellow
+                    };
                     ui.same_line();
-                    ui.text(&hit.target.name);
+                    ui.text_colored(color, &hit.target.name);
                 }
             }
             _ => ui.text("No breakbar damage"),

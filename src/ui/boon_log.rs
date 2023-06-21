@@ -4,7 +4,7 @@ use crate::{
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
-    colors::{GREEN, GREY, YELLOW},
+    colors::{CYAN, GREEN, GREY, YELLOW},
     settings::HasSettings,
     ui::{Component, Windowable},
 };
@@ -54,6 +54,7 @@ impl Component<BoonLogProps<'_>> for BoonLog {
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
+                let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
                 for apply in &fight.data.boons {
                     if self.display_time {
@@ -65,16 +66,15 @@ impl Component<BoonLogProps<'_>> for BoonLog {
 
                     if self.display_duration {
                         ui.same_line();
-                        ui.text(format!(
-                            "{}.{}s",
-                            apply.duration / 1000,
-                            apply.duration % 1000
-                        ));
+                        ui.text_colored(
+                            yellow,
+                            format!("{}.{}s", apply.duration / 1000, apply.duration % 1000),
+                        );
                     }
 
                     ui.same_line();
                     ui.text_colored(
-                        if apply.to_player() { green } else { yellow },
+                        if apply.to_player() { blue } else { green },
                         &apply.target.name,
                     );
                 }
