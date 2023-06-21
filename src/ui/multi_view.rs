@@ -73,6 +73,7 @@ impl Windowable<MultiViewProps<'_>> for MultiView {
 
         ui.menu("Casts Display", || self.casts.render_display(ui));
         ui.menu("Boons Display", || self.boons.render_display(ui));
+        ui.menu("Breakbar Display", || self.breakbars.render_display(ui));
     }
 }
 
