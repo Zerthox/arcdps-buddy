@@ -1,7 +1,10 @@
 use super::Plugin;
 use crate::{
     data::LoadError,
-    ui::{boon_log::BoonLogProps, cast_log::CastLogProps, multi_view::MultiViewProps},
+    ui::{
+        boon_log::BoonLogProps, breakbar_log::BreakbarLogProps, cast_log::CastLogProps,
+        multi_view::MultiViewProps,
+    },
 };
 use arc_util::{
     colors::{GREEN, GREY, RED, YELLOW},
@@ -20,16 +23,17 @@ impl Plugin {
             let Plugin {
                 data,
                 history,
-
+                multi_view,
                 cast_log,
                 boon_log,
-                multi_view,
+                breakbar_log,
                 ..
             } = &mut *Self::lock(); // for borrowing
 
+            multi_view.render(ui, MultiViewProps { data, history });
             cast_log.render(ui, CastLogProps { data, history });
             boon_log.render(ui, BoonLogProps { history });
-            multi_view.render(ui, MultiViewProps { data, history });
+            breakbar_log.render(ui, BreakbarLogProps { history });
         }
     }
 
@@ -62,6 +66,12 @@ impl Plugin {
             "Boons",
             &mut self.boon_log.options.hotkey,
         );
+        render::input_key(
+            ui,
+            "##breakbar-key",
+            "Breakbar",
+            &mut self.breakbar_log.options.hotkey,
+        );
 
         ui.spacing();
         ui.spacing();
@@ -91,6 +101,7 @@ impl Plugin {
             ui.checkbox("Buddy Multi", plugin.multi_view.visible_mut());
             ui.checkbox("Buddy Casts", plugin.cast_log.visible_mut());
             ui.checkbox("Buddy Boons", plugin.boon_log.visible_mut());
+            ui.checkbox("Buddy Breakbar", plugin.breakbar_log.visible_mut());
         }
         false
     }
@@ -102,6 +113,7 @@ impl Plugin {
                 multi_view,
                 cast_log,
                 boon_log,
+                breakbar_log,
                 ..
             } = &mut *Self::lock();
 
@@ -109,6 +121,7 @@ impl Plugin {
             !multi_view.options.key_press(key)
                 && !cast_log.options.key_press(key)
                 && !boon_log.options.key_press(key)
+                && !breakbar_log.options.key_press(key)
         } else {
             true
         }
