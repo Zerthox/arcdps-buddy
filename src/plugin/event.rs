@@ -175,10 +175,10 @@ impl Plugin {
         }
     }
 
-    pub fn damage_hit(&mut self, skill: Skill, target: &Agent, time: i32) {
+    fn damage_hit(&mut self, mut skill: Skill, target: &Agent, time: i32) {
         // TODO: use local combat events for hits?
-        let skill_id = self.data.map_hit_id(skill.id);
-        if let Some(cast) = self.latest_cast_mut(skill_id) {
+        skill.id = self.data.map_hit_id(skill.id);
+        if let Some(cast) = self.latest_cast_mut(skill.id) {
             cast.hit(target);
             debug!("hit {:?} {target:?}", cast.skill);
         } else {
