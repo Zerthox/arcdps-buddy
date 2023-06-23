@@ -20,7 +20,7 @@ pub struct Cast {
 }
 
 impl Cast {
-    pub const fn new(skill: Skill, state: CastState, time: i32) -> Self {
+    pub const fn start(skill: Skill, state: CastState, time: i32) -> Self {
         Self {
             skill,
             time,
@@ -30,14 +30,31 @@ impl Cast {
         }
     }
 
+    pub const fn end(skill: Skill, state: CastState, duration: i32, time: i32) -> Self {
+        Self {
+            skill,
+            time,
+            state,
+            duration,
+            hits: Vec::new(),
+        }
+    }
+
+    pub fn from_hit(skill: Skill, target: &Agent, time: i32) -> Self {
+        let mut skill = Self::start(skill, CastState::Pre, time);
+        skill.hit(target);
+        skill
+    }
+
     pub fn hit(&mut self, target: &Agent) {
         self.hits.push(Hit {
             target: target.prof,
         })
     }
 
-    pub fn complete(&mut self, result: CastState, duration: i32, time: i32) {
+    pub fn complete(&mut self, skill: Skill, result: CastState, duration: i32, time: i32) {
         if let CastState::Pre = self.state {
+            self.skill = skill;
             self.time = time - duration;
         }
         self.state = result;

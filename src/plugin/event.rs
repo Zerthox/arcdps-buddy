@@ -120,34 +120,29 @@ impl Plugin {
         }
     }
 
-    pub fn cast_start(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
+    fn cast_start(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
         let skill = Skill::new(event.skill_id, skill_name);
-        let cast = Cast::new(skill, CastState::Casting, time);
+        let cast = Cast::start(skill, CastState::Casting, time);
         debug!("start {cast:?}");
         self.add_cast(cast);
     }
 
-    pub fn cast_end(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
+    fn cast_end(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
         let state = event.is_activation.into();
         let duration = event.value;
-        let start = time - duration;
 
+        let skill = Skill::new(event.skill_id, skill_name);
         if let Some(cast) = self.latest_cast_mut(event.skill_id) {
+            cast.complete(skill, state, duration, time);
             debug!("complete {cast:?}");
-            if let CastState::Pre = cast.state {
-                cast.time = start;
-            }
-            cast.complete(state, duration, time);
         } else {
-            let skill = Skill::new(event.skill_id, skill_name);
-            let mut cast = Cast::new(skill, CastState::Casting, start);
-            cast.complete(state, duration, time);
+            let cast = Cast::end(skill, CastState::Casting, duration, time - duration);
             debug!("complete without start {cast:?}");
             self.add_cast(cast);
         }
     }
 
-    pub fn apply_buff(&mut self, id: u32, target: &Agent, duration: i32, time: i32) {
+    fn apply_buff(&mut self, id: u32, target: &Agent, duration: i32, time: i32) {
         if target.is_self == 0 {
             if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), id.try_into()) {
                 fight
@@ -158,13 +153,7 @@ impl Plugin {
         }
     }
 
-    pub fn strike(
-        &mut self,
-        event: &CombatEvent,
-        skill_name: Option<&str>,
-        target: &Agent,
-        time: i32,
-    ) {
+    fn strike(&mut self, event: &CombatEvent, skill_name: Option<&str>, target: &Agent, time: i32) {
         let skill = Skill::new(event.skill_id, skill_name);
         match event.result.try_into() {
             Ok(Strike::Normal | Strike::Crit | Strike::Glance) => {
@@ -182,14 +171,13 @@ impl Plugin {
             cast.hit(target);
             debug!("hit {:?} {target:?}", cast.skill);
         } else {
-            let mut cast = Cast::new(skill, CastState::Pre, time);
-            cast.hit(target);
+            let cast = Cast::from_hit(skill, target, time);
             debug!("hit without start {cast:?}");
             self.add_cast(cast);
         }
     }
 
-    pub fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
+    fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
         if let Some(fight) = self.history.latest_fight_mut() {
             dbg!("breakbar {damage} {skill:?} {target:?}");
             let hit = BreakbarHit::new(skill, target, damage, time);
