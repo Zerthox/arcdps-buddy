@@ -1,6 +1,11 @@
 # ArcDPS Buddy
 [ArcDPS](https://deltaconnected.com/arcdps) plugin for [Guild Wars 2](https://guildwars2.com) assisting with combat gameplay.
 
+## Features
+- Track skill cast states, durations & hit counts
+- Track Quickness & Alacrity applications to other players & NPCs
+- Track breakbar damage hits
+
 ## Casts
 You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
 
