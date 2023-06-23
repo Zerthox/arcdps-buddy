@@ -51,13 +51,15 @@ impl Plugin {
                                             (event.is_buff_remove, dst)
                                         {
                                             if event.buff != 0 {
-                                                // TODO: "effective" duration excluding overstack?
-                                                plugin.apply_buff(
-                                                    event.skill_id,
-                                                    &dst,
-                                                    event.value,
-                                                    time,
-                                                );
+                                                if event.buff_dmg == 0 {
+                                                    // TODO: "effective" duration excluding overstack?
+                                                    plugin.apply_buff(
+                                                        event.skill_id,
+                                                        &dst,
+                                                        event.value,
+                                                        time,
+                                                    );
+                                                }
                                             } else {
                                                 plugin.strike(&event, skill_name, &dst, time);
                                             }
