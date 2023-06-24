@@ -1,5 +1,5 @@
 use super::skill::Skill;
-use arcdps::{Activation, Agent};
+use arcdps::{evtc::AgentKind, Activation, Agent};
 
 #[derive(Debug, Clone)]
 pub struct Cast {
@@ -106,7 +106,10 @@ pub struct Hit {
 impl From<&Agent<'_>> for Hit {
     fn from(target: &Agent) -> Self {
         Self {
-            target: target.prof,
+            target: match target.kind() {
+                AgentKind::Player => 0,
+                AgentKind::Npc(species) | AgentKind::Gadget(species) => species as u32,
+            },
         }
     }
 }
