@@ -3,11 +3,11 @@ use arcdps::{Activation, Agent};
 
 #[derive(Debug, Clone)]
 pub struct Cast {
-    /// Casted skill.
-    pub skill: Skill,
-
     /// Time of start event or first registered hit.
     pub time: i32,
+
+    /// Casted skill.
+    pub skill: Skill,
 
     /// Current [`CastState`] of the cast.
     pub state: CastState,
@@ -20,36 +20,38 @@ pub struct Cast {
 }
 
 impl Cast {
-    pub const fn start(skill: Skill, state: CastState, time: i32) -> Self {
+    pub const fn from_start(time: i32, skill: Skill, state: CastState) -> Self {
         Self {
-            skill,
             time,
+            skill,
             state,
             duration: 0,
             hits: Vec::new(),
         }
     }
 
-    pub const fn end(skill: Skill, state: CastState, duration: i32, time: i32) -> Self {
+    pub const fn from_end(time: i32, skill: Skill, state: CastState, duration: i32) -> Self {
         Self {
-            skill,
             time,
+            skill,
             state,
             duration,
             hits: Vec::new(),
         }
     }
 
-    pub fn from_hit(skill: Skill, target: &Agent, time: i32) -> Self {
-        let mut skill = Self::start(skill, CastState::Pre, time);
-        skill.hit(target);
-        skill
+    pub fn from_hit(time: i32, skill: Skill, target: &Agent) -> Self {
+        Self {
+            time,
+            skill,
+            state: CastState::Pre,
+            duration: 0,
+            hits: vec![target.into()],
+        }
     }
 
     pub fn hit(&mut self, target: &Agent) {
-        self.hits.push(Hit {
-            target: target.prof,
-        })
+        self.hits.push(target.into())
     }
 
     pub fn complete(&mut self, skill: Skill, result: CastState, duration: i32, time: i32) {
@@ -99,4 +101,12 @@ impl From<Activation> for CastState {
 pub struct Hit {
     /// Target species.
     pub target: u32,
+}
+
+impl From<&Agent<'_>> for Hit {
+    fn from(target: &Agent) -> Self {
+        Self {
+            target: target.prof,
+        }
+    }
 }

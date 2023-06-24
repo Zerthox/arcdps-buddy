@@ -124,7 +124,7 @@ impl Plugin {
 
     fn cast_start(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
         let skill = Skill::new(event.skill_id, skill_name);
-        let cast = Cast::start(skill, CastState::Casting, time);
+        let cast = Cast::from_start(time, skill, CastState::Casting);
         debug!("start {cast:?}");
         self.add_cast(cast);
     }
@@ -138,7 +138,7 @@ impl Plugin {
             cast.complete(skill, state, duration, time);
             debug!("complete {cast:?}");
         } else {
-            let cast = Cast::end(skill, CastState::Casting, duration, time - duration);
+            let cast = Cast::from_end(time - duration, skill, CastState::Casting, duration);
             debug!("complete without start {cast:?}");
             self.add_cast(cast);
         }
@@ -150,7 +150,7 @@ impl Plugin {
                 fight
                     .data
                     .boons
-                    .push(BoonApply::new(boon, target, duration, time))
+                    .push(BoonApply::new(time, boon, duration, target))
             }
         }
     }
@@ -173,7 +173,7 @@ impl Plugin {
             cast.hit(target);
             debug!("hit {:?} {target:?}", cast.skill);
         } else {
-            let cast = Cast::from_hit(skill, target, time);
+            let cast = Cast::from_hit(time, skill, target);
             debug!("hit without start {cast:?}");
             self.add_cast(cast);
         }
@@ -182,7 +182,7 @@ impl Plugin {
     fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
         if let Some(fight) = self.history.latest_fight_mut() {
             dbg!("breakbar {damage} {skill:?} {target:?}");
-            let hit = BreakbarHit::new(skill, target, damage, time);
+            let hit = BreakbarHit::new(time, skill, damage, target);
             fight.data.breakbar.push(hit);
         }
     }

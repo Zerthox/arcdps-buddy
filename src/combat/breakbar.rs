@@ -10,7 +10,7 @@ pub struct BreakbarHit {
 }
 
 impl BreakbarHit {
-    pub fn new(skill: Skill, target: &Agent, damage: i32, time: i32) -> Self {
+    pub fn new(time: i32, skill: Skill, damage: i32, target: &Agent) -> Self {
         Self {
             time,
             skill,
