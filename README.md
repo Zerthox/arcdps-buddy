@@ -8,6 +8,7 @@
 
 ## Casts
 You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
+A single entry for a skill looks like this:
 
 ```yml
 - id: 45717 # id of casted skill.
@@ -15,3 +16,13 @@ You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
   hits: 5 # optional: number of hits. enables hit tracking. set to 0 to track with unknown hits.
   expected: 4 # optional: number of expected hits. threshold for yellow color. defaults to >= half hits.
 ```
+
+Individual default skill definitions can be overwritten or disabled:
+
+```yml
+- id: 12345 # overwrite the default entry entirely
+  hits: 5
+- id: 12345 # disable the default entry
+  enabled: false
+```
+ 

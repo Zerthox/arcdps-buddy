@@ -9,6 +9,9 @@ pub struct SkillDef {
     /// Skill id.
     pub id: u32,
 
+    #[serde(default = "default_as_true")]
+    pub enabled: bool,
+
     /// Additional hit skill id.
     pub hit_id: Option<u32>,
 
@@ -17,4 +20,8 @@ pub struct SkillDef {
 
     /// Minimum amount of hits expected.
     pub expected: Option<u32>,
+}
+
+const fn default_as_true() -> bool {
+    true
 }

@@ -27,12 +27,14 @@ fn main() {
 
     let data = files.flat_map(|file| {
         println!("cargo:rerun-if-changes={}", file.display());
-        serde_yaml::from_reader::<_, Vec<SkillDef>>(File::open(file).unwrap()).unwrap()
+        let file = File::open(file).unwrap();
+        serde_yaml::from_reader::<_, Vec<SkillDef>>(file).unwrap()
     });
 
     let contents = data.map(|skill| {
         let SkillDef {
             id,
+            enabled,
             hit_id,
             hits,
             expected,
@@ -43,6 +45,7 @@ fn main() {
         quote! {
             SkillDef {
                 id: #id,
+                enabled: #enabled,
                 hit_id: #hit_id,
                 hits: #hits,
                 expected: #expected,
@@ -56,7 +59,8 @@ fn main() {
 }
 
 fn quote_option(option: Option<impl ToTokens>) -> TokenStream {
-    option
-        .map(|value| quote! { Some(#value) })
-        .unwrap_or(quote! { None })
+    match option {
+        Some(value) => quote! { Some(#value) },
+        None => quote! { None },
+    }
 }
