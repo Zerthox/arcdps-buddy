@@ -33,7 +33,7 @@ static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 #[derive(Debug)]
 pub struct Plugin {
     data: SkillData,
-    data_state: Result<(), LoadError>,
+    data_state: Result<usize, LoadError>,
 
     start: Option<u64>,
     history: History<CombatData>,

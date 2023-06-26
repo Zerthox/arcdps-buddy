@@ -80,7 +80,7 @@ impl Plugin {
         ui.text("Status:");
         ui.same_line();
         match self.data_state {
-            Ok(()) => ui.text_colored(green, "Loaded"),
+            Ok(count) => ui.text_colored(green, format!("Loaded {count} entries")),
             Err(LoadError::NotFound) => ui.text_colored(yellow, "Not found"),
             Err(LoadError::FailedToRead) => ui.text_colored(red, "Failed to read file"),
             Err(LoadError::Invalid) => ui.text_colored(red, "Failed to parse"),
