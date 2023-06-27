@@ -1,0 +1,44 @@
+# specter shroud
+- id: 63067 # siphon
+  hits: 1
+- id: 63160 # eternal night
+  hits: 2
+- id: 63249 # mind shock
+  hits: 1
+
+# dagger
+- id: 13006 # death blossom
+  hits: 3
+
+# pistol
+- id: 13011 # unload
+  hits: 8
+- id: 59526 # repeater
+  hits: 5
+
+# staff
+- id: 29911 # weakening charge
+  hits: 3
+
+# rifle
+- id: 44087 # deaths judgement
+  hits: 1
+- id: 44695 # three round burst
+  hits: 3
+
+# scepter
+- id: 63254 # twilight combo
+  hit_id: 63181 # secondary attack
+  hits: 2
+
+# slot
+- id: 56880 # pitfall
+  hits: 4
+- id: 56898 # thousand needles
+  hits: 5
+- id: 41158 # shadow flare
+  hits: 5
+- id: 63276 # well of sorrow
+  hits: 5
+- id: 13085 # dagger storm
+  hits: 6

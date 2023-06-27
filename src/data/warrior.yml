@@ -1,0 +1,29 @@
+# burst
+- id: 14367 # flurry
+  hits: 9
+
+# berserker
+- id: 29852 # arc divider
+  hits: 3
+- id: 30682 # flaming flurry
+  hits: 8
+- id: 29923 # scorched earth
+  hits: 3
+
+# spellbreaker
+- id: 42494 # flurry
+  hits: 9
+
+# greatsword
+- id: 14554 # hundred blades
+  hits: 8
+- id: 14447 # whirlwind attack
+  hits: 4
+
+# rifle
+- id: 14416 # volley
+  hits: 5
+
+# torch
+- id: 29845 # blaze breaker
+  hits: 5

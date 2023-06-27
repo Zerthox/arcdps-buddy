@@ -1,0 +1,55 @@
+# shatter
+- id: 10191 # mind wrack
+  hits: 4
+- id: 10190 # cry of frustration
+  hits: 4
+
+# chronomancer
+- id: 56930 # split second
+  hits: 8
+- id: 56928 # rewinder
+  hits: 4
+
+# virtuoso
+- id: 62617 # bladesong harmony
+  hits: 5
+- id: 62616 # bladesong sorrow
+  hits: 5
+- id: 62597 # bladeturn requiem
+  hits: 5
+
+# sword
+- id: 10334 # blurred frenzy
+  hits: 8
+- id: 10174 # phantasmal swordsman
+  hits: 1
+
+# greatsword
+- id: 10333 # mirror blade
+  hits: 6
+  expected: 4
+- id: 10218 # mind stab
+  hits: 1
+- id: 10221 # phantasmal berserker
+  hits: 1
+
+# staff
+- id: 10169 # chaos storm
+  hits: 6
+
+# dagger
+- id: 62560 # bladecall
+  hits: 6
+- id: 62607 # unstable bladestorm
+  hit_id: 62564 # TODO: hits after patch
+
+# axe
+- id: 45243 # lingering thoughts
+  hits: 3
+
+# slot
+- id: 10267 # phantasmal disenchanter
+- id: 30525 # well of calamity
+  hits: 4
+- id: 30359 # gravity well
+  hits: 4

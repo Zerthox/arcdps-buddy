@@ -3,6 +3,10 @@
   hits: 10
   expected: 7
 
+# greatsword
+- id: 62929 # eternitys requiem
+  hits: 14
+
 # slot
 - id: 40485 # icerazors ire
   hit_id: 43856 # different id for hits

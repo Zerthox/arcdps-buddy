@@ -1,0 +1,37 @@
+# staff
+- id: 5501 # meteor shower
+  hits: 24
+
+# warhorn
+- id: 30795 # lightning orb
+  hits: 42
+  expected: 14
+
+# sword
+- id: 45313 # flame uprising
+  hits: 5
+
+# slot
+- id: 5736 # firestorm (glyph of storms)
+  hits: 11
+- id: 5737 # lightning storm (glyph of storms)
+  hits: 36
+  expected: 25
+- id: 40183 #  primordial stance
+  hits: 6
+
+# lightning hammer
+- id: 5725 # invoke lightning
+  hits: 20
+
+# frost bow
+- id: 5720 # frost volley
+  hit: 5
+- id: 5568 # frost fan
+  hit: 7
+- id: 5723 # frost storm
+  hit: 24
+
+# fiery greatsword
+- id: 5531 # firestorm
+  hits: 9
