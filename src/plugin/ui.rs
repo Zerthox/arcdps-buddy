@@ -76,6 +76,7 @@ impl Plugin {
         ui.spacing();
         ui.spacing();
 
+        // TODO: select data, default only, custom only or both
         ui.text_colored(grey, "Custom data");
         ui.text("Status:");
         ui.same_line();

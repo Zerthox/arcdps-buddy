@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 // TODO: allow name override?
 // TODO: instead of hits allow counting buff apply?
 // TODO: support instant casts with buff apply?
+// TODO: support own minions hits?
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillDef {
