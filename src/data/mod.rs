@@ -61,18 +61,6 @@ impl SkillData {
         self.map.get(&id).and_then(|index| self.data.get(*index))
     }
 
-    /// Maps a potential hit skill id to the primary skill id.
-    pub fn map_hit_id(&self, id: u32) -> u32 {
-        match self.get(id) {
-            Some(SkillDef {
-                id: skill_id,
-                hit_id: Some(hit_id),
-                ..
-            }) if *hit_id == id => *skill_id,
-            _ => id,
-        }
-    }
-
     /// Attempts to load data from a given file path.
     pub fn try_load(&mut self, path: impl AsRef<Path>) -> Result<usize, LoadError> {
         let file = BufReader::new(File::open(path)?);

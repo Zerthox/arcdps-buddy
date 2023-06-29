@@ -168,14 +168,22 @@ impl Plugin {
 
     fn damage_hit(&mut self, mut skill: Skill, target: &Agent, time: i32) {
         // TODO: use local combat events for hits?
-        skill.id = self.data.map_hit_id(skill.id);
-        if let Some(cast) = self.latest_cast_mut(skill.id) {
-            cast.hit(target);
-            debug!("hit {:?} {target:?}", cast.skill);
-        } else {
-            let cast = Cast::from_hit(time, skill, target);
-            debug!("hit without start {cast:?}");
-            self.add_cast(cast);
+        if let Some(def) = self.data.get(skill.id) {
+            // replace skill id
+            skill.id = def.id;
+
+            let max = def.max_duration;
+            match self.latest_cast_mut(skill.id) {
+                Some(cast) if time - cast.time <= max => {
+                    cast.hit(target);
+                    debug!("hit {:?} {target:?}", cast.skill);
+                }
+                _ => {
+                    let cast = Cast::from_hit(time, skill, target);
+                    debug!("hit without start {cast:?}");
+                    self.add_cast(cast);
+                }
+            }
         }
     }
 

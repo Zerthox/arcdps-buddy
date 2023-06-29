@@ -15,6 +15,7 @@ A single entry for a skill looks like this:
   hit_id: 42145 # optional: id of hit skill, if different from cast.
   hits: 5 # optional: number of hits. enables hit tracking. set to 0 to track with unknown hits.
   expected: 4 # optional: number of expected hits. threshold for yellow color. defaults to >= half hits.
+  max_duration: 10000 # optional: maximum duration (ms). hits after the duration count towards a new cast.
 ```
 
 Individual default skill definitions can be overwritten or disabled:

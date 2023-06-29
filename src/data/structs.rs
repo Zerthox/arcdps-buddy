@@ -10,10 +10,12 @@ pub struct SkillDef {
     /// Skill id.
     pub id: u32,
 
+    /// Whether the definition is active.
     #[serde(default = "default_as_true")]
     pub enabled: bool,
 
     /// Additional hit skill id.
+    #[serde(default)]
     pub hit_id: Option<u32>,
 
     /// Total amount of hits.
@@ -21,8 +23,16 @@ pub struct SkillDef {
 
     /// Minimum amount of hits expected.
     pub expected: Option<u32>,
+
+    /// Maximum duration (ms) to count as one cast.
+    #[serde(default = "default_as_max")]
+    pub max_duration: i32,
 }
 
 const fn default_as_true() -> bool {
     true
+}
+
+const fn default_as_max() -> i32 {
+    i32::MAX
 }

@@ -38,6 +38,7 @@ fn main() {
             hit_id,
             hits,
             expected,
+            max_duration,
         } = skill;
         let hit_id = quote_option(hit_id);
         let hits = quote_option(hits);
@@ -49,6 +50,7 @@ fn main() {
                 hit_id: #hit_id,
                 hits: #hits,
                 expected: #expected,
+                max_duration: #max_duration,
             }
         }
     });
