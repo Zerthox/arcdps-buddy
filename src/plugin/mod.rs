@@ -10,6 +10,7 @@ use crate::{
 use arc_util::{
     settings::Settings,
     ui::{Window, WindowOptions},
+    update::{Repository, Updater},
 };
 use log::{info, warn};
 use once_cell::sync::Lazy;
@@ -32,6 +33,8 @@ static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 /// Main plugin.
 #[derive(Debug)]
 pub struct Plugin {
+    updater: Updater,
+
     data: SkillData,
     data_state: Result<usize, LoadError>,
 
@@ -48,6 +51,12 @@ impl Plugin {
     /// Creates a new plugin.
     pub fn new() -> Self {
         Self {
+            updater: Updater::new(
+                "Buddy",
+                Repository::new("zerthox", "arcdps-buddy"),
+                VERSION.parse().unwrap(),
+            ),
+
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
 

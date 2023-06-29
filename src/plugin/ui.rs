@@ -21,6 +21,7 @@ impl Plugin {
         let ui_settings = exports::ui_settings();
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
             let Plugin {
+                updater,
                 data,
                 history,
                 multi_view,
@@ -30,6 +31,7 @@ impl Plugin {
                 ..
             } = &mut *Self::lock(); // for borrowing
 
+            updater.render(ui);
             multi_view.render(ui, MultiViewProps { data, history });
             cast_log.render(ui, CastLogProps { data, history });
             boon_log.render(ui, BoonLogProps { history });
