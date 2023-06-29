@@ -3,13 +3,11 @@
   hit_id: 43995
   hits: 1
 
-# longbow
-- id: 12509 # rapid fire
-  hits: 10
-  expected: 8
-- id: 12469 # barrage
-  hits: 12
-  expected: 4
+# sword
+- id: 69203 # pounce
+  hits: 1
+- id: 12482 # serpent's strike
+  hits: 1
 
 # axe
 - id: 12480 # splitblade
@@ -21,6 +19,14 @@
 - id: 12639 # whirling defense
   hits: 12
   expected: 10
+
+# longbow
+- id: 12509 # rapid fire
+  hits: 10
+  expected: 8
+- id: 12469 # barrage
+  hits: 12
+  expected: 4
 
 # torch
 - id: 12504 # bonfire

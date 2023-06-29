@@ -17,6 +17,7 @@
   hits: 5
 - id: 62597 # bladeturn requiem
   hits: 5
+  max_duration: 5000 # separate casts 5s apart, duration from first hit is 4s
 
 # sword
 - id: 10334 # blurred frenzy
@@ -41,7 +42,7 @@
 - id: 62560 # bladecall
   hits: 6
 - id: 62607 # unstable bladestorm
-  hit_id: 62564 # TODO: hits after patch
+  hits: 8
 
 # axe
 - id: 45243 # lingering thoughts
