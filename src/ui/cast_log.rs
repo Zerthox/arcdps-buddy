@@ -53,26 +53,22 @@ impl CastLog {
     fn format_hits(
         colors: &Colors,
         hits: usize,
-        max: u32,
-        expected: Option<u32>,
+        max: usize,
+        expected: Option<usize>,
     ) -> (Color, String) {
         let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
         let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
         let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
         let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-        let max = max as usize;
+        let max = max;
         let has_hits = max > 0;
         let color = if has_hits {
             if hits > max {
                 blue
             } else if hits == max {
                 green
-            } else if hits
-                >= expected
-                    .map(|expected| expected as usize)
-                    .unwrap_or((max + 1) / 2)
-            {
+            } else if hits >= expected.unwrap_or((max + 1) / 2) {
                 yellow
             } else {
                 red

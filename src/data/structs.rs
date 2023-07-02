@@ -18,10 +18,10 @@ pub struct SkillDef {
     pub hit_ids: Vec<u32>,
 
     /// Total amount of hits.
-    pub hits: Option<u32>,
+    pub hits: Option<usize>,
 
     /// Minimum amount of hits expected.
-    pub expected: Option<u32>,
+    pub expected: Option<usize>,
 
     /// Maximum duration (ms) to count as one cast.
     #[serde(default = "default_as_max")]
