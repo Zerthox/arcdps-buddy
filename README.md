@@ -11,8 +11,8 @@ You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
 A single entry for a skill looks like this:
 
 ```yml
-- id: 45717 # id of casted skill.
-  hit_ids: [42145] # optional: additional skill ids to count for hits.
+- id: 12345 # id of casted skill.
+  hit_ids: [23456, 34567] # optional: additional skill ids to count for hits.
   hits: 5 # optional: number of hits. enables hit tracking. set to 0 to track with unknown hits.
   expected: 4 # optional: number of expected hits. threshold for yellow color. defaults to >= half hits.
   max_duration: 10000 # optional: maximum duration (ms). hits after the duration count towards a new cast.
