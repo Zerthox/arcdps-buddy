@@ -32,11 +32,9 @@ impl SkillData {
                     map.insert(*hit_id, index);
                 }
                 data.push(skill.into());
-            } else {
-                map.remove(&skill.id);
-                for hit_id in &skill.hit_ids {
-                    map.remove(hit_id);
-                }
+            } else if let Some(index) = map.remove(&skill.id) {
+                // remove other hit ids pointing at same index
+                map.retain(|_, i| *i != index);
             }
         }
 
