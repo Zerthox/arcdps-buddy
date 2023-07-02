@@ -103,7 +103,7 @@ impl Plugin {
 
     fn start_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
         let species = event.src_agent as u32;
-        debug!("log start for {species} {dst:?}");
+        debug!("log start for {species}, {dst:?}");
         self.start = Some(event.time);
         self.history
             .add_fight_with_target(event.time, species, dst.as_ref());
@@ -111,13 +111,13 @@ impl Plugin {
 
     fn fight_target(&mut self, event: CombatEvent, dst: Option<Agent>) {
         let species = event.src_agent as u32;
-        debug!("log target change to {species} {dst:?}");
+        debug!("log target change to {species}, {dst:?}");
         self.history.update_latest_target(species, dst.as_ref());
     }
 
     fn end_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
         let species = event.src_agent;
-        debug!("log end for {species} {dst:?}");
+        debug!("log end for {species}, {dst:?}");
         self.start = None;
         self.history.end_latest_fight(event.time);
     }
@@ -147,8 +147,8 @@ impl Plugin {
 
     fn cast_start(&mut self, event: &CombatEvent, skill_name: Option<&str>, time: i32) {
         let skill = Skill::new(event.skill_id, skill_name);
+        debug!("start {skill:?}");
         let cast = Cast::from_start(time, skill, CastState::Casting);
-        debug!("start {cast:?}");
         self.add_cast(cast);
     }
 
@@ -196,21 +196,20 @@ impl Plugin {
 
     fn damage_hit(&mut self, is_minion: bool, mut skill: Skill, target: &Agent, time: i32) {
         // TODO: use local combat events for hits?
-        if let Some(def) = self.data.get(skill.id) {
-            dbg!("hit {skill} {def:?} minion {is_minion}");
-            if def.minion || !is_minion {
+        if let Some(info) = self.data.get(skill.id) {
+            if info.minion || !is_minion {
                 // replace skill id
-                skill.id = def.id;
+                skill.id = info.id;
 
-                let max = def.max_duration;
+                let max = info.max_duration;
                 match self.latest_cast_mut(skill.id) {
                     Some(cast) if time - cast.time <= max => {
                         cast.hit(target);
-                        debug!("hit {:?} {target:?}", cast.skill);
+                        debug!("hit {:?}, {target:?}", cast.skill);
                     }
                     _ => {
                         let cast = Cast::from_hit(time, skill, target);
-                        debug!("hit without start {cast:?}");
+                        debug!("hit without start {:?}, {target:?}", cast.skill);
                         self.add_cast(cast);
                     }
                 }
@@ -221,7 +220,7 @@ impl Plugin {
     fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
         // TODO: display minion indicator?
         if let Some(fight) = self.history.latest_fight_mut() {
-            dbg!("breakbar {damage} {skill:?} {target:?}");
+            debug!("breakbar {damage} {skill:?} {target:?}");
             let hit = BreakbarHit::new(time, skill, damage, target);
             fight.data.breakbar.push(hit);
         }
