@@ -1,6 +1,6 @@
 # soulbeast
 - id: 43995 # charge (gazelle)
-  hit_id: 45743
+  hit_ids: [45743]
   hits: 1
 
 # sword
@@ -41,6 +41,6 @@
 - id: 12496 # vipers nest
   hits: 3
 - id: 45717 # one wolf pack
-  hit_id: 42145 # different id for hits
+  hit_ids: [42145] # different id for hits
   hits: 5
   expected: 4

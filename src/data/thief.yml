@@ -28,7 +28,7 @@
 
 # scepter
 - id: 63254 # twilight combo
-  hit_id: 63181 # secondary attack
+  hit_ids: [63181] # secondary attack
   hits: 2
 
 # slot

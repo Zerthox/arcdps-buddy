@@ -17,13 +17,15 @@
   hits: 5
 - id: 62597 # bladeturn requiem
   hits: 5
-  max_duration: 5000 # separate casts 5s apart, duration from first hit is 4s
+  max_duration: 5000 # duration from first hit is ~4s
 
 # sword
 - id: 10334 # blurred frenzy
   hits: 8
 - id: 10174 # phantasmal swordsman
-  hits: 1
+  hit_ids: [10230, 49067] # phantasm illusionary sword attack & blurred frenzy
+  hits: 10
+  minion: true
 
 # greatsword
 - id: 10333 # mirror blade
@@ -32,7 +34,10 @@
 - id: 10218 # mind stab
   hits: 1
 - id: 10221 # phantasmal berserker
-  hits: 1
+  hit_ids: [38785, 10222] # greatsword hit & phantasm skill
+  hits: 9 # assumes bountiful blades trait
+  expected: 4 # without trait
+  minion: true
 
 # staff
 - id: 10169 # chaos storm
@@ -50,7 +55,12 @@
 
 # slot
 - id: 10267 # phantasmal disenchanter
+  hit_ids: [10266]
+  hits: 1 # actually 4 bounces
+  minion: true
 - id: 30525 # well of calamity
   hits: 4
 - id: 30359 # gravity well
   hits: 4
+- id: 24755
+  max_duration: 5500 # duration from first hit is ~4.7s

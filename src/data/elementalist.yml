@@ -26,11 +26,11 @@
 
 # frost bow
 - id: 5720 # frost volley
-  hit: 5
+  hits: 5
 - id: 5568 # frost fan
-  hit: 7
+  hits: 7
 - id: 5723 # frost storm
-  hit: 24
+  hits: 24
 
 # fiery greatsword
 - id: 5531 # firestorm
