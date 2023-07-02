@@ -9,8 +9,6 @@ use std::{
     path::Path,
 };
 
-pub const SKILLS: &[SkillDef] = &include!(concat!(env!("OUT_DIR"), "/skills.rs"));
-
 /// Skill data.
 #[derive(Debug)]
 pub struct SkillData {
@@ -27,13 +25,13 @@ impl SkillData {
         for (index, skill) in data.iter().enumerate() {
             if skill.enabled {
                 map.insert(skill.id, index);
-                if let Some(hit_id) = skill.hit_id {
-                    map.insert(hit_id, index);
+                for hit_id in &skill.hit_ids {
+                    map.insert(*hit_id, index);
                 }
             } else {
                 map.remove(&skill.id);
-                if let Some(hit_id) = skill.hit_id {
-                    map.remove(&hit_id);
+                for hit_id in &skill.hit_ids {
+                    map.remove(hit_id);
                 }
             }
         }
@@ -44,7 +42,8 @@ impl SkillData {
 
     /// Creates new skill data with the defaults.
     pub fn with_defaults() -> Self {
-        Self::new(SKILLS.iter().cloned())
+        let skills = include!(concat!(env!("OUT_DIR"), "/skills.rs"));
+        Self::new(skills)
     }
 
     /// Checks whether there is an entry for the skill id.

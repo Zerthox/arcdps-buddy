@@ -35,22 +35,23 @@ fn main() {
         let SkillDef {
             id,
             enabled,
-            hit_id,
+            hit_ids,
             hits,
             expected,
             max_duration,
+            minion,
         } = skill;
-        let hit_id = quote_option(hit_id);
         let hits = quote_option(hits);
         let expected = quote_option(expected);
         quote! {
             SkillDef {
                 id: #id,
                 enabled: #enabled,
-                hit_id: #hit_id,
+                hit_ids: vec![ #(#hit_ids),* ],
                 hits: #hits,
                 expected: #expected,
                 max_duration: #max_duration,
+                minion: #minion,
             }
         }
     });

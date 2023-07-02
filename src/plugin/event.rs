@@ -5,7 +5,7 @@ use crate::combat::{
     cast::{Cast, CastState},
     skill::Skill,
 };
-use arcdps::{Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
+use arcdps::{evtc::EventKind, Activation, Agent, CombatEvent, StateChange, Strike};
 use log::debug;
 
 impl Plugin {
@@ -21,49 +21,27 @@ impl Plugin {
         if let Some(src) = src {
             if let Some(event) = event {
                 let is_self = src.is_self != 0;
-                match event.is_statechange {
-                    StateChange::LogStart => Plugin::lock().start_fight(event, dst),
-                    StateChange::LogNPCUpdate => Plugin::lock().fight_target(event, dst),
-                    StateChange::LogEnd => Plugin::lock().end_fight(event, dst),
+                match event.kind() {
+                    EventKind::StateChange => match event.is_statechange {
+                        StateChange::LogStart => Self::lock().start_fight(event, dst),
+                        StateChange::LogNPCUpdate => Self::lock().fight_target(event, dst),
+                        StateChange::LogEnd => Self::lock().end_fight(event, dst),
+                        _ => {}
+                    },
 
-                    StateChange::None if is_self => {
+                    EventKind::Activation if is_self => {
                         let mut plugin = Self::lock();
-                        if let Some(start) = plugin.start {
-                            // TODO: add data to previous fight?
-                            if event.time >= start {
-                                let time = (event.time - start) as i32;
-                                let in_data = plugin.data.contains(event.skill_id);
+                        if let Some(time) = plugin.combat_time(&event) {
+                            if plugin.data.contains(event.skill_id) {
                                 match event.is_activation {
-                                    Activation::Start if in_data => {
+                                    Activation::Start => {
                                         plugin.cast_start(&event, skill_name, time)
                                     }
 
                                     Activation::CancelFire
                                     | Activation::CancelCancel
-                                    | Activation::Reset
-                                        if in_data =>
-                                    {
+                                    | Activation::Reset => {
                                         plugin.cast_end(&event, skill_name, time)
-                                    }
-
-                                    Activation::None => {
-                                        if let (BuffRemove::None, Some(dst)) =
-                                            (event.is_buff_remove, dst)
-                                        {
-                                            if event.buff != 0 {
-                                                if event.buff_dmg == 0 {
-                                                    // TODO: "effective" duration excluding overstack?
-                                                    plugin.apply_buff(
-                                                        event.skill_id,
-                                                        &dst,
-                                                        event.value,
-                                                        time,
-                                                    );
-                                                }
-                                            } else {
-                                                plugin.strike(&event, skill_name, &dst, time);
-                                            }
-                                        }
                                     }
 
                                     _ => {}
@@ -72,10 +50,55 @@ impl Plugin {
                         }
                     }
 
+                    EventKind::BuffApply => {
+                        let mut plugin = Self::lock();
+                        if is_self || plugin.is_own_minion(&event) {
+                            if let (Some(dst), Some(time)) = (dst, plugin.combat_time(&event)) {
+                                // ignore applies to self or same agent
+                                if dst.is_self == 0 && dst.id != src.id {
+                                    // TODO: "effective" duration excluding overstack?
+                                    plugin.apply_buff(event.skill_id, &dst, event.value, time);
+                                }
+                            }
+                        }
+                    }
+
+                    EventKind::DirectDamage => {
+                        let mut plugin = Self::lock();
+                        let is_minion = plugin.is_own_minion(&event);
+                        if is_self || is_minion {
+                            if let (Some(dst), Some(time)) = (dst, plugin.combat_time(&event)) {
+                                plugin.strike(&event, is_minion, skill_name, &dst, time)
+                            }
+                        }
+                    }
+
                     _ => {}
+                }
+            } else if let Some(dst) = dst {
+                // check for tracking addition
+                if dst.is_self != 0 && src.elite == 0 && src.prof != 0 {
+                    let mut plugin = Self::lock();
+                    let inst_id = dst.id as u16;
+                    plugin.self_instance_id = Some(inst_id);
+                    debug!("own instance id changed to {}", inst_id);
                 }
             }
         }
+    }
+
+    fn is_own_minion(&self, event: &CombatEvent) -> bool {
+        match self.self_instance_id {
+            Some(id) => event.src_master_instance_id == id,
+            None => false,
+        }
+    }
+
+    fn combat_time(&self, event: &CombatEvent) -> Option<i32> {
+        // TODO: add data to previous fight?
+        self.start
+            .filter(|start| event.time >= *start)
+            .map(|start| (event.time - start) as i32)
     }
 
     fn start_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {
@@ -144,50 +167,59 @@ impl Plugin {
         }
     }
 
-    fn apply_buff(&mut self, id: u32, target: &Agent, duration: i32, time: i32) {
-        if target.is_self == 0 {
-            if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), id.try_into()) {
-                fight
-                    .data
-                    .boons
-                    .push(BoonApply::new(time, boon, duration, target))
-            }
+    fn apply_buff(&mut self, buff: u32, target: &Agent, duration: i32, time: i32) {
+        if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), buff.try_into()) {
+            fight
+                .data
+                .boons
+                .push(BoonApply::new(time, boon, duration, target))
         }
     }
 
-    fn strike(&mut self, event: &CombatEvent, skill_name: Option<&str>, target: &Agent, time: i32) {
+    fn strike(
+        &mut self,
+        event: &CombatEvent,
+        is_minion: bool,
+        skill_name: Option<&str>,
+        target: &Agent,
+        time: i32,
+    ) {
         let skill = Skill::new(event.skill_id, skill_name);
         match event.result.try_into() {
             Ok(Strike::Normal | Strike::Crit | Strike::Glance) => {
-                self.damage_hit(skill, target, time)
+                self.damage_hit(is_minion, skill, target, time)
             }
             Ok(Strike::Breakbar) => self.breakbar_hit(skill, target, event.value, time),
             _ => {}
         }
     }
 
-    fn damage_hit(&mut self, mut skill: Skill, target: &Agent, time: i32) {
+    fn damage_hit(&mut self, is_minion: bool, mut skill: Skill, target: &Agent, time: i32) {
         // TODO: use local combat events for hits?
         if let Some(def) = self.data.get(skill.id) {
-            // replace skill id
-            skill.id = def.id;
+            dbg!("hit {skill} {def:?} minion {is_minion}");
+            if def.minion || !is_minion {
+                // replace skill id
+                skill.id = def.id;
 
-            let max = def.max_duration;
-            match self.latest_cast_mut(skill.id) {
-                Some(cast) if time - cast.time <= max => {
-                    cast.hit(target);
-                    debug!("hit {:?} {target:?}", cast.skill);
-                }
-                _ => {
-                    let cast = Cast::from_hit(time, skill, target);
-                    debug!("hit without start {cast:?}");
-                    self.add_cast(cast);
+                let max = def.max_duration;
+                match self.latest_cast_mut(skill.id) {
+                    Some(cast) if time - cast.time <= max => {
+                        cast.hit(target);
+                        debug!("hit {:?} {target:?}", cast.skill);
+                    }
+                    _ => {
+                        let cast = Cast::from_hit(time, skill, target);
+                        debug!("hit without start {cast:?}");
+                        self.add_cast(cast);
+                    }
                 }
             }
         }
     }
 
     fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
+        // TODO: display minion indicator?
         if let Some(fight) = self.history.latest_fight_mut() {
             dbg!("breakbar {damage} {skill:?} {target:?}");
             let hit = BreakbarHit::new(time, skill, damage, target);

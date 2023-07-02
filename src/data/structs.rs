@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 // TODO: allow name override?
 // TODO: instead of hits allow counting buff apply?
 // TODO: support instant casts with buff apply?
-// TODO: support own minions hits?
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillDef {
@@ -14,9 +13,9 @@ pub struct SkillDef {
     #[serde(default = "default_as_true")]
     pub enabled: bool,
 
-    /// Additional hit skill id.
+    /// Additional hit skill ids.
     #[serde(default)]
-    pub hit_id: Option<u32>,
+    pub hit_ids: Vec<u32>,
 
     /// Total amount of hits.
     pub hits: Option<u32>,
@@ -27,6 +26,10 @@ pub struct SkillDef {
     /// Maximum duration (ms) to count as one cast.
     #[serde(default = "default_as_max")]
     pub max_duration: i32,
+
+    /// Whether to include minion hits.
+    #[serde(default)]
+    pub minion: bool,
 }
 
 const fn default_as_true() -> bool {

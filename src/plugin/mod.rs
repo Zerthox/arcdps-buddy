@@ -39,6 +39,7 @@ pub struct Plugin {
     data_state: Result<usize, LoadError>,
 
     start: Option<u64>,
+    self_instance_id: Option<u16>,
     history: History<CombatData>,
 
     multi_view: Window<MultiView>,
@@ -61,6 +62,7 @@ impl Plugin {
             data_state: Err(LoadError::NotFound),
 
             start: None,
+            self_instance_id: None,
             history: History::new(10),
 
             multi_view: Window::with_default(
