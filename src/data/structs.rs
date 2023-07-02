@@ -4,6 +4,56 @@ use serde::{Deserialize, Serialize};
 // TODO: instead of hits allow counting buff apply?
 // TODO: support instant casts with buff apply?
 
+/// Skill information.
+#[derive(Debug, Clone)]
+pub struct SkillInfo {
+    /// Skill id.
+    pub id: u32,
+
+    /// Hit information.
+    pub hits: Option<SkillHits>,
+
+    /// Maximum duration (ms) to count as one cast.
+    pub max_duration: i32,
+
+    /// Whether to include minion hits.
+    pub minion: bool,
+}
+
+impl From<SkillDef> for SkillInfo {
+    fn from(def: SkillDef) -> Self {
+        let SkillDef {
+            id,
+            enabled: _,
+            hit_ids: _,
+            hits,
+            expected,
+            max_duration,
+            minion,
+        } = def;
+        Self {
+            id,
+            hits: hits.map(|max| SkillHits {
+                max,
+                expected: expected.unwrap_or((max + 1) / 2),
+            }),
+            max_duration,
+            minion,
+        }
+    }
+}
+
+/// Skill hit information.
+#[derive(Debug, Clone)]
+pub struct SkillHits {
+    /// Total amount of hits.
+    pub max: usize,
+
+    /// Minimum amount of hits expected.
+    pub expected: usize,
+}
+
+/// Skill definition parsed from a file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillDef {
     /// Skill id.

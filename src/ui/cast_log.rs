@@ -1,6 +1,6 @@
 use crate::{
     combat::{cast::CastState, CombatData},
-    data::SkillData,
+    data::{SkillData, SkillHits},
     history::History,
     ui::{format_time, scroll::AutoScroll},
 };
@@ -50,25 +50,20 @@ impl CastLog {
         }
     }
 
-    fn format_hits(
-        colors: &Colors,
-        hits: usize,
-        max: usize,
-        expected: Option<usize>,
-    ) -> (Color, String) {
+    fn format_hits(colors: &Colors, hits: usize, info: &SkillHits) -> (Color, String) {
         let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
         let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
         let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
         let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-        let max = max;
+        let max = info.max;
         let has_hits = max > 0;
         let color = if has_hits {
             if hits > max {
                 blue
             } else if hits == max {
                 green
-            } else if hits >= expected.unwrap_or((max + 1) / 2) {
+            } else if hits >= info.expected {
                 yellow
             } else {
                 red
@@ -108,7 +103,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
                 for cast in &fight.data.casts {
-                    if let Some(def) = data.get(cast.skill.id) {
+                    if let Some(info) = data.get(cast.skill.id) {
                         if self.display_time {
                             ui.text_colored(grey, format_time(cast.time));
                             ui.same_line();
@@ -116,7 +111,7 @@ impl Component<CastLogProps<'_>> for CastLog {
 
                         ui.text(&cast.skill.name);
 
-                        if let Some(max) = def.hits {
+                        if let Some(hit_info) = info.hits.as_ref() {
                             if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
                                 let target_hits = if let Some(species) = fight.id {
                                     cast.hits.iter().filter(|hit| hit.target == species).count()
@@ -124,14 +119,13 @@ impl Component<CastLogProps<'_>> for CastLog {
                                     0
                                 };
                                 let (color, text) =
-                                    Self::format_hits(&colors, target_hits, max, def.expected);
+                                    Self::format_hits(&colors, target_hits, hit_info);
                                 ui.same_line();
                                 ui.text_colored(color, text);
                             }
 
                             let cleave_hits = cast.hits.len();
-                            let (color, text) =
-                                Self::format_hits(&colors, cleave_hits, max, def.expected);
+                            let (color, text) = Self::format_hits(&colors, cleave_hits, hit_info);
                             match self.display_hits {
                                 HitDisplay::Cleave => {
                                     ui.same_line();
