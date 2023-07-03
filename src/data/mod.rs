@@ -12,7 +12,10 @@ use std::{
 /// Skill data.
 #[derive(Debug)]
 pub struct SkillData {
+    /// Mapping of skill ids to data index.
     map: HashMap<u32, usize>,
+
+    /// Skill information data.
     data: Vec<SkillInfo>,
 }
 
@@ -21,7 +24,7 @@ impl SkillData {
     pub fn new(skills: impl IntoIterator<Item = SkillDef>) -> Self {
         let iter = skills.into_iter();
         let (size, _) = iter.size_hint();
-        let mut data = Vec::with_capacity(size);
+        let mut data = Vec::<SkillInfo>::with_capacity(size);
         let mut map = HashMap::with_capacity(size);
 
         for skill in iter {
@@ -33,8 +36,11 @@ impl SkillData {
                 }
                 data.push(skill.into());
             } else if let Some(index) = map.remove(&skill.id) {
-                // remove other hit ids pointing at same index
-                map.retain(|_, i| *i != index);
+                // check if primary id
+                if data[index].id == skill.id {
+                    // remove other hit ids pointing at same index
+                    map.retain(|_, i| *i != index);
+                }
             }
         }
 
