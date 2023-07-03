@@ -28,6 +28,10 @@
   hits: 12
   expected: 4
 
+# warhorn
+- id: 12620 # hunter's call
+  hits: 16
+
 # torch
 - id: 12504 # bonfire
   hits: 9
