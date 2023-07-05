@@ -63,7 +63,7 @@ impl Plugin {
 
             start: None,
             self_instance_id: None,
-            history: History::new(10),
+            history: History::new(10, 10_000),
 
             multi_view: Window::with_default(
                 "Buddy Multi",
@@ -120,6 +120,7 @@ impl Plugin {
             }
         );
 
+        settings.load_component(&mut self.history);
         settings.load_component(&mut self.multi_view);
         settings.load_component(&mut self.cast_log);
         settings.load_component(&mut self.boon_log);
@@ -155,6 +156,7 @@ impl Plugin {
         let mut settings = Settings::from_file(SETTINGS_FILE);
 
         settings.store_data("version", VERSION);
+        settings.store_component(&self.history);
         settings.store_component(&self.multi_view);
         settings.store_component(&self.cast_log);
         settings.store_component(&self.boon_log);

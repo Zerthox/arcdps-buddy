@@ -1,26 +1,26 @@
 #![allow(unused)]
 
 mod fight;
+mod settings;
 mod ui;
 
 pub use self::fight::*;
+pub use self::settings::*;
 
 use arcdps::Agent;
 use std::{cell::Cell, collections::VecDeque, sync::atomic::AtomicUsize};
 
 #[derive(Debug)]
 pub struct History<T> {
-    pub max: usize,
+    pub settings: HistorySettings,
     viewed: usize,
     fights: VecDeque<Fight<T>>,
 }
 
 impl<T> History<T> {
-    pub const MIN_DURATION: u64 = 10 * 1000;
-
-    pub const fn new(max: usize) -> Self {
+    pub const fn new(max_fights: usize, min_duration: u64) -> Self {
         Self {
-            max,
+            settings: HistorySettings::new(max_fights, min_duration),
             viewed: 0,
             fights: VecDeque::new(),
         }
@@ -70,11 +70,12 @@ impl<T> History<T> {
     where
         T: Default,
     {
-        self.fights.retain(|fight| match fight.duration() {
-            Some(duration) => duration > Self::MIN_DURATION,
-            None => true,
-        });
-        if self.fights.len() > self.max {
+        if let Some(prev) = self.fights.front() {
+            if matches!(prev.duration(), Some(duration) if duration < self.settings.min_duration) {
+                self.fights.pop_front();
+            }
+        }
+        if self.fights.len() > self.settings.max_fights {
             self.fights.pop_back();
         }
         self.fights.push_front(Fight::new(time, data));

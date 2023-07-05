@@ -78,6 +78,31 @@ impl Plugin {
         ui.spacing();
         ui.spacing();
 
+        ui.text_colored(grey, "Fight history");
+        let settings = &mut self.history.settings;
+        let mut max_fights = settings.max_fights as _;
+        if ui.input_int("Max fights", &mut max_fights).build() {
+            settings.max_fights = max_fights.try_into().unwrap_or_default();
+        }
+        if ui.is_item_hovered() {
+            ui.tooltip_text("Maximum amount of fights saved in the history");
+        }
+        let mut min_duration = settings.min_duration as _;
+        if ui
+            .input_int("Min duration (ms)", &mut min_duration)
+            .step(100)
+            .step_fast(1000)
+            .build()
+        {
+            settings.min_duration = min_duration.try_into().unwrap_or_default();
+        }
+        if ui.is_item_hovered() {
+            ui.tooltip_text("Minimum duration to keep a fight after ending");
+        }
+
+        ui.spacing();
+        ui.spacing();
+
         // TODO: select data, default only, custom only or both
         ui.text_colored(grey, "Custom data");
         ui.text("Status:");
