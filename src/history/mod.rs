@@ -114,7 +114,11 @@ impl<T> History<T> {
 
     pub fn end_latest_fight(&mut self, time: u64) {
         if let Some(fight) = self.latest_fight_mut() {
-            fight.end(time);
+            let duration = fight.end(time);
+            if duration < self.settings.min_duration {
+                self.fights.pop_front();
+                self.update_viewed();
+            }
         }
     }
 }
