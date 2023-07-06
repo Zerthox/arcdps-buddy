@@ -63,7 +63,7 @@ impl Plugin {
 
             start: None,
             self_instance_id: None,
-            history: History::new(10, 5_000),
+            history: History::new(10, 5000),
 
             multi_view: Window::with_default(
                 "Buddy Multi",
