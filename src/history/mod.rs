@@ -75,19 +75,13 @@ impl<T> History<T> {
                 self.fights.pop_front();
             }
         }
-        if self.fights.len() > self.settings.max_fights {
+        if self.len() > self.settings.max_fights {
             self.fights.pop_back();
         }
         self.fights.push_front(Fight::new(time, data));
-        self.update_viewed();
-    }
-
-    fn update_viewed(&mut self) {
-        if self.viewed != 0 {
+        if self.viewed > 0 {
             self.viewed += 1;
-            if self.viewed >= self.len() {
-                self.viewed = 0;
-            }
+            self.cap_viewed();
         }
     }
 
@@ -117,8 +111,14 @@ impl<T> History<T> {
             let duration = fight.end(time);
             if duration < self.settings.min_duration {
                 self.fights.pop_front();
-                self.update_viewed();
+                self.cap_viewed();
             }
+        }
+    }
+
+    fn cap_viewed(&mut self) {
+        if self.viewed >= self.len() {
+            self.viewed = 0;
         }
     }
 }
