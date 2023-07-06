@@ -18,9 +18,9 @@ pub struct History<T> {
 }
 
 impl<T> History<T> {
-    pub const fn new(max_fights: usize, min_duration: u64) -> Self {
+    pub const fn new(max_fights: usize, min_duration: u64, discard_at_end: bool) -> Self {
         Self {
-            settings: HistorySettings::new(max_fights, min_duration),
+            settings: HistorySettings::new(max_fights, min_duration, discard_at_end),
             viewed: 0,
             fights: VecDeque::new(),
         }
@@ -109,7 +109,7 @@ impl<T> History<T> {
     pub fn end_latest_fight(&mut self, time: u64) {
         if let Some(fight) = self.latest_fight_mut() {
             let duration = fight.end(time);
-            if duration < self.settings.min_duration {
+            if self.settings.discard_at_end && duration < self.settings.min_duration {
                 self.fights.pop_front();
                 self.cap_viewed();
             }

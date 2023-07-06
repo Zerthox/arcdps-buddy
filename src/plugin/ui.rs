@@ -110,6 +110,11 @@ impl Plugin {
             ui.tooltip_text("Minimum duration to keep a fight after ending");
         }
 
+        ui.checkbox("Discard at end", &mut settings.discard_at_end);
+        if ui.is_item_hovered() {
+            ui.tooltip_text("Whether to discard fights at end of current or start of next");
+        }
+
         ui.spacing();
         ui.spacing();
 

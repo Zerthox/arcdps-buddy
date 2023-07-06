@@ -4,15 +4,22 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistorySettings {
+    /// How many fights to keep in the history.
     pub max_fights: usize,
+
+    /// Minimum duration to keep a fight.
     pub min_duration: u64,
+
+    /// Whether to discard the fight at end of current or start of new.
+    pub discard_at_end: bool,
 }
 
 impl HistorySettings {
-    pub const fn new(max_fights: usize, min_duration: u64) -> Self {
+    pub const fn new(max_fights: usize, min_duration: u64, discard_at_end: bool) -> Self {
         Self {
             max_fights,
             min_duration,
+            discard_at_end,
         }
     }
 }
