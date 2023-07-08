@@ -7,14 +7,14 @@ pub struct Skill {
 }
 
 impl Skill {
-    pub fn new(id: u32, name: Option<impl Into<String>>) -> Self {
+    pub fn new(id: u32, name: Option<&str>) -> Self {
         Self {
             id,
             name: match OVERRIDES.get(&id) {
                 Some(name) => name.to_string(),
                 None => match name {
-                    Some(name) => name.into(),
-                    None => id.to_string(),
+                    Some(name) if !name.is_empty() => name.into(),
+                    _ => id.to_string(),
                 },
             },
         }
