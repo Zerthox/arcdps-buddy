@@ -39,7 +39,7 @@ pub enum Buff {
     #[strum(serialize = "Skale")]
     SkaleVenom,
 
-    #[strum(serialize = "Devo")]
+    #[strum(serialize = "Devourer")]
     DevourerVenom,
 
     #[strum(serialize = "Basi")]
@@ -51,7 +51,7 @@ pub enum Buff {
     #[strum(serialize = "Moa")]
     MoaStance,
 
-    #[strum(serialize = "Vult")]
+    #[strum(serialize = "Vulture")]
     VultureStance,
 
     #[strum(serialize = "OWP")]
