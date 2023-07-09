@@ -1,7 +1,7 @@
 use super::Plugin;
 use crate::combat::{
-    boon::BoonApply,
     breakbar::BreakbarHit,
+    buff::BuffApply,
     cast::{Cast, CastState},
     skill::Skill,
 };
@@ -168,11 +168,11 @@ impl Plugin {
     }
 
     fn apply_buff(&mut self, buff: u32, target: &Agent, duration: i32, time: i32) {
-        if let (Some(fight), Ok(boon)) = (self.history.latest_fight_mut(), buff.try_into()) {
+        if let (Some(fight), Ok(buff)) = (self.history.latest_fight_mut(), buff.try_into()) {
             fight
                 .data
-                .boons
-                .push(BoonApply::new(time, boon, duration, target))
+                .buffs
+                .push(BuffApply::new(time, buff, duration, target))
         }
     }
 

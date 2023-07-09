@@ -1,5 +1,5 @@
-pub mod boon_log;
 pub mod breakbar_log;
+pub mod buff_log;
 pub mod cast_log;
 pub mod multi_view;
 pub mod scroll;

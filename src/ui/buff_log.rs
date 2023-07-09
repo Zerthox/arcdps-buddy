@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
-pub struct BoonLog {
+pub struct BuffLog {
     display_time: bool,
     display_duration: bool,
 
@@ -24,7 +24,7 @@ pub struct BoonLog {
     scroll: AutoScroll,
 }
 
-impl BoonLog {
+impl BuffLog {
     pub const fn new() -> Self {
         Self {
             display_time: true,
@@ -40,29 +40,29 @@ impl BoonLog {
 }
 
 #[derive(Debug)]
-pub struct BoonLogProps<'a> {
+pub struct BuffLogProps<'a> {
     pub history: &'a mut History<CombatData>,
 }
 
-impl Component<BoonLogProps<'_>> for BoonLog {
-    fn render(&mut self, ui: &Ui, props: BoonLogProps) {
-        let BoonLogProps { history } = props;
+impl Component<BuffLogProps<'_>> for BuffLog {
+    fn render(&mut self, ui: &Ui, props: BuffLogProps) {
+        let BuffLogProps { history } = props;
 
         match history.viewed_fight() {
-            Some(fight) if !fight.data.boons.is_empty() => {
+            Some(fight) if !fight.data.buffs.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
                 let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
                 let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
-                for apply in &fight.data.boons {
+                for apply in &fight.data.buffs {
                     if self.display_time {
                         ui.text_colored(grey, format_time(apply.time));
                         ui.same_line();
                     }
 
-                    ui.text(apply.boon.as_ref());
+                    ui.text(apply.buff.as_ref());
 
                     if self.display_duration {
                         ui.same_line();
@@ -79,23 +79,23 @@ impl Component<BoonLogProps<'_>> for BoonLog {
                     );
                 }
             }
-            _ => ui.text("No boons"),
+            _ => ui.text("No buffs"),
         }
 
         self.scroll.update(ui);
     }
 }
 
-impl Default for BoonLog {
+impl Default for BuffLog {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Windowable<BoonLogProps<'_>> for BoonLog {
+impl Windowable<BuffLogProps<'_>> for BuffLog {
     const CONTEXT_MENU: bool = true;
 
-    fn render_menu(&mut self, ui: &Ui, props: &mut BoonLogProps) {
+    fn render_menu(&mut self, ui: &Ui, props: &mut BuffLogProps) {
         ui.menu("History", || props.history.render_select(ui));
 
         ui.spacing();
@@ -105,10 +105,10 @@ impl Windowable<BoonLogProps<'_>> for BoonLog {
     }
 }
 
-impl HasSettings for BoonLog {
+impl HasSettings for BuffLog {
     type Settings = Self;
 
-    const SETTINGS_ID: &'static str = "boon_log";
+    const SETTINGS_ID: &'static str = "buff_log";
 
     fn current_settings(&self) -> Self::Settings {
         self.clone()

@@ -5,7 +5,7 @@ use crate::{
     combat::CombatData,
     data::{LoadError, SkillData},
     history::History,
-    ui::{boon_log::BoonLog, breakbar_log::BreakbarLog, cast_log::CastLog, multi_view::MultiView},
+    ui::{breakbar_log::BreakbarLog, buff_log::BuffLog, cast_log::CastLog, multi_view::MultiView},
 };
 use arc_util::{
     settings::Settings,
@@ -44,7 +44,7 @@ pub struct Plugin {
 
     multi_view: Window<MultiView>,
     cast_log: Window<CastLog>,
-    boon_log: Window<BoonLog>,
+    buff_log: Window<BuffLog>,
     breakbar_log: Window<BreakbarLog>,
 }
 
@@ -81,8 +81,8 @@ impl Plugin {
                     ..Default::default()
                 },
             ),
-            boon_log: Window::with_default(
-                "Buddy Boons",
+            buff_log: Window::with_default(
+                "Buddy Buffs",
                 WindowOptions {
                     width: 350.0,
                     height: 450.0,
@@ -123,7 +123,7 @@ impl Plugin {
         settings.load_component(&mut self.history);
         settings.load_component(&mut self.multi_view);
         settings.load_component(&mut self.cast_log);
-        settings.load_component(&mut self.boon_log);
+        settings.load_component(&mut self.buff_log);
         settings.load_component(&mut self.breakbar_log);
 
         self.load_data();
@@ -159,7 +159,7 @@ impl Plugin {
         settings.store_component(&self.history);
         settings.store_component(&self.multi_view);
         settings.store_component(&self.cast_log);
-        settings.store_component(&self.boon_log);
+        settings.store_component(&self.buff_log);
         settings.store_component(&self.breakbar_log);
 
         settings.save_file();

@@ -1,17 +1,17 @@
 pub mod agent;
-pub mod boon;
 pub mod breakbar;
+pub mod buff;
 pub mod cast;
 pub mod skill;
 
-use self::boon::BoonApply;
-use self::breakbar::BreakbarHit;
-use self::cast::Cast;
+use breakbar::BreakbarHit;
+use buff::BuffApply;
+use cast::Cast;
 
 #[derive(Debug, Clone)]
 pub struct CombatData {
     pub casts: Vec<Cast>,
-    pub boons: Vec<BoonApply>,
+    pub buffs: Vec<BuffApply>,
     pub breakbar: Vec<BreakbarHit>,
 }
 
@@ -19,7 +19,7 @@ impl CombatData {
     pub const fn new() -> Self {
         Self {
             casts: Vec::new(),
-            boons: Vec::new(),
+            buffs: Vec::new(),
             breakbar: Vec::new(),
         }
     }

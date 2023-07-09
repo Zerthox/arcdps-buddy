@@ -2,7 +2,7 @@ use super::Plugin;
 use crate::{
     data::LoadError,
     ui::{
-        boon_log::BoonLogProps, breakbar_log::BreakbarLogProps, cast_log::CastLogProps,
+        breakbar_log::BreakbarLogProps, buff_log::BuffLogProps, cast_log::CastLogProps,
         multi_view::MultiViewProps,
     },
 };
@@ -26,7 +26,7 @@ impl Plugin {
                 history,
                 multi_view,
                 cast_log,
-                boon_log,
+                buff_log,
                 breakbar_log,
                 ..
             } = &mut *Self::lock(); // for borrowing
@@ -34,7 +34,7 @@ impl Plugin {
             updater.render(ui);
             multi_view.render(ui, MultiViewProps { data, history });
             cast_log.render(ui, CastLogProps { data, history });
-            boon_log.render(ui, BoonLogProps { history });
+            buff_log.render(ui, BuffLogProps { history });
             breakbar_log.render(ui, BreakbarLogProps { history });
         }
     }
@@ -64,9 +64,9 @@ impl Plugin {
         );
         render::input_key(
             ui,
-            "##boons-key",
-            "Boons",
-            &mut self.boon_log.options.hotkey,
+            "##buffs-key",
+            "Buffs",
+            &mut self.buff_log.options.hotkey,
         );
         render::input_key(
             ui,
@@ -143,7 +143,7 @@ impl Plugin {
             let mut plugin = Self::lock();
             ui.checkbox("Buddy Multi", plugin.multi_view.visible_mut());
             ui.checkbox("Buddy Casts", plugin.cast_log.visible_mut());
-            ui.checkbox("Buddy Boons", plugin.boon_log.visible_mut());
+            ui.checkbox("Buddy Buffs", plugin.buff_log.visible_mut());
             ui.checkbox("Buddy Breakbar", plugin.breakbar_log.visible_mut());
         }
         false
@@ -155,7 +155,7 @@ impl Plugin {
             let Plugin {
                 multi_view,
                 cast_log,
-                boon_log,
+                buff_log,
                 breakbar_log,
                 ..
             } = &mut *Self::lock();
@@ -163,7 +163,7 @@ impl Plugin {
             // check for hotkeys
             !multi_view.options.key_press(key)
                 && !cast_log.options.key_press(key)
-                && !boon_log.options.key_press(key)
+                && !buff_log.options.key_press(key)
                 && !breakbar_log.options.key_press(key)
         } else {
             true

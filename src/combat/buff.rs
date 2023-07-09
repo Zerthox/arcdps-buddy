@@ -3,17 +3,17 @@ use arcdps::{evtc::AgentKind, Agent};
 use strum::AsRefStr;
 
 #[derive(Debug, Clone)]
-pub struct BoonApply {
+pub struct BuffApply {
     pub time: i32,
-    pub boon: Boon,
+    pub buff: Buff,
     pub duration: i32,
     pub target: Target,
 }
 
-impl BoonApply {
-    pub fn new(time: i32, boon: Boon, duration: i32, target: &Agent) -> Self {
+impl BuffApply {
+    pub fn new(time: i32, buff: Buff, duration: i32, target: &Agent) -> Self {
         Self {
-            boon,
+            buff,
             time,
             duration,
             target: target.into(),
@@ -26,7 +26,7 @@ impl BoonApply {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, AsRefStr)]
-pub enum Boon {
+pub enum Buff {
     #[strum(serialize = "Quick")]
     Quickness,
 
@@ -34,7 +34,7 @@ pub enum Boon {
     Alacrity,
 }
 
-impl TryFrom<u32> for Boon {
+impl TryFrom<u32> for Buff {
     type Error = u32;
 
     fn try_from(value: u32) -> Result<Self, Self::Error> {
