@@ -19,8 +19,6 @@ jobs:
         with:
           name: arcdps_buddy
           path: target/release/arcdps_buddy.dll
-      - uses: shogo82148/actions-upload-release-asset@v1
+      - uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: target/release/arcdps_buddy.dll
-          overwrite: true
+          files: target/release/arcdps_buddy.dll
