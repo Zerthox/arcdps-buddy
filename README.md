@@ -3,11 +3,16 @@
 
 ## Features
 - Track skill cast states, durations & hit counts
-- Track Quickness & Alacrity applications to other players & NPCs
+- Track buff applications to other players & NPCs
 - Track breakbar damage hits
 
 ## Casts
+Displays casted skills and their durations and hit counts.
+Duration is colored based on the animation as categorized by ArcDPS (full aftercast, cancelled aftercast, interrupt).
+Hit count is colored based on the expected and maximum amount of hits.
+
 You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
+The plugin ships with the default definitions in [src/data](./src/data/).
 A single entry for a skill looks like this:
 
 ```yml
@@ -27,4 +32,20 @@ Individual default skill definitions can be overwritten or disabled:
 - id: 12345 # disable the default entry
   enabled: false
 ```
- 
+
+## Buffs
+Displays buffs applied to other players and NPCs.
+Includes buff applications from own minions.
+Ignores applications from self to self, own minion to self and own minion to same minion.
+Tracks
+[Quickness](https://wiki.guildwars2.com/wiki/Quickness),
+[Alacrity](https://wiki.guildwars2.com/wiki/Alacrity),
+Thief [Venom](https://wiki.guildwars2.com/wiki/Venom),
+[Moa Stance](https://wiki.guildwars2.com/wiki/Moa_Stance),
+[Vulture Stance](https://wiki.guildwars2.com/wiki/Vulture_Stance),
+[One Wolf Pack](https://wiki.guildwars2.com/wiki/One_Wolf_Pack) applications.
+Target is colored based on being a player or NPC/minion.
+
+## Breakbar
+Displays [defiance bar](https://wiki.guildwars2.com/wiki/Defiance_bar) damage hits and their respective skill name, damage amount and target.
+Target is colored based on main log target species.
