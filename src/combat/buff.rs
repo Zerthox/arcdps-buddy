@@ -48,6 +48,9 @@ pub enum Buff {
     #[strum(serialize = "Soul Stone")]
     SouleStoneVenom,
 
+    #[strum(serialize = "AoJ")]
+    AshesOfTheJust,
+
     #[strum(serialize = "Moa")]
     MoaStance,
 
@@ -69,6 +72,7 @@ impl TryFrom<u32> for Buff {
             13054 => Ok(Self::SkaleVenom),
             13094 => Ok(Self::DevourerVenom),
             13133 => Ok(Self::BasiliskVenom),
+            41957 => Ok(Self::AshesOfTheJust),
             49038 => Ok(Self::SouleStoneVenom),
             45038 => Ok(Self::MoaStance),
             44651 => Ok(Self::VultureStance),
