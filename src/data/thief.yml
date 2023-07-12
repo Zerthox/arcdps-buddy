@@ -7,10 +7,14 @@
   hits: 1
 
 # dagger
+- id: 50481 # malicious backstab
+  hits: 1
 - id: 13006 # death blossom
   hits: 3
 
 # pistol
+- id: 50466 # malicious sneak attack
+  hits: 5
 - id: 13011 # unload
   hits: 8
 - id: 59526 # repeater
@@ -21,7 +25,7 @@
   hits: 3
 
 # rifle
-- id: 44087 # deaths judgement
+- id: 44087 # malicious deaths judgement
   hits: 1
 - id: 44695 # three round burst
   hits: 3

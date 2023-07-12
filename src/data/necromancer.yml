@@ -35,6 +35,14 @@
 - id: 62511 # vile blast
   hits: 1
 
+# greatsword
+- id: 30860 # death spiral
+  hits: 6
+- id: 29855 # nightfall
+  hits: 4
+- id: 29740 # grasping darkness
+  hits: 1
+
 # slot
 - id: 10544 # blood is power
   hits: 1

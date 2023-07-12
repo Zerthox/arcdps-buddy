@@ -3,9 +3,21 @@
   hits: 10
   expected: 7
 
+# mace
+- id: 28357 # searing fissure
+  hits: 4
+
 # greatsword
 - id: 62929 # eternitys requiem
   hits: 14
+
+# shortbow
+- id: 40175 # bloodbane path
+  hits: 3
+- id: 41829 # sevenshot
+  hits: 7
+- id: 43993 # spiritcrush
+  hits: 4
 
 # slot
 - id: 40485 # icerazors ire

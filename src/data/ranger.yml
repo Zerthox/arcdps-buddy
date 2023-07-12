@@ -2,6 +2,10 @@
 - id: 43995 # charge (gazelle)
   hit_ids: [45743]
   hits: 1
+- id: 41206 # rain of spikes
+  hits: 3 # up to 15 with multi target
+- id: 40588 # primal cry
+  hits: 3
 
 # sword
 - id: 69203 # pounce
@@ -20,6 +24,10 @@
   hits: 12
   expected: 10
 
+# dagger
+- id: 43536 # double arc
+  hits: 2
+
 # longbow
 - id: 12509 # rapid fire
   hits: 10
@@ -27,6 +35,10 @@
 - id: 12469 # barrage
   hits: 12
   expected: 4
+
+# shortbow
+- id: 12468 # poison volley
+  hits: 5
 
 # warhorn
 - id: 12620 # hunter's call

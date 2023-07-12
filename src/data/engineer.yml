@@ -1,4 +1,6 @@
 # toolbelt
+- id: 5810 # grenade barrage
+  hits: 6
 - id: 5813 # big ol bomb
   hits: 1
 - id: 6164 # mine field
@@ -17,10 +19,14 @@
 # hammer
 - id: 30088 # electro whirl
   hits: 2
+- id: 30665 # rocket charge
+  hits: 3
 - id: 30713 # thunderclap
   hits: 5
 
 # slot
+- id: 6161 # throw mine
+  hits: 1
 - id: 29921 # shredder gyro
   hits: 12
 - id: 31248 # blast gyro
