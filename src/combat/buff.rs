@@ -33,6 +33,9 @@ pub enum Buff {
     #[strum(serialize = "Alac")]
     Alacrity,
 
+    #[strum(serialize = "Arc Power")]
+    ArcanePower,
+
     #[strum(serialize = "Spider")]
     SpiderVenom,
 
@@ -47,6 +50,9 @@ pub enum Buff {
 
     #[strum(serialize = "Soul Stone")]
     SouleStoneVenom,
+
+    #[strum(serialize = "Dwarf")]
+    RiteOfTheGreatDwarf,
 
     #[strum(serialize = "AoJ")]
     AshesOfTheJust,
@@ -68,12 +74,14 @@ impl TryFrom<u32> for Buff {
         match value {
             1187 => Ok(Self::Quickness),
             30328 => Ok(Self::Alacrity),
+            5582 => Ok(Self::ArcanePower),
             13036 => Ok(Self::SpiderVenom),
             13054 => Ok(Self::SkaleVenom),
             13094 => Ok(Self::DevourerVenom),
             13133 => Ok(Self::BasiliskVenom),
-            41957 => Ok(Self::AshesOfTheJust),
             49038 => Ok(Self::SouleStoneVenom),
+            26596 | 33330 => Ok(Self::RiteOfTheGreatDwarf),
+            41957 => Ok(Self::AshesOfTheJust),
             45038 => Ok(Self::MoaStance),
             44651 => Ok(Self::VultureStance),
             44139 => Ok(Self::OneWolfPack),
