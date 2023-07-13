@@ -161,7 +161,7 @@ impl Plugin {
             cast.complete(skill, state, duration, time);
             debug!("complete {cast:?}");
         } else {
-            let cast = Cast::from_end(time - duration, skill, CastState::Casting, duration);
+            let cast = Cast::from_end(time - duration, skill, state, duration);
             debug!("complete without start {cast:?}");
             self.add_cast(cast);
         }
