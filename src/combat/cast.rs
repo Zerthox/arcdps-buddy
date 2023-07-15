@@ -1,6 +1,7 @@
 use super::skill::Skill;
 use arcdps::{evtc::AgentKind, Activation, Agent};
 
+/// Information about a cast (activation).
 #[derive(Debug, Clone)]
 pub struct Cast {
     /// Time of start event or first registered hit.
@@ -20,6 +21,7 @@ pub struct Cast {
 }
 
 impl Cast {
+    /// Creates a new cast from a cast start.
     pub const fn from_start(time: i32, skill: Skill, state: CastState) -> Self {
         Self {
             time,
@@ -30,6 +32,7 @@ impl Cast {
         }
     }
 
+    /// Creates a new cast from a cast end.
     pub const fn from_end(time: i32, skill: Skill, state: CastState, duration: i32) -> Self {
         Self {
             time,
@@ -40,6 +43,7 @@ impl Cast {
         }
     }
 
+    /// Creates a new cast from an individual hit.
     pub fn from_hit(time: i32, skill: Skill, target: &Agent) -> Self {
         Self {
             time,
@@ -50,10 +54,12 @@ impl Cast {
         }
     }
 
+    /// Adds a hit to the cast.
     pub fn hit(&mut self, target: &Agent) {
         self.hits.push(target.into())
     }
 
+    /// Completes the cast.
     pub fn complete(&mut self, skill: Skill, result: CastState, duration: i32, time: i32) {
         if let CastState::Pre = self.state {
             self.skill = skill;
@@ -64,6 +70,7 @@ impl Cast {
     }
 }
 
+/// Possible cast states.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CastState {
     /// Unknown state.
@@ -73,7 +80,7 @@ pub enum CastState {
     /// Cast is ongoing.
     Casting,
 
-    /// Cast start is not registered.
+    /// Cast started before, start is not registered.
     Pre,
 
     /// Completed fully.
@@ -97,6 +104,7 @@ impl From<Activation> for CastState {
     }
 }
 
+/// Information about an individual hit.
 #[derive(Debug, Clone)]
 pub struct Hit {
     /// Target species.
