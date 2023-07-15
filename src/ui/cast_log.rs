@@ -113,7 +113,7 @@ impl Component<CastLogProps<'_>> for CastLog {
 
                         if let Some(hit_info) = info.hits.as_ref() {
                             if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
-                                let target_hits = if let Some(species) = fight.id {
+                                let target_hits = if let Some(species) = fight.target {
                                     cast.hits.iter().filter(|hit| hit.target == species).count()
                                 } else {
                                     0

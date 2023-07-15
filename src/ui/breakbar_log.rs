@@ -64,7 +64,7 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
                     ui.same_line();
                     ui.text_colored(blue, format!("{}.{}", hit.damage / 10, hit.damage % 10));
 
-                    let color = if hit.target.matches_species(fight.id) {
+                    let color = if hit.target.matches_species(fight.target) {
                         red
                     } else {
                         yellow

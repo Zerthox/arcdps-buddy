@@ -112,7 +112,8 @@ impl Plugin {
     fn fight_target(&mut self, event: CombatEvent, dst: Option<Agent>) {
         let species = event.src_agent as u32;
         debug!("log target change to {species}, {dst:?}");
-        self.history.update_latest_target(species, dst.as_ref());
+        self.history
+            .update_fight_target(event.time, species, dst.as_ref());
     }
 
     fn end_fight(&mut self, event: CombatEvent, dst: Option<Agent>) {

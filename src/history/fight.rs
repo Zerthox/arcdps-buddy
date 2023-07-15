@@ -1,28 +1,51 @@
 use arcdps::Agent;
 
+/// A fight in the history.
 #[derive(Debug, Clone)]
 pub struct Fight<T> {
-    pub id: Option<u32>,
-    pub name: String,
+    /// Fight target species.
+    pub target: Option<u32>,
+
+    /// Target or fight name.
+    pub name: Option<String>,
+
+    /// Start time of the fight.
     pub start: u64,
-    pub end: u64,
+
+    /// End time of the fight.
+    pub end: Option<u64>,
+
+    /// Associated fight data.
     pub data: T,
 }
 
+#[allow(unused)]
 impl<T> Fight<T> {
+    /// Creates a new fight.
     pub fn new(start: u64, data: T) -> Self
     where
         T: Default,
     {
         Self {
-            id: None,
-            name: Self::DEFAULT_NAME.into(),
+            target: None,
+            name: None,
             start,
-            end: 0,
+            end: None,
             data,
         }
     }
 
+    /// Creates a new fight with a given target.
+    pub fn with_target(start: u64, species: u32, target: Option<&Agent>, data: T) -> Self
+    where
+        T: Default,
+    {
+        let mut fight = Self::new(start, data);
+        fight.update_target(species, target);
+        fight
+    }
+
+    /// Creates a new fight with default data.
     pub fn with_default(start: u64) -> Self
     where
         T: Default,
@@ -30,33 +53,33 @@ impl<T> Fight<T> {
         Self::new(start, T::default())
     }
 
-    const DEFAULT_NAME: &str = "Unknown";
-
-    pub fn update_target(&mut self, species: u32, target: Option<&Agent>) {
+    /// Updates the fight target.
+    pub fn update_target(&mut self, species: u32, agent: Option<&Agent>) {
         if species > 2 {
-            self.id = Some(species);
-            self.name = match target {
-                Some(Agent {
-                    name: Some(name), ..
-                }) if !name.is_empty() => name.to_string(),
-                _ => Self::DEFAULT_NAME.into(),
-            };
+            self.target = Some(species);
+            self.name = agent
+                .and_then(|agent| agent.name)
+                .filter(|name| !name.is_empty())
+                .map(Into::into);
         } else {
-            self.id = None;
-            self.name = Self::DEFAULT_NAME.into();
+            self.target = None;
+            self.name = None;
         }
     }
 
+    /// Checks whether the fight ended.
+    pub fn ended(&self) -> bool {
+        self.end.is_some()
+    }
+
+    /// Returns the fight duration, if the fight ended.
     pub fn duration(&self) -> Option<u64> {
-        if self.end != 0 {
-            Some(self.end - self.start)
-        } else {
-            None
-        }
+        self.end.map(|end| end - self.start)
     }
 
+    /// Ends the fight, returning the fight duration.
     pub fn end(&mut self, time: u64) -> u64 {
-        self.end = time;
-        self.end - self.start
+        self.end = Some(time);
+        time - self.start
     }
 }
