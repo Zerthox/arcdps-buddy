@@ -31,4 +31,5 @@ impl Skill {
 /// Skill name overrides.
 static OVERRIDES: phf::Map<u32, &'static str> = phf_map! {
     22492u32 => "Basilisk Venom",
+    31749u32 => "Blood Moon",
 };
