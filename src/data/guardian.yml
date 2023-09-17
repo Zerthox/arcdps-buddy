@@ -12,7 +12,7 @@
   hits: 1 # up to 5 with multi target
 - id: 9148 # binding blade (dot)
   hits: 10 # pulses 10 times
-  max_duration: 10000 # ~9s between first and last hit
+  max_duration: 9000
 
 # sword
 - id: 9097 # symbol of blades

@@ -20,7 +20,7 @@ A single entry for a skill looks like this:
   hit_ids: [23456, 34567] # optional: additional skill ids to count for hits.
   hits: 5 # optional: number of hits. enables hit tracking. set to 0 to track with unknown hits.
   expected: 4 # optional: number of expected hits. threshold for yellow color. defaults to >= half hits.
-  max_duration: 10000 # optional: maximum duration (ms). hits after the duration count towards a new cast.
+  max_duration: 10000 # optional: maximum duration (ms). hits after the duration + error margin count towards a new cast.
   minion: true # optional: whether to include hits from own minions.
 ```
 

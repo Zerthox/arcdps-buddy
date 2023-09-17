@@ -17,7 +17,7 @@
   hits: 5
 - id: 62597 # bladeturn requiem
   hits: 5
-  max_duration: 5000 # duration from first hit is ~4s
+  max_duration: 4000
 
 # sword
 - id: 10334 # blurred frenzy
@@ -63,4 +63,4 @@
 - id: 30359 # gravity well
   hits: 4
 - id: 24755
-  max_duration: 5500 # duration from first hit is ~4.7s
+  max_duration: 4700
