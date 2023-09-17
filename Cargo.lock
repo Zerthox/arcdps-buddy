@@ -33,8 +33,8 @@ dependencies = [
 
 [[package]]
 name = "arcdps"
-version = "0.12.2"
-source = "git+https://github.com/zerthox/arcdps-bindings#b644b51b1a9a04291320b01d24d78a6e006de344"
+version = "0.12.3"
+source = "git+https://github.com/zerthox/arcdps-bindings#45ec93650b6f5b0b7a8c757c8a65e2fc2c0844dd"
 dependencies = [
  "arcdps-imgui",
  "arcdps_codegen",
@@ -87,8 +87,8 @@ dependencies = [
 
 [[package]]
 name = "arcdps_codegen"
-version = "0.10.1"
-source = "git+https://github.com/zerthox/arcdps-bindings#b644b51b1a9a04291320b01d24d78a6e006de344"
+version = "0.10.2"
+source = "git+https://github.com/zerthox/arcdps-bindings#45ec93650b6f5b0b7a8c757c8a65e2fc2c0844dd"
 dependencies = [
  "cfg-if",
  "paste",
@@ -100,7 +100,7 @@ dependencies = [
 [[package]]
 name = "arcdps_evtc"
 version = "0.6.2"
-source = "git+https://github.com/zerthox/arcdps-bindings#b644b51b1a9a04291320b01d24d78a6e006de344"
+source = "git+https://github.com/zerthox/arcdps-bindings#45ec93650b6f5b0b7a8c757c8a65e2fc2c0844dd"
 dependencies = [
  "num_enum",
  "serde",
