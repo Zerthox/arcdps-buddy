@@ -49,6 +49,19 @@
   hits: 9
   expected: 6
 
+# hammer
+- id: 63335 # unleashed wild swing
+  hits: 1
+- id: 63131 # unleashed savage shock wave
+  hits: 3
+  expected: 2
+- id: 69262 # overbearing smash
+  hit_ids: [63201] # follow-up
+  hits: 2
+- id: 63197 # unleashed overbearing smash
+  hit_ids: [63224] # follow-up
+  hits: 2
+
 # slot
 - id: 12492 # frost trap
   hits: 5
