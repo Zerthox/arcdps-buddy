@@ -4,6 +4,15 @@
 - id: 30504 # soul spiral
   hits: 12
 
+# scourge shades
+- id: 46726 # nefarious favor
+  hits: 1
+- id: 46726 # desert shroud
+  hits: 7
+  max_duration: 6000
+- id: 54958 # sandstorm shroud
+  hits: 1
+
 # harbinger shroud
 - id: 62621 # dark barrage
   hits: 6
