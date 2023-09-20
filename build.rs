@@ -43,6 +43,7 @@ fn main() {
         } = skill;
         let hits = quote_option(hits);
         let expected = quote_option(expected);
+        let max_duration = quote_option(max_duration);
         quote! {
             SkillDef {
                 id: #id,

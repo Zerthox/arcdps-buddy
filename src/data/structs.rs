@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 // TODO: instead of hits allow counting buff apply?
 // TODO: support instant casts with buff apply?
 
+/// Extra error margin for max duration.
+const DURATION_EPSILON: i32 = 500;
+
 /// Skill information.
 #[derive(Debug, Clone)]
 pub struct SkillInfo {
@@ -37,7 +40,9 @@ impl From<SkillDef> for SkillInfo {
                 max,
                 expected: expected.unwrap_or((max + 1) / 2),
             }),
-            max_duration,
+            max_duration: max_duration
+                .map(|dur| dur + DURATION_EPSILON)
+                .unwrap_or(i32::MAX),
             minion,
         }
     }
@@ -74,18 +79,13 @@ pub struct SkillDef {
     pub expected: Option<usize>,
 
     /// Maximum duration (ms) to count as one cast.
-    #[serde(default = "default_as_max")]
-    pub max_duration: i32,
+    pub max_duration: Option<i32>,
 
     /// Whether to include minion hits.
     #[serde(default)]
     pub minion: bool,
 }
 
-const fn default_as_true() -> bool {
+fn default_as_true() -> bool {
     true
-}
-
-const fn default_as_max() -> i32 {
-    i32::MAX
 }

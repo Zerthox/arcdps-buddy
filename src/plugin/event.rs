@@ -8,9 +8,6 @@ use crate::combat::{
 use arcdps::{evtc::EventKind, Activation, Agent, CombatEvent, StateChange, Strike};
 use log::debug;
 
-/// Extra error margin for max duration.
-const DURATION_EPSILON: i32 = 500;
-
 impl Plugin {
     /// Handles a combat event from area stats.
     pub fn area_event(
@@ -205,7 +202,7 @@ impl Plugin {
                 // replace skill id
                 skill.id = info.id;
 
-                let max = info.max_duration + DURATION_EPSILON;
+                let max = info.max_duration;
                 match self.latest_cast_mut(skill.id) {
                     Some(cast) if time - cast.time <= max => {
                         cast.hit(target);
