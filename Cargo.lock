@@ -75,6 +75,7 @@ dependencies = [
  "arc_util",
  "arcdps",
  "log",
+ "num_enum",
  "once_cell",
  "phf",
  "proc-macro2",
