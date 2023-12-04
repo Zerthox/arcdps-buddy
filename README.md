@@ -37,14 +37,17 @@ Individual default skill definitions can be overwritten or disabled:
 Displays buffs applied to other players and NPCs.
 Includes buff applications from own minions.
 Ignores applications from self to self, own minion to self and own minion to same minion.
-Tracks
-[Quickness](https://wiki.guildwars2.com/wiki/Quickness),
-[Alacrity](https://wiki.guildwars2.com/wiki/Alacrity),
-Thief [Venom](https://wiki.guildwars2.com/wiki/Venom),
-[Moa Stance](https://wiki.guildwars2.com/wiki/Moa_Stance),
-[Vulture Stance](https://wiki.guildwars2.com/wiki/Vulture_Stance),
-[One Wolf Pack](https://wiki.guildwars2.com/wiki/One_Wolf_Pack) applications.
 Target is colored based on being a player or NPC/minion.
+The following buff applications are currently tracked:
+
+- [Quickness](https://wiki.guildwars2.com/wiki/Quickness)
+- [Alacrity](https://wiki.guildwars2.com/wiki/Alacrity)
+- Thief [Venoms](https://wiki.guildwars2.com/wiki/Venom)
+- Elementalist [Arcane Power](https://wiki.guildwars2.com/wiki/Arcane_Power_(effect))
+- Revenant [Rite of the Great Dwarf](https://wiki.guildwars2.com/wiki/Rite_of_the_Great_Dwarf_(effect))
+- Firebrand [Ashes of the Just](https://wiki.guildwars2.com/wiki/Ashes_of_the_Just)
+- Soulbeast [Stances](https://wiki.guildwars2.com/wiki/Stance) (for [Leader of the Pack](https://wiki.guildwars2.com/wiki/Leader_of_the_Pack))
+
 
 ## Breakbar
 Displays [defiance bar](https://wiki.guildwars2.com/wiki/Defiance_bar) damage hits and their respective skill name, damage amount and target.
