@@ -21,9 +21,9 @@
 
 # slot
 - id: 40485 # icerazors ire
-  hit_ids: [43856] # different id for hits
+  hit_ids: [43856]
   hits: 20
   expected: 15
 - id: 41220 # darkrazors daring
-  hit_ids: [41095] # different id for hits
+  hit_ids: [41095]
   hits: 6
