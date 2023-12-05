@@ -1,5 +1,4 @@
 use super::{agent::Target, skill::Skill};
-use arcdps::Agent;
 
 /// Information about a defiance damage hit.
 #[derive(Debug, Clone)]
@@ -21,12 +20,12 @@ pub struct BreakbarHit {
 
 impl BreakbarHit {
     /// Creates a new breakbar hit.
-    pub fn new(time: i32, skill: Skill, damage: i32, target: &Agent) -> Self {
+    pub fn new(time: i32, skill: Skill, damage: i32, target: Target) -> Self {
         Self {
             time,
             skill,
             damage,
-            target: target.into(),
+            target,
         }
     }
 }

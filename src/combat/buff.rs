@@ -1,5 +1,5 @@
 use super::agent::Target;
-use arcdps::{evtc::AgentKind, Agent};
+use arcdps::evtc::AgentKind;
 
 pub use crate::data::Buff;
 
@@ -21,12 +21,12 @@ pub struct BuffApply {
 
 impl BuffApply {
     /// Creates a new buff apply.
-    pub fn new(time: i32, buff: Buff, duration: i32, target: &Agent) -> Self {
+    pub fn new(time: i32, buff: Buff, duration: i32, target: Target) -> Self {
         Self {
             buff,
             time,
             duration,
-            target: target.into(),
+            target,
         }
     }
 

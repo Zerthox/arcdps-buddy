@@ -1,7 +1,9 @@
-mod buffs;
+mod buff;
+mod condi;
 mod structs;
 
-pub use self::buffs::*;
+pub use self::buff::*;
+pub use self::condi::*;
 pub use self::structs::*;
 
 use std::{
