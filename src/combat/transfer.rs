@@ -132,7 +132,7 @@ impl Apply {
     /// Check whether the apply matches a remove.
     pub fn matches(&self, remove: &Remove) -> bool {
         self.condi == remove.condi
-            && self.duration.abs_diff(remove.time) < TIME_EPSILON
+            && self.duration.abs_diff(remove.duration) < TIME_EPSILON
             && self.time.abs_diff(remove.time) < TIME_EPSILON
     }
 }
