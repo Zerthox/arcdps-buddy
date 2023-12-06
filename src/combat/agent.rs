@@ -44,3 +44,9 @@ impl From<&Agent<'_>> for Target {
         Self::new(kind, name)
     }
 }
+
+impl PartialEq for Target {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}

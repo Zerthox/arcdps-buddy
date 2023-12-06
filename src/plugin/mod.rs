@@ -5,7 +5,10 @@ use crate::{
     combat::CombatData,
     data::{LoadError, SkillData},
     history::History,
-    ui::{breakbar_log::BreakbarLog, buff_log::BuffLog, cast_log::CastLog, multi_view::MultiView},
+    ui::{
+        breakbar_log::BreakbarLog, buff_log::BuffLog, cast_log::CastLog, multi_view::MultiView,
+        transfer_log::TransferLog,
+    },
 };
 use arc_util::{
     settings::Settings,
@@ -38,7 +41,6 @@ pub struct Plugin {
     data: SkillData,
     data_state: Result<usize, LoadError>,
 
-    start: Option<u64>,
     self_instance_id: Option<u16>,
     history: History<CombatData>,
 
@@ -46,11 +48,18 @@ pub struct Plugin {
     cast_log: Window<CastLog>,
     buff_log: Window<BuffLog>,
     breakbar_log: Window<BreakbarLog>,
+    transfer_log: Window<TransferLog>,
 }
 
 impl Plugin {
     /// Creates a new plugin.
     pub fn new() -> Self {
+        let options = WindowOptions {
+            width: 350.0,
+            height: 450.0,
+            ..Default::default()
+        };
+
         Self {
             updater: Updater::new(
                 "Buddy",
@@ -61,34 +70,12 @@ impl Plugin {
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
 
-            start: None,
             self_instance_id: None,
             history: History::new(10, 5000, true),
 
-            multi_view: Window::with_default(
-                "Buddy Multi",
-                WindowOptions {
-                    width: 350.0,
-                    height: 450.0,
-                    ..Default::default()
-                },
-            ),
-            cast_log: Window::with_default(
-                "Buddy Casts",
-                WindowOptions {
-                    width: 350.0,
-                    height: 450.0,
-                    ..Default::default()
-                },
-            ),
-            buff_log: Window::with_default(
-                "Buddy Buffs",
-                WindowOptions {
-                    width: 350.0,
-                    height: 450.0,
-                    ..Default::default()
-                },
-            ),
+            multi_view: Window::with_default("Buddy Multi", options.clone()),
+            cast_log: Window::with_default("Buddy Casts", options.clone()),
+            buff_log: Window::with_default("Buddy Buffs", options.clone()),
             breakbar_log: Window::with_default(
                 "Buddy Breakbar",
                 WindowOptions {
@@ -97,6 +84,7 @@ impl Plugin {
                     ..Default::default()
                 },
             ),
+            transfer_log: Window::with_default("Buddy Transfer", options.clone()),
         }
     }
 

@@ -3,7 +3,7 @@ use crate::{
     data::LoadError,
     ui::{
         breakbar_log::BreakbarLogProps, buff_log::BuffLogProps, cast_log::CastLogProps,
-        multi_view::MultiViewProps,
+        multi_view::MultiViewProps, transfer_log::TransferLogProps,
     },
 };
 use arc_util::{
@@ -28,6 +28,7 @@ impl Plugin {
                 cast_log,
                 buff_log,
                 breakbar_log,
+                transfer_log,
                 ..
             } = &mut *Self::lock(); // for borrowing
 
@@ -36,6 +37,7 @@ impl Plugin {
             cast_log.render(ui, CastLogProps { data, history });
             buff_log.render(ui, BuffLogProps { history });
             breakbar_log.render(ui, BreakbarLogProps { history });
+            transfer_log.render(ui, TransferLogProps { history });
         }
     }
 
@@ -73,6 +75,12 @@ impl Plugin {
             "##breakbar-key",
             "Breakbar",
             &mut self.breakbar_log.options.hotkey,
+        );
+        render::input_key(
+            ui,
+            "##transfer-key",
+            "Transfer",
+            &mut self.transfer_log.options.hotkey,
         );
 
         ui.spacing();
@@ -145,6 +153,7 @@ impl Plugin {
             ui.checkbox("Buddy Casts", plugin.cast_log.visible_mut());
             ui.checkbox("Buddy Buffs", plugin.buff_log.visible_mut());
             ui.checkbox("Buddy Breakbar", plugin.breakbar_log.visible_mut());
+            ui.checkbox("Buddy Transfer", plugin.transfer_log.visible_mut());
         }
         false
     }
@@ -157,6 +166,7 @@ impl Plugin {
                 cast_log,
                 buff_log,
                 breakbar_log,
+                transfer_log,
                 ..
             } = &mut *Self::lock();
 
@@ -165,6 +175,7 @@ impl Plugin {
                 && !cast_log.options.key_press(key)
                 && !buff_log.options.key_press(key)
                 && !breakbar_log.options.key_press(key)
+                && !transfer_log.options.key_press(key)
         } else {
             true
         }

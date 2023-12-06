@@ -82,4 +82,12 @@ impl<T> Fight<T> {
         self.end = Some(time);
         time - self.start
     }
+
+    /// Calculates the timestamp as relative time to the fight start.
+    pub fn relative_time(&self, time: u64) -> Option<i32> {
+        match self.end {
+            Some(end) if time > end => None,
+            _ => Some((time - self.start) as i32),
+        }
+    }
 }

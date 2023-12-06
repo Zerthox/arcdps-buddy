@@ -3,6 +3,7 @@ pub mod buff_log;
 pub mod cast_log;
 pub mod multi_view;
 pub mod scroll;
+pub mod transfer_log;
 
 // TODO: generic log component for reuse?
 

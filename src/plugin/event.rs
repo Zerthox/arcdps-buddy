@@ -4,9 +4,9 @@ use crate::combat::{
     buff::{Buff, BuffApply},
     cast::{Cast, CastState},
     skill::Skill,
-    transfer::{Condition, Remove, Transfer},
+    transfer::{Apply, Condition, Remove},
 };
-use arcdps::{evtc::EventKind, Activation, Agent, CombatEvent, StateChange, Strike};
+use arcdps::{evtc::EventKind, Activation, Agent, BuffRemove, CombatEvent, StateChange, Strike};
 use log::debug;
 
 impl Plugin {
@@ -32,7 +32,7 @@ impl Plugin {
 
                     EventKind::Activation if src_self => {
                         let mut plugin = Self::lock();
-                        if let Some(time) = plugin.combat_time(&event) {
+                        if let Some(time) = plugin.history.relative_time(event.time) {
                             if plugin.data.contains(event.skill_id) {
                                 match event.is_activation {
                                     Activation::Start => {
@@ -60,8 +60,8 @@ impl Plugin {
                                     Self::lock().apply_buff(&event, buff, &src, &dst)
                                 }
                             } else if let Ok(condi) = buff.try_into() {
-                                // only care about condis sourced from self
-                                if src_self {
+                                // only care about condis from self and ignore extensions
+                                if src_self && event.is_off_cycle == 0 {
                                     Self::lock().apply_condi(&event, condi, &dst)
                                 }
                             }
@@ -70,14 +70,13 @@ impl Plugin {
 
                     EventKind::BuffRemove => {
                         if let Some(dst) = dst {
-                            // only care about self removes
-                            // TODO: verify src dst for transfers
-                            if src_self && dst.is_self != 0 {
+                            // only care about removes from self to self
+                            if event.is_buff_remove == BuffRemove::Manual
+                                && src_self
+                                && dst.is_self != 0
+                            {
                                 if let Ok(condi) = event.skill_id.try_into() {
-                                    let mut plugin = Self::lock();
-                                    if let Some(time) = plugin.combat_time(&event) {
-                                        plugin.remove_buff(condi, 1, time);
-                                    }
+                                    Self::lock().remove_buff(&event, condi)
                                 }
                             }
                         }
@@ -87,7 +86,9 @@ impl Plugin {
                         let mut plugin = Self::lock();
                         let is_minion = plugin.is_own_minion(&event);
                         if src_self || is_minion {
-                            if let (Some(dst), Some(time)) = (dst, plugin.combat_time(&event)) {
+                            if let (Some(dst), Some(time)) =
+                                (dst, plugin.history.relative_time(event.time))
+                            {
                                 plugin.strike(&event, is_minion, skill_name, &dst, time)
                             }
                         }
@@ -114,17 +115,10 @@ impl Plugin {
         }
     }
 
-    fn combat_time(&self, event: &CombatEvent) -> Option<i32> {
-        // TODO: add data to previous fight?
-        self.start
-            .filter(|start| event.time >= *start)
-            .map(|start| (event.time - start) as i32)
-    }
-
     fn start_fight(&mut self, event: CombatEvent, target: Option<Agent>) {
         let species = event.src_agent as u32;
         debug!("log start for {species}, {target:?}");
-        self.start = Some(event.time);
+
         self.history
             .add_fight_with_target(event.time, species, target.as_ref());
     }
@@ -139,7 +133,6 @@ impl Plugin {
     fn end_fight(&mut self, event: CombatEvent, target: Option<Agent>) {
         let species = event.src_agent;
         debug!("log end for {species}, {target:?}");
-        self.start = None;
         self.history.end_latest_fight(event.time);
     }
 
@@ -189,10 +182,8 @@ impl Plugin {
     }
 
     fn apply_buff(&mut self, event: &CombatEvent, buff: Buff, src: &Agent, dst: &Agent) {
-        if src.is_self != 0 || self.is_own_minion(&event) {
-            if let (Some(time), Some(fight)) =
-                (self.combat_time(&event), self.history.latest_fight_mut())
-            {
+        if src.is_self != 0 || self.is_own_minion(event) {
+            if let Some((time, fight)) = self.history.fight_and_time(event.time) {
                 // TODO: "effective" duration excluding overstack?
                 let duration = event.value;
                 let apply = BuffApply::new(time, buff, duration, dst.into());
@@ -202,17 +193,15 @@ impl Plugin {
     }
 
     fn apply_condi(&mut self, event: &CombatEvent, condi: Condition, target: &Agent) {
-        if let (Some(time), Some(fight)) =
-            (self.combat_time(&event), self.history.latest_fight_mut())
-        {
-            let apply = Transfer::new(time, condi, 1, target.into());
+        if let Some((time, fight)) = self.history.fight_and_time(event.time) {
+            let apply = Apply::new(time, condi, event.value, target.into());
             fight.data.transfers.add_apply(apply);
         }
     }
 
-    fn remove_buff(&mut self, condi: Condition, stacks: u32, time: i32) {
-        if let Some(fight) = self.history.latest_fight_mut() {
-            let remove = Remove::new(time, condi, stacks);
+    fn remove_buff(&mut self, event: &CombatEvent, condi: Condition) {
+        if let Some((time, fight)) = self.history.fight_and_time(event.time) {
+            let remove = Remove::new(time, condi, event.value);
             fight.data.transfers.add_remove(remove)
         }
     }

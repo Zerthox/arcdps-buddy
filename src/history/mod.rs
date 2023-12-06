@@ -83,13 +83,21 @@ impl<T> History<T> {
             self.viewed = 0;
         }
     }
-}
 
-#[allow(unused)]
-impl<T> History<T>
-where
-    T: Default,
-{
+    /// Calculates relative time to start for the latest fight.
+    pub fn relative_time(&self, time: u64) -> Option<i32> {
+        // TODO: handle timestamp in previous fight
+        self.latest_fight()
+            .and_then(|fight| fight.relative_time(time))
+    }
+
+    /// Returns the latest fight and the relative time to fight start.
+    pub fn fight_and_time(&mut self, time: u64) -> Option<(i32, &mut Fight<T>)> {
+        // TODO: handle timestamp in previous fight
+        self.latest_fight_mut()
+            .and_then(|fight| fight.relative_time(time).map(|time| (time, fight)))
+    }
+
     /// Adds a fight to the history.
     pub fn add_fight(&mut self, fight: Fight<T>) {
         if let Some(prev) = self.fights.front() {
@@ -108,19 +116,28 @@ where
     }
 
     /// Adds a fight with default data to the history.
-    pub fn add_fight_default(&mut self, time: u64) {
+    pub fn add_fight_default(&mut self, time: u64)
+    where
+        T: Default,
+    {
         self.add_fight(Fight::new(time, T::default()))
     }
 
     /// Adds a fight with default data and target information to the history.
-    pub fn add_fight_with_target(&mut self, time: u64, species: u32, target: Option<&Agent>) {
+    pub fn add_fight_with_target(&mut self, time: u64, species: u32, target: Option<&Agent>)
+    where
+        T: Default,
+    {
         self.add_fight(Fight::with_target(time, species, target, T::default()));
     }
 
     /// Updates the target for the latest fight.
     ///
     /// If there is no fight present or the latest fight already ended, a new fight with the target is added instead.
-    pub fn update_fight_target(&mut self, time: u64, species: u32, target: Option<&Agent>) {
+    pub fn update_fight_target(&mut self, time: u64, species: u32, target: Option<&Agent>)
+    where
+        T: Default,
+    {
         match self.latest_fight_mut() {
             Some(fight @ Fight { end: None, .. }) => fight.update_target(species, target),
             _ => self.add_fight_with_target(time, species, target),

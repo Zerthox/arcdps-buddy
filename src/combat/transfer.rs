@@ -3,23 +3,27 @@ use log::debug;
 
 pub use crate::data::Condition;
 
+/// Error margin for times.
+pub const TIME_EPSILON: u32 = 10;
+
 /// Transfer tracking.
 #[derive(Debug, Clone)]
 pub struct TransferTracker {
     /// Detected transfers.
-    pub transfers: Vec<Transfer>,
+    transfers: Vec<Transfer>,
 
     /// Condition removes.
     remove: Vec<Remove>,
 
     /// Condition applies as transfer candidates.
-    apply: Vec<Transfer>,
+    apply: Vec<Apply>,
 }
 
 impl TransferTracker {
     /// Time to retain candidates.
     pub const RETAIN_TIME: i32 = 100;
 
+    /// Creates a new transfer tracker.
     pub const fn new() -> Self {
         Self {
             transfers: Vec::new(),
@@ -28,38 +32,60 @@ impl TransferTracker {
         }
     }
 
-    /// Adds a condition remove.
+    /// Returns an iterator over found condition transfers.
+    pub fn found(&self) -> &[Transfer] {
+        &self.transfers
+    }
+
+    /// Adds a new condition remove.
     pub fn add_remove(&mut self, remove: Remove) {
         self.purge(remove.time);
-        if let Some(apply) = Self::find_remove(&mut self.apply, |apply| apply.matches(&remove)) {
-            debug!("transfer: {remove:?} matches {apply:?}");
-            self.transfers.push(apply)
+        debug!("transfer candidate {remove:?}");
+        if let Some(apply) = Self::find_take(&mut self.apply, |apply| apply.matches(&remove)) {
+            debug!("transfer match {remove:?} {apply:?}");
+            self.add_transfer(apply)
         } else {
             self.remove.push(remove)
         }
     }
 
-    /// Adds a condition apply as transfer candidate.
-    pub fn add_apply(&mut self, apply: Transfer) {
+    /// Adds a new condition apply.
+    pub fn add_apply(&mut self, apply: Apply) {
         self.purge(apply.time);
-        if let Some(remove) = Self::find_remove(&mut self.remove, |remove| apply.matches(remove)) {
-            debug!("transfer: {apply:?} matches {remove:?}");
-            self.transfers.push(apply)
+        debug!("transfer candidate {apply:?}");
+        if let Some(remove) = Self::find_take(&mut self.remove, |remove| apply.matches(remove)) {
+            debug!("transfer match {apply:?} {remove:?}");
+            self.add_transfer(apply)
         } else {
             self.apply.push(apply)
         }
     }
 
-    fn find_remove<T>(vec: &mut Vec<T>, pred: impl FnMut(&T) -> bool) -> Option<T> {
-        if let Some(index) = vec.iter().position(pred) {
-            Some(vec.swap_remove(index))
+    /// Adds a new transfer.
+    fn add_transfer(&mut self, apply: Apply) {
+        let transfer = Transfer::from(apply);
+        if let Some(existing) = self
+            .transfers
+            .iter_mut()
+            .find(|other| transfer.is_group(other))
+        {
+            existing.stacks += 1;
+            debug!("transfer update {existing:?}");
         } else {
-            None
+            debug!("transfer new {transfer:?}");
+            self.transfers.push(transfer)
         }
     }
 
+    /// Find an element matching the predicate and take it out of the [`Vec`].
+    fn find_take<T>(vec: &mut Vec<T>, pred: impl FnMut(&T) -> bool) -> Option<T> {
+        vec.iter()
+            .position(pred)
+            .map(|index| vec.swap_remove(index))
+    }
+
     /// Purges old information.
-    fn purge(&mut self, now: i32) {
+    pub fn purge(&mut self, now: i32) {
         self.remove.retain(|el| Self::check_time(el.time, now));
         self.apply.retain(|el| Self::check_time(el.time, now));
     }
@@ -76,6 +102,41 @@ impl Default for TransferTracker {
     }
 }
 
+/// Information about a condition apply.
+#[derive(Debug, Clone)]
+pub struct Apply {
+    /// Time of the apply.
+    pub time: i32,
+
+    /// Condition applied.
+    pub condi: Condition,
+
+    /// Duration applied.
+    pub duration: i32,
+
+    /// Target the condition was applied to.
+    pub target: Target,
+}
+
+impl Apply {
+    /// Creates a new condition apply.
+    pub fn new(time: i32, condi: Condition, duration: i32, target: Target) -> Self {
+        Self {
+            time,
+            condi,
+            duration,
+            target,
+        }
+    }
+
+    /// Check whether the apply matches a remove.
+    pub fn matches(&self, remove: &Remove) -> bool {
+        self.condi == remove.condi
+            && self.duration.abs_diff(remove.time) < TIME_EPSILON
+            && self.time.abs_diff(remove.time) < TIME_EPSILON
+    }
+}
+
 /// Information about a condition remove.
 #[derive(Debug, Clone)]
 pub struct Remove {
@@ -85,17 +146,17 @@ pub struct Remove {
     /// Condition removed.
     pub condi: Condition,
 
-    /// Amount of stacks removed.
-    pub stacks: u32,
+    /// Duration removed.
+    pub duration: i32,
 }
 
 impl Remove {
     /// Creates a new condition transfer.
-    pub fn new(time: i32, condi: Condition, stacks: u32) -> Self {
+    pub fn new(time: i32, condi: Condition, duration: i32) -> Self {
         Self {
             time,
             condi,
-            stacks,
+            duration,
         }
     }
 }
@@ -117,24 +178,21 @@ pub struct Transfer {
 }
 
 impl Transfer {
-    /// Error margin for transfer times.
-    pub const TIME_EPSILON: i32 = 10;
-
-    /// Creates a new condition transfer.
-    pub fn new(time: i32, condi: Condition, stacks: u32, target: Target) -> Self {
-        Self {
-            time,
-            condi,
-            stacks,
-
-            target,
-        }
+    /// Check whether the transfers should be grouped.
+    pub fn is_group(&self, other: &Self) -> bool {
+        self.condi == other.condi
+            && self.target == other.target
+            && self.time.abs_diff(other.time) < TIME_EPSILON
     }
+}
 
-    /// Check whether the transfer candidate matches a remove.
-    pub fn matches(&self, remove: &Remove) -> bool {
-        self.condi == remove.condi
-            && self.stacks == remove.stacks
-            && (self.time - remove.time) <= Self::TIME_EPSILON
+impl From<Apply> for Transfer {
+    fn from(apply: Apply) -> Self {
+        Self {
+            time: apply.time,
+            condi: apply.condi,
+            stacks: 1,
+            target: apply.target,
+        }
     }
 }
