@@ -5,6 +5,7 @@
 - Track skill cast states, durations & hit counts
 - Track buff applications to other players & NPCs
 - Track breakbar damage hits
+- Track condition transfers
 
 ## Casts
 Displays casted skills and their durations and hit counts.
@@ -51,4 +52,8 @@ The following buff applications are currently tracked:
 
 ## Breakbar
 Displays [defiance bar](https://wiki.guildwars2.com/wiki/Defiance_bar) damage hits and their respective skill name, damage amount and target.
+Target is colored based on main log target species.
+
+## Transfer
+Displays [transferred conditions](https://wiki.guildwars2.com/wiki/Condition#Skills_that_transfer_conditions) and their respective stack count and target.
 Target is colored based on main log target species.
