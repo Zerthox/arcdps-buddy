@@ -55,13 +55,13 @@ impl Plugin {
                         if let Some(dst) = dst {
                             let buff = event.skill_id;
                             if let Ok(buff) = buff.try_into() {
-                                // ignore buff applies to self or same agent
+                                // only care about buff applies to other where source and dest are different
                                 if dst.is_self == 0 && dst.id != src.id {
                                     Self::lock().apply_buff(&event, buff, &src, &dst)
                                 }
                             } else if let Ok(condi) = buff.try_into() {
-                                // only care about condis from self and ignore extensions
-                                if src_self && event.is_off_cycle == 0 {
+                                // only care about condi applies from self to other and ignore extensions
+                                if src_self && dst.is_self == 0 && event.is_off_cycle == 0 {
                                     Self::lock().apply_condi(&event, condi, &dst)
                                 }
                             }
