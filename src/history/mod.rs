@@ -77,8 +77,11 @@ impl<T> History<T> {
         self.fight_at_mut(self.viewed)
     }
 
-    /// Ensures the viewed index does not exceed the amount of fights.
-    fn cap_viewed(&mut self) {
+    /// Updates the viewed index when a fight is added/removed.
+    fn update_viewed(&mut self, change: isize) {
+        if self.viewed > 0 {
+            self.viewed.saturating_add_signed(change);
+        }
         if self.viewed >= self.len() {
             self.viewed = 0;
         }
@@ -109,10 +112,7 @@ impl<T> History<T> {
             self.fights.pop_back();
         }
         self.fights.push_front(fight);
-        if self.viewed > 0 {
-            self.viewed += 1;
-            self.cap_viewed();
-        }
+        self.update_viewed(1);
     }
 
     /// Adds a fight with default data to the history.
@@ -152,7 +152,7 @@ impl<T> History<T> {
             let duration = fight.end(time);
             if self.settings.discard_at_end && duration < self.settings.min_duration {
                 self.fights.pop_front();
-                self.cap_viewed();
+                self.update_viewed(-1);
             }
         }
     }
