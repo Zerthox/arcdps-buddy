@@ -35,14 +35,10 @@ impl Plugin {
                         if let Some(time) = plugin.history.relative_time(event.time) {
                             if plugin.data.contains(event.skill_id) {
                                 match event.get_activation() {
-                                    Activation::Start => {
-                                        plugin.cast_start(&event, skill_name, time)
-                                    }
+                                    Activation::Start => plugin.cast_start(event, skill_name, time),
                                     Activation::CancelFire
                                     | Activation::CancelCancel
-                                    | Activation::Reset => {
-                                        plugin.cast_end(&event, skill_name, time)
-                                    }
+                                    | Activation::Reset => plugin.cast_end(event, skill_name, time),
                                     _ => {}
                                 }
                             }
@@ -55,12 +51,12 @@ impl Plugin {
                             if let Ok(buff) = buff.try_into() {
                                 // only care about buff applies to other where source and dest are different
                                 if dst.is_self == 0 && dst.id != src.id {
-                                    Self::lock().apply_buff(&event, buff, &src, &dst)
+                                    Self::lock().apply_buff(event, buff, src, dst)
                                 }
                             } else if let Ok(condi) = buff.try_into() {
                                 // only care about condi applies from self to other and ignore extensions
                                 if src_self && dst.is_self == 0 && event.is_offcycle == 0 {
-                                    Self::lock().apply_condi(&event, condi, &dst)
+                                    Self::lock().apply_condi(event, condi, dst)
                                 }
                             }
                         }
@@ -74,7 +70,7 @@ impl Plugin {
                                 && dst.is_self != 0
                             {
                                 if let Ok(condi) = event.skill_id.try_into() {
-                                    Self::lock().remove_buff(&event, condi)
+                                    Self::lock().remove_buff(event, condi)
                                 }
                             }
                         }
@@ -82,12 +78,12 @@ impl Plugin {
 
                     EventCategory::Strike => {
                         let mut plugin = Self::lock();
-                        let is_minion = plugin.is_own_minion(&event);
+                        let is_minion = plugin.is_own_minion(event);
                         if src_self || is_minion {
                             if let (Some(dst), Some(time)) =
                                 (dst, plugin.history.relative_time(event.time))
                             {
-                                plugin.strike(&event, is_minion, skill_name, &dst, time)
+                                plugin.strike(event, is_minion, skill_name, dst, time)
                             }
                         }
                     }
