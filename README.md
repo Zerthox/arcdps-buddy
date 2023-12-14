@@ -1,6 +1,8 @@
 # ArcDPS Buddy
 [ArcDPS](https://deltaconnected.com/arcdps) plugin for [Guild Wars 2](https://guildwars2.com) assisting with combat gameplay.
 
+Published releases can be found [here](../../releases). Click [here](../../releases/latest/download/arcdps_buddy.dll) to directly download the latest release.
+
 ## Features
 - Track skill cast states, durations & hit counts
 - Track buff applications to other players & NPCs
