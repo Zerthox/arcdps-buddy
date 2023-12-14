@@ -19,8 +19,8 @@ dependencies = [
 
 [[package]]
 name = "arc_util"
-version = "0.10.5"
-source = "git+https://github.com/zerthox/arcdps-utils#3ace578805d4bac20d9dfa8db024b9a790b4deb3"
+version = "0.11.0"
+source = "git+https://github.com/zerthox/arcdps-utils#ad18645de6d331b2e7f3eb99e76653367f052708"
 dependencies = [
  "arcdps",
  "minreq",
@@ -33,13 +33,13 @@ dependencies = [
 
 [[package]]
 name = "arcdps"
-version = "0.12.4"
-source = "git+https://github.com/zerthox/arcdps-bindings#8a47beda644cb7e3faa94a250f6f18107b1ab0d4"
+version = "0.13.0"
+source = "git+https://github.com/zerthox/arcdps-rs#eb5711e80333aa93b2643883a8466cbaf303e3fc"
 dependencies = [
  "arcdps-imgui",
  "arcdps_codegen",
- "arcdps_evtc",
  "chrono",
+ "evtc",
  "log",
  "num_enum",
  "serde",
@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "arcdps_buddy"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "arc_util",
  "arcdps",
@@ -88,24 +88,14 @@ dependencies = [
 
 [[package]]
 name = "arcdps_codegen"
-version = "0.10.2"
-source = "git+https://github.com/zerthox/arcdps-bindings#8a47beda644cb7e3faa94a250f6f18107b1ab0d4"
+version = "0.10.3"
+source = "git+https://github.com/zerthox/arcdps-rs#eb5711e80333aa93b2643883a8466cbaf303e3fc"
 dependencies = [
  "cfg-if",
  "paste",
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "arcdps_evtc"
-version = "0.6.3"
-source = "git+https://github.com/zerthox/arcdps-bindings#8a47beda644cb7e3faa94a250f6f18107b1ab0d4"
-dependencies = [
- "num_enum",
- "serde",
- "strum",
 ]
 
 [[package]]
@@ -201,6 +191,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "evtc"
+version = "0.7.0"
+source = "git+https://github.com/zerthox/arcdps-rs#eb5711e80333aa93b2643883a8466cbaf303e3fc"
+dependencies = [
+ "memoffset",
+ "num_enum",
+ "serde",
+ "strum",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -244,7 +245,7 @@ dependencies = [
  "iana-time-zone-haiku",
  "js-sys",
  "wasm-bindgen",
- "windows-core",
+ "windows-core 0.51.1",
 ]
 
 [[package]]
@@ -296,9 +297,9 @@ dependencies = [
 
 [[package]]
 name = "itoa"
-version = "1.0.9"
+version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
+checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
 name = "js-sys"
@@ -317,9 +318,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.150"
+version = "0.2.151"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89d92a4743f9a61002fae18374ed11e7973f530cb3a3255fb354818118b2203c"
+checksum = "302d7ab3130588088d277783b1e2d2e10c9e9e4a16dd9050e6ec93fb3e7048f4"
 
 [[package]]
 name = "linux-raw-sys"
@@ -348,6 +349,15 @@ name = "memchr"
 version = "2.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
+
+[[package]]
+name = "memoffset"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
+dependencies = [
+ "autocfg",
+]
 
 [[package]]
 name = "minreq"
@@ -618,9 +628,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.38.27"
+version = "0.38.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfeae074e687625746172d639330f1de242a178bf3189b51e35a7a21573513ac"
+checksum = "72e572a5e8ca657d7366229cdde4bd14c4eb5499a9573d4d366fe1b599daa316"
 dependencies = [
  "bitflags 2.4.1",
  "errno",
@@ -637,9 +647,9 @@ checksum = "7ffc183a10b4478d04cbbbfc96d0873219d962dd5accaff2ffbd4ceb7df837f4"
 
 [[package]]
 name = "ryu"
-version = "1.0.15"
+version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
+checksum = "f98d2aa92eebf49b69786be48e4477826b256916e84a57ff2a4f21923b48eb4c"
 
 [[package]]
 name = "schannel"
@@ -768,9 +778,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.39"
+version = "2.0.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23e78b90f2fcf45d3e842032ce32e3f2d1545ba6636271dcbf24fa306d87be7a"
+checksum = "44c8b28c477cc3bf0e7966561e3460130e1255f7a1cf71931075f1c5e7a7e269"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -903,12 +913,12 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows"
-version = "0.51.1"
+version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca229916c5ee38c2f2bc1e9d8f04df975b4bd93f9955dc69fabb5d91270045c9"
+checksum = "e48a53791691ab099e5e2ad123536d0fff50652600abaf43bbf952894110d0be"
 dependencies = [
- "windows-core",
- "windows-targets 0.48.5",
+ "windows-core 0.52.0",
+ "windows-targets 0.52.0",
 ]
 
 [[package]]
@@ -918,6 +928,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1f8cf84f35d2db49a46868f947758c7a1138116f7fac3bc844f43ade1292e64"
 dependencies = [
  "windows-targets 0.48.5",
+]
+
+[[package]]
+name = "windows-core"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
+dependencies = [
+ "windows-targets 0.52.0",
 ]
 
 [[package]]
@@ -1054,9 +1073,9 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 
 [[package]]
 name = "winnow"
-version = "0.5.26"
+version = "0.5.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b67b5f0a4e7a27a64c651977932b9dc5667ca7fc31ac44b03ed37a0cf42fdfff"
+checksum = "6c830786f7720c2fd27a1a0e27a709dbd3c4d009b56d098fc742d4f4eab91fe2"
 dependencies = [
  "memchr",
 ]

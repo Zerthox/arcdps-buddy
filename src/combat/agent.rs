@@ -30,10 +30,10 @@ impl Target {
     }
 }
 
-impl From<&Agent<'_>> for Target {
+impl From<&Agent> for Target {
     fn from(agent: &Agent) -> Self {
         let kind = agent.kind();
-        let name = match agent.name {
+        let name = match agent.name() {
             Some(name) if !name.is_empty() => name.into(),
             _ => match kind {
                 AgentKind::Player => format!("Player:{}", agent.id),

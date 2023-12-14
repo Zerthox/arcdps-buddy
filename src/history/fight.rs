@@ -58,7 +58,7 @@ impl<T> Fight<T> {
         if species > 2 {
             self.target = Some(species);
             self.name = agent
-                .and_then(|agent| agent.name)
+                .and_then(|agent| agent.name())
                 .filter(|name| !name.is_empty())
                 .map(Into::into);
         } else {

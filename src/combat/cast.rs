@@ -111,7 +111,7 @@ pub struct Hit {
     pub target: u32,
 }
 
-impl From<&Agent<'_>> for Hit {
+impl From<&Agent> for Hit {
     fn from(target: &Agent) -> Self {
         Self {
             target: match target.kind() {
