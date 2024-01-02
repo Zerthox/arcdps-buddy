@@ -3,10 +3,12 @@
 
 Published releases can be found [here](../../releases). Click [here](../../releases/latest/download/arcdps_buddy.dll) to directly download the latest release.
 
-<img src="./screenshots/casts.png" alt="Casts screenshot" width="300"/>
-<img src="./screenshots/buffs.png" alt="Buffs screenshot" width="300"/>
-<img src="./screenshots/breakbar.png" alt="Breakbar screenshot" width="300"/>
-<img src="./screenshots/transfer.png" alt="Transfer screenshot" width="300"/>
+<p>
+  <img src="./screenshots/casts.png" alt="Casts screenshot" width="300"/>
+  <img src="./screenshots/buffs.png" alt="Buffs screenshot" width="300"/>
+  <img src="./screenshots/breakbar.png" alt="Breakbar screenshot" width="300"/>
+  <img src="./screenshots/transfer.png" alt="Transfer screenshot" width="300"/>
+</p>
 
 ## Features
 - Track skill cast states, durations & hit counts
