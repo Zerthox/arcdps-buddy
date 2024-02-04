@@ -22,7 +22,7 @@ Duration is colored based on the animation as categorized by ArcDPS (full afterc
 Hit count is colored based on the expected and maximum amount of hits.
 
 You can supply custom skill definitions via `arcdps_buddy_skills.yml`.
-The plugin ships with the default definitions in [src/data](./src/data/).
+The plugin ships with the default definitions in [src/data/skills](./src/data/skills/).
 A single entry for a skill looks like this:
 
 ```yml

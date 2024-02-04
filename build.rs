@@ -13,7 +13,7 @@ use structs::SkillDef;
 fn main() {
     let manifest = env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let in_dir = PathBuf::from(manifest).join("src/data");
+    let in_dir = PathBuf::from(manifest).join("src/data/skills");
 
     let files = fs::read_dir(in_dir)
         .unwrap()
