@@ -208,11 +208,11 @@ impl Plugin {
         time: i32,
     ) {
         let skill = Skill::new(event.skill_id, skill_name);
-        match event.result.try_into() {
-            Ok(Strike::Normal | Strike::Crit | Strike::Glance) => {
+        match event.get_strike() {
+            Strike::Normal | Strike::Crit | Strike::Glance => {
                 self.damage_hit(is_minion, skill, target, time)
             }
-            Ok(Strike::Breakbar) => self.breakbar_hit(skill, target, event.value, time),
+            Strike::Breakbar => self.breakbar_hit(skill, target, event.value, time),
             _ => {}
         }
     }
@@ -241,6 +241,7 @@ impl Plugin {
     }
 
     fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
+        // TODO: support optional display for entire group?
         // TODO: display minion indicator?
         if let Some(fight) = self.history.latest_fight_mut() {
             debug!("breakbar {damage} {skill:?} {target:?}");

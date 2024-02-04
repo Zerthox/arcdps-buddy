@@ -14,7 +14,7 @@ use arcdps::{
     imgui::Ui,
 };
 use serde::{Deserialize, Serialize};
-use strum::{EnumVariantNames, VariantNames};
+use strum::VariantNames;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -204,7 +204,7 @@ impl HasSettings for CastLog {
     PartialOrd,
     Ord,
     Hash,
-    EnumVariantNames,
+    VariantNames,
     Serialize,
     Deserialize,
 )]

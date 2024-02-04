@@ -1,27 +1,31 @@
-use arcdps::{evtc::AgentKind, Agent};
+use arcdps::evtc::{self, AgentKind};
 
 // TODO: show id settings?
 
-/// Information about a target agent.
+/// Information about an agent.
 #[derive(Debug, Clone)]
-pub struct Target {
+pub struct Agent {
     /// Kind of agent.
     pub kind: AgentKind,
+
+    /// Whether the character is the local player.
+    pub is_self: bool,
 
     /// Agent name.
     pub name: String,
 }
 
-impl Target {
-    /// Creates a new target agent.
-    pub fn new(kind: AgentKind, name: impl Into<String>) -> Self {
+impl Agent {
+    /// Creates a new agent.
+    pub fn new(kind: AgentKind, is_self: bool, name: impl Into<String>) -> Self {
         Self {
             kind,
+            is_self,
             name: name.into(),
         }
     }
 
-    /// Checks whether the target matches the given species.
+    /// Checks whether the agent matches the given species.
     pub fn matches_species(&self, species: Option<u32>) -> bool {
         match (species, self.kind) {
             (Some(species), AgentKind::Npc(id) | AgentKind::Gadget(id)) => id as u32 == species,
@@ -30,8 +34,8 @@ impl Target {
     }
 }
 
-impl From<&Agent> for Target {
-    fn from(agent: &Agent) -> Self {
+impl From<&evtc::Agent> for Agent {
+    fn from(agent: &evtc::Agent) -> Self {
         let kind = agent.kind();
         let name = match agent.name() {
             Some(name) if !name.is_empty() => name.into(),
@@ -41,12 +45,17 @@ impl From<&Agent> for Target {
                 AgentKind::Gadget(species) => format!("Gadget:{species}"),
             },
         };
-        Self::new(kind, name)
+        Self::new(kind, agent.is_self != 0, name)
     }
 }
 
-impl PartialEq for Target {
+impl PartialEq for Agent {
     fn eq(&self, other: &Self) -> bool {
-        self.kind == other.kind
+        match (self.kind, other.kind) {
+            (AgentKind::Player, AgentKind::Player) => self.name == other.name,
+            (AgentKind::Npc(id1), AgentKind::Npc(id2))
+            | (AgentKind::Gadget(id1), AgentKind::Gadget(id2)) => id1 == id2,
+            _ => false,
+        }
     }
 }

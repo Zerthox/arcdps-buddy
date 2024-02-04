@@ -1,4 +1,4 @@
-use super::agent::Target;
+use super::agent::Agent;
 use log::debug;
 
 pub use crate::data::Condition;
@@ -115,12 +115,12 @@ pub struct Apply {
     pub duration: i32,
 
     /// Target the condition was applied to.
-    pub target: Target,
+    pub target: Agent,
 }
 
 impl Apply {
     /// Creates a new condition apply.
-    pub fn new(time: i32, condi: Condition, duration: i32, target: Target) -> Self {
+    pub fn new(time: i32, condi: Condition, duration: i32, target: Agent) -> Self {
         Self {
             time,
             condi,
@@ -174,7 +174,7 @@ pub struct Transfer {
     pub stacks: u32,
 
     /// Target the condition was transferred to.
-    pub target: Target,
+    pub target: Agent,
 }
 
 impl Transfer {
