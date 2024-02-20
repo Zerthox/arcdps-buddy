@@ -2,7 +2,7 @@ pub mod event;
 pub mod ui;
 
 use crate::{
-    combat::CombatData,
+    combat::{player::Player, CombatData},
     data::{LoadError, SkillData},
     history::History,
     ui::{
@@ -42,6 +42,7 @@ pub struct Plugin {
     data_state: Result<usize, LoadError>,
 
     self_instance_id: Option<u16>,
+    players: Vec<Player>,
     history: History<CombatData>,
 
     multi_view: Window<MultiView>,
@@ -71,6 +72,7 @@ impl Plugin {
             data_state: Err(LoadError::NotFound),
 
             self_instance_id: None,
+            players: Vec::new(),
             history: History::new(10, 5000, true),
 
             multi_view: Window::with_default("Buddy Multi", options.clone()),

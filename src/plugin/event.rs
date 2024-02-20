@@ -3,6 +3,7 @@ use crate::combat::{
     breakbar::BreakbarHit,
     buff::{Buff, BuffApply},
     cast::{Cast, CastState},
+    player::Player,
     skill::Skill,
     transfer::{Apply, Condition, Remove},
 };
@@ -78,13 +79,10 @@ impl Plugin {
 
                     EventCategory::Strike => {
                         let mut plugin = Self::lock();
-                        let is_minion = plugin.is_own_minion(event);
-                        if src_self || is_minion {
-                            if let (Some(dst), Some(time)) =
-                                (dst, plugin.history.relative_time(event.time))
-                            {
-                                plugin.strike(event, is_minion, skill_name, dst, time)
-                            }
+                        if let (Some(dst), Some(time)) =
+                            (dst, plugin.history.relative_time(event.time))
+                        {
+                            plugin.strike(event, skill_name, src, dst, time)
                         }
                     }
 
@@ -92,14 +90,31 @@ impl Plugin {
                 }
             } else if let Some(dst) = dst {
                 // check for tracking addition
-                if dst.is_self != 0 && src.elite == 0 && src.prof != 0 {
+                if src.elite == 0 && src.prof != 0 {
                     let mut plugin = Self::lock();
-                    let inst_id = dst.id as u16;
-                    plugin.self_instance_id = Some(inst_id);
-                    debug!("own instance id changed to {}", inst_id);
+                    if src.prof != 0 {
+                        // player added
+                        let player = Player::from_tracking_change(src, dst);
+                        if dst.is_self != 0 {
+                            plugin.self_instance_id = Some(player.instance_id);
+                            debug!("own instance id changed to {}", player.instance_id);
+                        }
+                        plugin.players.push(player);
+                    } else if let Some(pos) =
+                        plugin.players.iter().position(|player| player.id == src.id)
+                    {
+                        // player tracked & removed
+                        plugin.players.swap_remove(pos);
+                    }
                 }
             }
         }
+    }
+
+    fn get_master(&self, event: &Event) -> Option<&crate::combat::player::Player> {
+        self.players
+            .iter()
+            .find(|player| player.instance_id == event.src_master_instance_id)
     }
 
     fn is_own_minion(&self, event: &Event) -> bool {
@@ -202,17 +217,27 @@ impl Plugin {
     fn strike(
         &mut self,
         event: &Event,
-        is_minion: bool,
         skill_name: Option<&str>,
+        attacker: &Agent,
         target: &Agent,
         time: i32,
     ) {
         let skill = Skill::new(event.skill_id, skill_name);
+        let is_minion = self.is_own_minion(event);
+        let is_own = attacker.is_self != 0 || is_minion;
         match event.get_strike() {
             Strike::Normal | Strike::Crit | Strike::Glance => {
-                self.damage_hit(is_minion, skill, target, time)
+                if is_own {
+                    self.damage_hit(is_minion, skill, target, time)
+                }
             }
-            Strike::Breakbar => self.breakbar_hit(skill, target, event.value, time),
+            Strike::Breakbar => {
+                let attacker_name = self
+                    .get_master(event)
+                    .map(|player| player.name.clone())
+                    .unwrap_or_else(|| crate::combat::name_of(attacker));
+                self.breakbar_hit(skill, attacker_name, is_own, target, event.value, time)
+            }
             _ => {}
         }
     }
@@ -240,12 +265,19 @@ impl Plugin {
         }
     }
 
-    fn breakbar_hit(&mut self, skill: Skill, target: &Agent, damage: i32, time: i32) {
-        // TODO: support optional display for entire group?
-        // TODO: display minion indicator?
+    fn breakbar_hit(
+        &mut self,
+        skill: Skill,
+        attacker: String,
+        is_own: bool,
+        target: &Agent,
+        damage: i32,
+        time: i32,
+    ) {
+        // TODO: minion indicator?
         if let Some(fight) = self.history.latest_fight_mut() {
-            debug!("breakbar {damage} {skill:?} {target:?}");
-            let hit = BreakbarHit::new(time, skill, damage, target.into());
+            debug!("breakbar {damage} {skill:?} from {attacker} to {target:?}");
+            let hit = BreakbarHit::new(time, skill, damage, attacker, is_own, target.into());
             fight.data.breakbar.push(hit);
         }
     }

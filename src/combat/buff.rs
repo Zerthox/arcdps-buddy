@@ -1,5 +1,4 @@
 use super::agent::Agent;
-use arcdps::evtc::AgentKind;
 
 pub use crate::data::Buff;
 
@@ -28,10 +27,5 @@ impl BuffApply {
             duration,
             target,
         }
-    }
-
-    /// Checks whether the apply target was a player.
-    pub fn to_player(&self) -> bool {
-        matches!(self.target.kind, AgentKind::Player)
     }
 }

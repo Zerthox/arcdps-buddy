@@ -2,13 +2,32 @@ pub mod agent;
 pub mod breakbar;
 pub mod buff;
 pub mod cast;
+pub mod player;
 pub mod skill;
 pub mod transfer;
 
-use self::breakbar::BreakbarHit;
-use self::buff::BuffApply;
-use self::cast::Cast;
-use self::transfer::TransferTracker;
+use arcdps::evtc::{self, AgentKind};
+use breakbar::BreakbarHit;
+use buff::BuffApply;
+use cast::Cast;
+use transfer::TransferTracker;
+
+/// Generates a name with the given parameters.
+pub fn process_name(id: usize, kind: AgentKind, name: Option<&str>) -> String {
+    match name {
+        Some(name) if !name.is_empty() => name.into(),
+        _ => match kind {
+            AgentKind::Player => format!("Player:{}", id),
+            AgentKind::Npc(species) => format!("NPC:{species}",),
+            AgentKind::Gadget(species) => format!("Gadget:{species}"),
+        },
+    }
+}
+
+/// Generates a name for the EVTC agent.
+pub fn name_of(agent: &evtc::Agent) -> String {
+    process_name(agent.id, agent.kind(), agent.name())
+}
 
 #[derive(Debug, Clone)]
 pub struct CombatData {

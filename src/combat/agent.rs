@@ -1,4 +1,9 @@
-use arcdps::evtc::{self, AgentKind};
+use super::name_of;
+use arc_util::colors::{CYAN, GREEN, RED, YELLOW};
+use arcdps::{
+    evtc::{self, AgentKind},
+    exports::{Colors, CoreColor},
+};
 
 // TODO: show id settings?
 
@@ -8,19 +13,15 @@ pub struct Agent {
     /// Kind of agent.
     pub kind: AgentKind,
 
-    /// Whether the character is the local player.
-    pub is_self: bool,
-
     /// Agent name.
     pub name: String,
 }
 
 impl Agent {
     /// Creates a new agent.
-    pub fn new(kind: AgentKind, is_self: bool, name: impl Into<String>) -> Self {
+    pub fn new(kind: AgentKind, name: impl Into<String>) -> Self {
         Self {
             kind,
-            is_self,
             name: name.into(),
         }
     }
@@ -32,20 +33,34 @@ impl Agent {
             _ => false,
         }
     }
+
+    /// Checks whether the agent is a player.
+    pub fn is_player(&self) -> bool {
+        matches!(self.kind, AgentKind::Player)
+    }
+
+    /// Returns friendly agent color.
+    pub fn friendly_color(&self, colors: &Colors) -> [f32; 4] {
+        if self.is_player() {
+            colors.core(CoreColor::LightTeal).unwrap_or(CYAN)
+        } else {
+            colors.core(CoreColor::LightGreen).unwrap_or(GREEN)
+        }
+    }
+
+    /// Returns enemy agent color.
+    pub fn enemy_color(&self, colors: &Colors, fight_target: Option<u32>) -> [f32; 4] {
+        if self.matches_species(fight_target) {
+            colors.core(CoreColor::LightRed).unwrap_or(RED)
+        } else {
+            colors.core(CoreColor::LightYellow).unwrap_or(YELLOW)
+        }
+    }
 }
 
 impl From<&evtc::Agent> for Agent {
     fn from(agent: &evtc::Agent) -> Self {
-        let kind = agent.kind();
-        let name = match agent.name() {
-            Some(name) if !name.is_empty() => name.into(),
-            _ => match kind {
-                AgentKind::Player => format!("Player:{}", agent.id),
-                AgentKind::Npc(species) => format!("NPC:{species}",),
-                AgentKind::Gadget(species) => format!("Gadget:{species}"),
-            },
-        };
-        Self::new(kind, agent.is_self != 0, name)
+        Self::new(agent.kind(), name_of(agent))
     }
 }
 

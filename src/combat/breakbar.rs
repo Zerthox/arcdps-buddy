@@ -14,17 +14,32 @@ pub struct BreakbarHit {
     /// Due to decimals this is `10 * damage` compared to regular defiance damage units.
     pub damage: i32,
 
+    /// Agent causing the hit.
+    pub attacker: String,
+
+    /// Whether the attacker is our character.
+    pub is_own: bool,
+
     /// Target hit.
     pub target: Agent,
 }
 
 impl BreakbarHit {
     /// Creates a new breakbar hit.
-    pub fn new(time: i32, skill: Skill, damage: i32, target: Agent) -> Self {
+    pub fn new(
+        time: i32,
+        skill: Skill,
+        damage: i32,
+        attacker: impl Into<String>,
+        is_own: bool,
+        target: Agent,
+    ) -> Self {
         Self {
             time,
             skill,
             damage,
+            attacker: attacker.into(),
+            is_own,
             target,
         }
     }

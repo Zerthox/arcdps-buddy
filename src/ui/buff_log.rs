@@ -4,7 +4,7 @@ use crate::{
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
-    colors::{CYAN, GREEN, GREY, YELLOW},
+    colors::{GREY, YELLOW},
     settings::HasSettings,
     ui::{Component, Windowable},
 };
@@ -52,9 +52,7 @@ impl Component<BuffLogProps<'_>> for BuffLog {
             Some(fight) if !fight.data.buffs.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-                let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
-                let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
                 for apply in &fight.data.buffs {
                     if self.display_time {
@@ -73,10 +71,7 @@ impl Component<BuffLogProps<'_>> for BuffLog {
                     }
 
                     ui.same_line();
-                    ui.text_colored(
-                        if apply.to_player() { blue } else { green },
-                        &apply.target.name,
-                    );
+                    ui.text_colored(apply.target.friendly_color(&colors), &apply.target.name);
                 }
             }
             _ => ui.text("No buffs"),

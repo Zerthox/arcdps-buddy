@@ -4,7 +4,7 @@ use crate::{
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
-    colors::{GREY, RED, YELLOW},
+    colors::GREY,
     settings::HasSettings,
     ui::{Component, Windowable},
 };
@@ -49,8 +49,6 @@ impl Component<TransferLogProps<'_>> for TransferLog {
             Some(fight) if !fight.data.transfers.found().is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-                let red = colors.core(CoreColor::LightRed).unwrap_or(RED);
-                let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
                 for transfer in fight.data.transfers.found() {
                     if self.display_time {
@@ -59,16 +57,15 @@ impl Component<TransferLogProps<'_>> for TransferLog {
                     }
 
                     ui.text(transfer.stacks.to_string());
+
                     ui.same_line();
                     ui.text(transfer.condi);
 
-                    let color = if transfer.target.matches_species(fight.target) {
-                        red
-                    } else {
-                        yellow
-                    };
                     ui.same_line();
-                    ui.text_colored(color, &transfer.target.name);
+                    ui.text_colored(
+                        transfer.target.enemy_color(&colors, fight.target),
+                        &transfer.target.name,
+                    );
                 }
             }
             _ => ui.text("No transfers"),
