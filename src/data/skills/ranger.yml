@@ -66,6 +66,17 @@
   hit_ids: [63224] # follow-up
   hits: 2
 
+# mace
+- id: 71999 # flourish
+  hits: 2
+- id: 71963 # oaken cudgel
+  hits: 1
+- id: 71903 # thistleguard
+  hits: 1
+- id: 71841 # wild strikes
+  hits: 4
+  expected: 3
+
 # slot
 - id: 12492 # frost trap
   hits: 5
