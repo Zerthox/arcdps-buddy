@@ -15,7 +15,7 @@ pub struct BreakbarHit {
     pub damage: i32,
 
     /// Agent causing the hit.
-    pub attacker: String,
+    pub attacker: Agent,
 
     /// Whether the attacker is our character.
     pub is_own: bool,
@@ -30,7 +30,7 @@ impl BreakbarHit {
         time: i32,
         skill: Skill,
         damage: i32,
-        attacker: impl Into<String>,
+        attacker: Agent,
         is_own: bool,
         target: Agent,
     ) -> Self {
@@ -38,7 +38,7 @@ impl BreakbarHit {
             time,
             skill,
             damage,
-            attacker: attacker.into(),
+            attacker,
             is_own,
             target,
         }

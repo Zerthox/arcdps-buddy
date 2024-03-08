@@ -1,8 +1,9 @@
-use super::name_of;
-use arc_util::colors::{CYAN, GREEN, RED, YELLOW};
+use super::{name_of, Player};
+use arc_util::colors::{with_alpha, GREEN, GREY, RED, YELLOW};
 use arcdps::{
     evtc::{self, AgentKind},
     exports::{Colors, CoreColor},
+    Profession,
 };
 
 // TODO: show id settings?
@@ -13,15 +14,19 @@ pub struct Agent {
     /// Kind of agent.
     pub kind: AgentKind,
 
+    /// Agent profession.
+    pub profession: Profession,
+
     /// Agent name.
     pub name: String,
 }
 
 impl Agent {
     /// Creates a new agent.
-    pub fn new(kind: AgentKind, name: impl Into<String>) -> Self {
+    pub fn new(kind: AgentKind, profession: Profession, name: impl Into<String>) -> Self {
         Self {
             kind,
+            profession,
             name: name.into(),
         }
     }
@@ -39,28 +44,31 @@ impl Agent {
         matches!(self.kind, AgentKind::Player)
     }
 
+    /// Returns agent profession color.
+    pub fn prof_color(&self, colors: &Colors) -> [f32; 4] {
+        colors.prof_base(self.profession).unwrap_or(GREY)
+    }
+
     /// Returns friendly agent color.
     pub fn friendly_color(&self, colors: &Colors) -> [f32; 4] {
-        if self.is_player() {
-            colors.core(CoreColor::LightTeal).unwrap_or(CYAN)
+        let color = if self.is_player() {
+            self.prof_color(colors)
         } else {
             colors.core(CoreColor::LightGreen).unwrap_or(GREEN)
-        }
+        };
+        with_alpha(color, 1.0)
     }
 
     /// Returns enemy agent color.
     pub fn enemy_color(&self, colors: &Colors, fight_target: Option<u32>) -> [f32; 4] {
-        if self.matches_species(fight_target) {
+        let color = if self.is_player() {
+            self.prof_color(colors)
+        } else if self.matches_species(fight_target) {
             colors.core(CoreColor::LightRed).unwrap_or(RED)
         } else {
             colors.core(CoreColor::LightYellow).unwrap_or(YELLOW)
-        }
-    }
-}
-
-impl From<&evtc::Agent> for Agent {
-    fn from(agent: &evtc::Agent) -> Self {
-        Self::new(agent.kind(), name_of(agent))
+        };
+        with_alpha(color, 1.0)
     }
 }
 
@@ -72,5 +80,17 @@ impl PartialEq for Agent {
             | (AgentKind::Gadget(id1), AgentKind::Gadget(id2)) => id1 == id2,
             _ => false,
         }
+    }
+}
+
+impl From<&evtc::Agent> for Agent {
+    fn from(agent: &evtc::Agent) -> Self {
+        Self::new(agent.kind(), agent.prof.into(), name_of(agent))
+    }
+}
+
+impl From<&Player> for Agent {
+    fn from(player: &Player) -> Self {
+        Self::new(AgentKind::Player, player.prof, player.name.clone())
     }
 }

@@ -232,11 +232,11 @@ impl Plugin {
                 }
             }
             Strike::Breakbar => {
-                let attacker_name = self
+                let attacker = self
                     .get_master(event)
-                    .map(|player| player.name.clone())
-                    .unwrap_or_else(|| crate::combat::name_of(attacker));
-                self.breakbar_hit(skill, attacker_name, is_own, target, event.value, time)
+                    .map(|player| player.into())
+                    .unwrap_or(attacker.into());
+                self.breakbar_hit(skill, attacker, is_own, target, event.value, time)
             }
             _ => {}
         }
@@ -268,7 +268,7 @@ impl Plugin {
     fn breakbar_hit(
         &mut self,
         skill: Skill,
-        attacker: String,
+        attacker: crate::combat::Agent,
         is_own: bool,
         target: &Agent,
         damage: i32,
@@ -276,7 +276,7 @@ impl Plugin {
     ) {
         // TODO: minion indicator?
         if let Some(fight) = self.history.latest_fight_mut() {
-            debug!("breakbar {damage} {skill:?} from {attacker} to {target:?}");
+            debug!("breakbar {damage} {skill:?} from {attacker:?} to {target:?}");
             let hit = BreakbarHit::new(time, skill, damage, attacker, is_own, target.into());
             fight.data.breakbar.push(hit);
         }

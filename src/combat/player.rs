@@ -1,11 +1,12 @@
 use crate::combat::process_name;
-use arcdps::evtc;
+use arcdps::{evtc, Profession};
 
 /// Information about a player.
 #[derive(Debug, Clone)]
 pub struct Player {
     pub id: usize,
     pub instance_id: u16,
+    pub prof: Profession,
     pub name: String,
 }
 
@@ -16,6 +17,7 @@ impl Player {
         Self {
             id: src.id,
             instance_id: dst.id as u16,
+            prof: dst.prof.into(),
             name: process_name(src.id, kind, src.name()),
         }
     }

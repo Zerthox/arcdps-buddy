@@ -4,7 +4,7 @@ use crate::{
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
-    colors::{CYAN, GREEN, GREY},
+    colors::{CYAN, GREY},
     settings::HasSettings,
     ui::{Component, Windowable},
 };
@@ -52,7 +52,6 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
             Some(fight) if !fight.data.breakbar.is_empty() => {
                 let colors = exports::colors();
                 let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-                let green = colors.core(CoreColor::LightGreen).unwrap_or(GREEN);
                 let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
                 for hit in fight
@@ -73,7 +72,7 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
 
                     if self.display_others {
                         ui.same_line();
-                        ui.text_colored(green, &hit.attacker);
+                        ui.text_colored(hit.attacker.friendly_color(&colors), &hit.attacker.name);
                     }
 
                     ui.same_line();

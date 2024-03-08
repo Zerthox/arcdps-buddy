@@ -6,6 +6,9 @@ pub mod player;
 pub mod skill;
 pub mod transfer;
 
+pub use self::agent::Agent;
+pub use self::player::Player;
+
 use arcdps::evtc::{self, AgentKind};
 use breakbar::BreakbarHit;
 use buff::BuffApply;
