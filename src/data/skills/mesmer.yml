@@ -1,14 +1,18 @@
 # shatter
 - id: 10191 # mind wrack
   hits: 4
+  max_duration: 3000 # appropriate max duration?
 - id: 10190 # cry of frustration
   hits: 4
+  max_duration: 3000 # appropriate max duration?
 
 # chronomancer
 - id: 56930 # split second
   hits: 8
+  max_duration: 3000 # appropriate max duration?
 - id: 56928 # rewinder
   hits: 4
+  max_duration: 3000 # appropriate max duration?
 
 # virtuoso
 - id: 62617 # bladesong harmony
@@ -43,6 +47,12 @@
 - id: 10169 # chaos storm
   hits: 6
 
+# pistol
+- id: 10175 # phantasmal duelist
+  hit_ids: [38331]
+  hits: 11 # 3 self + 8 phantasm
+  minion: true
+
 # dagger
 - id: 62560 # bladecall
   hits: 6
@@ -58,6 +68,8 @@
   hit_ids: [10266]
   hits: 1 # actually 4 bounces
   minion: true
+- id: 41065 # crystal sands
+  hits: 6
 - id: 30525 # well of calamity
   hits: 4
 - id: 30359 # gravity well

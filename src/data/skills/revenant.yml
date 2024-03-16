@@ -7,6 +7,10 @@
 - id: 28357 # searing fissure
   hits: 4
 
+# sword
+- id: 28472 # shackling wave
+  hits: 6
+
 # greatsword
 - id: 62929 # eternitys requiem
   hits: 14
@@ -20,6 +24,11 @@
   hits: 4
 
 # slot
+- id: 28287 # embrace the darkness
+  hit_ids: [34331]
+  hits: 0 # limited by energy
+- id: 27162 # elemental blast
+  hits: 3
 - id: 40485 # icerazors ire
   hit_ids: [43856]
   hits: 20

@@ -7,6 +7,33 @@
   hits: 5
 - id: 31167 # spare capacitor
   hits: 4
+- id: 42163 # blade burst
+  hits: 1
+  max_duration: 3000 # appropriate max duration?
+
+# photon forge
+- id: 44530 # corona burst
+  hits: 2
+- id: 45783 # photon blitz
+  hits: 8
+
+# mech
+- id: 63188 # spark revolver
+  hits: 12
+  max_duration: 3000 # appropriate max duration?
+  minion: true
+- id: 63367 # discharge array
+  hits: 5
+  max_duration: 3000 # appropriate max duration?
+  minion: true
+- id: 63236 # sky circus
+  hits: 2
+  max_duration: 3000 # appropriate max duration?
+  minion: true
+- id: 63375 # jade buster cannon (overclock signet)
+  hits: 5
+  max_duration: 4000 # appropriate max duration?
+  minion: true
 
 # grenade kit
 - id: 5807 # shrapnel grenade
@@ -31,3 +58,7 @@
   hits: 12
 - id: 31248 # blast gyro
   hits: 1
+- id: 42842 # laser disk
+  hits: 12
+- id: 42009 # prime light beam
+  hits: 11 # initial + 10 pulses
