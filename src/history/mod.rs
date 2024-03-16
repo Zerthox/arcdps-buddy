@@ -80,7 +80,7 @@ impl<T> History<T> {
     /// Updates the viewed index when a fight is added/removed.
     fn update_viewed(&mut self, change: isize) {
         if self.viewed > 0 {
-            self.viewed.saturating_add_signed(change);
+            self.viewed = self.viewed.saturating_add_signed(change);
         }
         if self.viewed >= self.len() {
             self.viewed = 0;
