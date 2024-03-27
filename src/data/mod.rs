@@ -73,7 +73,7 @@ impl SkillData {
         self.map.contains_key(&id)
     }
 
-    /// Retrieves the [`SkillEntry`] corresponding to the skill id.
+    /// Retrieves the [`SkillInfo`] corresponding to the skill id.
     ///
     /// This includes disabled definitions.
     pub fn get(&self, id: u32) -> Option<&SkillInfo> {

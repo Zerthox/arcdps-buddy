@@ -60,11 +60,13 @@
   hits: 3
   expected: 2
 - id: 69262 # overbearing smash
-  hit_ids: [63201] # follow-up
-  hits: 2
+  hits: 1
+- id: 63201 # overbearing smash follow-up
+  hits: 1
 - id: 63197 # unleashed overbearing smash
-  hit_ids: [63224] # follow-up
-  hits: 2
+  hits: 1
+- id: 63224 # unleashed overbearing smash follow-up
+  hits: 1
 
 # mace
 - id: 71999 # flourish
