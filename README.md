@@ -1,5 +1,5 @@
 # ArcDPS Buddy
-[ArcDPS](https://deltaconnected.com/arcdps) plugin for [Guild Wars 2](https://guildwars2.com) assisting with combat gameplay.
+[ArcDPS](https://deltaconnected.com/arcdps) plugin for [Guild Wars 2](https://guildwars2.com) assisting with evaluating combat gameplay.
 
 Published releases can be found [here](../../releases). Click [here](../../releases/latest/download/arcdps_buddy.dll) to directly download the latest release.
 
@@ -61,6 +61,7 @@ The following buff applications are currently tracked:
 
 ## Breakbar
 Displays [defiance bar](https://wiki.guildwars2.com/wiki/Defiance_bar) damage hits and their respective skill name, damage amount and target.
+Optionally all defiance bar damage from group/squad members can be displayed.
 Target is colored based on main log target species.
 
 ## Transfer
