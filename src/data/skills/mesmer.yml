@@ -53,15 +53,21 @@
   hits: 11 # 3 self + 8 phantasm
   minion: true
 
+# focus
+- id: 10282 # phantasmal warden
+  hit_ids: [22477]
+  hits: 12
+  minion: true
+
+# axe
+- id: 45243 # lingering thoughts
+  hits: 3
+
 # dagger
 - id: 62560 # bladecall
   hits: 6
 - id: 62607 # unstable bladestorm
   hits: 8
-
-# axe
-- id: 45243 # lingering thoughts
-  hits: 3
 
 # slot
 - id: 10267 # phantasmal disenchanter
