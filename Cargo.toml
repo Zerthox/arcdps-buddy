@@ -22,9 +22,14 @@ proc-macro2 = "1.0.59"
 quote = "1.0.28"
 serde = { version = "1.0.163", features = ["derive"] }
 serde_yaml = "0.9.21"
+winresource = "0.1.17"
 
 [lib]
 crate-type = ["cdylib"]
+
+[package.metadata.winresource]
+ProductName = "ArcDPS Buddy"
+OriginalFilename = "arcdps_buddy.dll"
 
 [profile.release]
 lto = "thin"

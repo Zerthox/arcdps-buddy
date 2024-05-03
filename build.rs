@@ -9,12 +9,20 @@ use std::{
     path::PathBuf,
 };
 use structs::SkillDef;
+use winresource::WindowsResource;
 
 fn main() {
     let manifest = env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let in_dir = PathBuf::from(manifest).join("src/data/skills");
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
 
+    if target_os == "windows" {
+        if let Err(err) = WindowsResource::new().compile() {
+            println!("cargo:warning=failed to compile windows resource: {err}");
+        }
+    }
+
+    let in_dir = PathBuf::from(manifest).join("src/data/skills");
     let files = fs::read_dir(in_dir)
         .unwrap()
         .map(|entry| entry.unwrap().path())
