@@ -1,6 +1,6 @@
 use crate::{
     combat::{cast::CastState, CombatData},
-    data::{SkillData, SkillHits},
+    data::{SkillData, SkillHitCount, SkillHits},
     history::History,
     ui::{format_time, scroll::AutoScroll},
 };
@@ -22,6 +22,7 @@ pub struct CastLog {
     display_time: bool,
     display_duration: bool,
     display_hits: HitDisplay,
+    only_misses: bool,
 
     #[serde(skip)]
     scroll: AutoScroll,
@@ -33,6 +34,7 @@ impl CastLog {
             display_time: true,
             display_duration: true,
             display_hits: HitDisplay::default(),
+            only_misses: false,
             scroll: AutoScroll::new(),
         }
     }
@@ -48,6 +50,8 @@ impl CastLog {
         if ui.combo_simple_string("Hits", &mut index, HitDisplay::VARIANTS) {
             self.display_hits = index.into();
         }
+
+        ui.checkbox("Only misses", &mut self.only_misses);
     }
 
     fn format_hits(colors: &Colors, hits: usize, info: &SkillHits) -> (Color, String) {
@@ -56,26 +60,15 @@ impl CastLog {
         let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
         let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-        let max = info.max;
-        let has_hits = max > 0;
-        let color = if has_hits {
-            if hits > max {
-                blue
-            } else if hits == max {
-                green
-            } else if hits >= info.expected {
-                yellow
-            } else {
-                red
-            }
-        } else if max > 0 {
-            yellow
-        } else {
-            red
+        let color = match info.categorize(hits) {
+            SkillHitCount::Missed => red,
+            SkillHitCount::Expected => yellow,
+            SkillHitCount::Max => green,
+            SkillHitCount::OverMax => blue,
         };
 
-        let text = if has_hits {
-            format!("{hits}/{max}")
+        let text = if info.has_hits() {
+            format!("{hits}/{}", info.max)
         } else {
             format!("{hits}/X")
         };
@@ -104,6 +97,14 @@ impl Component<CastLogProps<'_>> for CastLog {
 
                 for cast in &fight.data.casts {
                     if let Some(info) = data.get(cast.skill.id) {
+                        if self.only_misses {
+                            if let Some(hit_info) = &info.hits {
+                                if !hit_info.missed(cast.hits.len()) {
+                                    continue;
+                                }
+                            }
+                        }
+
                         if self.display_time {
                             ui.text_colored(grey, format_time(cast.time));
                             ui.same_line();
@@ -111,7 +112,7 @@ impl Component<CastLogProps<'_>> for CastLog {
 
                         ui.text(&cast.skill.name);
 
-                        if let Some(hit_info) = info.hits.as_ref() {
+                        if let Some(hit_info) = &info.hits {
                             if let HitDisplay::Target | HitDisplay::Both = self.display_hits {
                                 let target_hits = if let Some(species) = fight.target {
                                     cast.hits.iter().filter(|hit| hit.target == species).count()

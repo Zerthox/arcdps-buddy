@@ -58,6 +58,47 @@ pub struct SkillHits {
     pub expected: usize,
 }
 
+impl SkillHits {
+    pub fn has_hits(&self) -> bool {
+        self.max > 0
+    }
+
+    pub fn missed(&self, hits: usize) -> bool {
+        if self.has_hits() {
+            hits < self.expected
+        } else {
+            hits == 0
+        }
+    }
+
+    pub fn categorize(&self, hits: usize) -> SkillHitCount {
+        let Self { max, expected } = *self;
+        if self.has_hits() {
+            if hits > max {
+                SkillHitCount::OverMax
+            } else if hits == max {
+                SkillHitCount::Max
+            } else if hits >= expected {
+                SkillHitCount::Expected
+            } else {
+                SkillHitCount::Missed
+            }
+        } else if hits > 0 {
+            SkillHitCount::Expected
+        } else {
+            SkillHitCount::Missed
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum SkillHitCount {
+    Missed,
+    Expected,
+    Max,
+    OverMax,
+}
+
 /// Skill definition parsed from a file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillDef {
