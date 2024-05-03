@@ -58,6 +58,7 @@ pub struct SkillHits {
     pub expected: usize,
 }
 
+#[allow(dead_code)] // TODO: cargo/clippy complain despite these being used in cast log?
 impl SkillHits {
     pub fn has_hits(&self) -> bool {
         self.max > 0
