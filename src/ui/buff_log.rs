@@ -1,12 +1,15 @@
 use crate::{
-    combat::CombatData,
+    combat::{agent::AgentFilter, CombatData},
     history::History,
     ui::{format_time, scroll::AutoScroll},
 };
 use arc_util::{
     colors::{GREY, YELLOW},
     settings::HasSettings,
-    ui::{Component, Windowable},
+    ui::{
+        render::{ch_width, enum_combo_array},
+        Component, Windowable,
+    },
 };
 use arcdps::{
     exports::{self, CoreColor},
@@ -19,6 +22,7 @@ use serde::{Deserialize, Serialize};
 pub struct BuffLog {
     display_time: bool,
     display_duration: bool,
+    target_filter: AgentFilter,
 
     #[serde(skip)]
     scroll: AutoScroll,
@@ -29,6 +33,7 @@ impl BuffLog {
         Self {
             display_time: true,
             display_duration: true,
+            target_filter: AgentFilter::All,
             scroll: AutoScroll::new(),
         }
     }
@@ -36,6 +41,9 @@ impl BuffLog {
     pub fn render_display(&mut self, ui: &Ui) {
         ui.checkbox("Display time", &mut self.display_time);
         ui.checkbox("Display duration", &mut self.display_duration);
+
+        ui.set_next_item_width(ch_width(ui, 16));
+        enum_combo_array(ui, "Targets", &mut self.target_filter);
     }
 }
 
@@ -48,13 +56,13 @@ impl Component<BuffLogProps<'_>> for BuffLog {
     fn render(&mut self, ui: &Ui, props: BuffLogProps) {
         let BuffLogProps { history } = props;
 
-        match history.viewed_fight() {
-            Some(fight) if !fight.data.buffs.is_empty() => {
-                let colors = exports::colors();
-                let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-                let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
+        if let Some(fight) = history.viewed_fight() {
+            let colors = exports::colors();
+            let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
+            let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
-                for apply in &fight.data.buffs {
+            for apply in &fight.data.buffs {
+                if self.target_filter.matches(&apply.target) {
                     if self.display_time {
                         ui.text_colored(grey, format_time(apply.time));
                         ui.same_line();
@@ -74,7 +82,6 @@ impl Component<BuffLogProps<'_>> for BuffLog {
                     ui.text_colored(apply.target.friendly_color(&colors), &apply.target.name);
                 }
             }
-            _ => ui.text("No buffs"),
         }
 
         self.scroll.update(ui);

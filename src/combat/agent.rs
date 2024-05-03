@@ -5,6 +5,8 @@ use arcdps::{
     exports::{Colors, CoreColor},
     Profession,
 };
+use serde::{Deserialize, Serialize};
+use strum::{AsRefStr, EnumIter, VariantArray, VariantNames};
 
 // TODO: show id settings?
 
@@ -92,5 +94,37 @@ impl From<&evtc::Agent> for Agent {
 impl From<&Player> for Agent {
     fn from(player: &Player) -> Self {
         Self::new(AgentKind::Player, player.prof, player.name.clone())
+    }
+}
+
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    AsRefStr,
+    VariantArray,
+    VariantNames,
+    EnumIter,
+    Serialize,
+    Deserialize,
+)]
+pub enum AgentFilter {
+    All,
+    Player,
+    Npc,
+}
+
+impl AgentFilter {
+    pub fn matches(&self, agent: &Agent) -> bool {
+        match self {
+            Self::All => true,
+            Self::Player => agent.is_player(),
+            Self::Npc => !agent.is_player(),
+        }
     }
 }

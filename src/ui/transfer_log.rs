@@ -45,30 +45,27 @@ impl Component<TransferLogProps<'_>> for TransferLog {
     fn render(&mut self, ui: &Ui, props: TransferLogProps) {
         let TransferLogProps { history } = props;
 
-        match history.viewed_fight() {
-            Some(fight) if !fight.data.transfers.found().is_empty() => {
-                let colors = exports::colors();
-                let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
+        if let Some(fight) = history.viewed_fight() {
+            let colors = exports::colors();
+            let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
 
-                for transfer in fight.data.transfers.found() {
-                    if self.display_time {
-                        ui.text_colored(grey, format_time(transfer.time));
-                        ui.same_line();
-                    }
-
-                    ui.text(transfer.stacks.to_string());
-
+            for transfer in fight.data.transfers.found() {
+                if self.display_time {
+                    ui.text_colored(grey, format_time(transfer.time));
                     ui.same_line();
-                    ui.text(transfer.condi);
-
-                    ui.same_line();
-                    ui.text_colored(
-                        transfer.target.enemy_color(&colors, fight.target),
-                        &transfer.target.name,
-                    );
                 }
+
+                ui.text(transfer.stacks.to_string());
+
+                ui.same_line();
+                ui.text(transfer.condi);
+
+                ui.same_line();
+                ui.text_colored(
+                    transfer.target.enemy_color(&colors, fight.target),
+                    &transfer.target.name,
+                );
             }
-            _ => ui.text("No transfers"),
         }
 
         self.scroll.update(ui);

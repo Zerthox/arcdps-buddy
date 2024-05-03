@@ -82,19 +82,19 @@ impl SkillHits {
             } else if hits >= expected {
                 SkillHitCount::Expected
             } else {
-                SkillHitCount::Missed
+                SkillHitCount::Miss
             }
         } else if hits > 0 {
             SkillHitCount::Expected
         } else {
-            SkillHitCount::Missed
+            SkillHitCount::Miss
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SkillHitCount {
-    Missed,
+    Miss,
     Expected,
     Max,
     OverMax,

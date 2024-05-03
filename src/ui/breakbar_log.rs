@@ -48,41 +48,38 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
     fn render(&mut self, ui: &Ui, props: BreakbarLogProps) {
         let BreakbarLogProps { history } = props;
 
-        match history.viewed_fight() {
-            Some(fight) if !fight.data.breakbar.is_empty() => {
-                let colors = exports::colors();
-                let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
-                let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
+        if let Some(fight) = history.viewed_fight() {
+            let colors = exports::colors();
+            let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
+            let blue = colors.core(CoreColor::LightTeal).unwrap_or(CYAN);
 
-                for hit in fight
-                    .data
-                    .breakbar
-                    .iter()
-                    .filter(|hit| hit.is_own || self.display_others)
-                {
-                    if self.display_time {
-                        ui.text_colored(grey, format_time(hit.time));
-                        ui.same_line();
-                    }
-
-                    ui.text_colored(blue, format!("{}.{}", hit.damage / 10, hit.damage % 10));
-
+            for hit in fight
+                .data
+                .breakbar
+                .iter()
+                .filter(|hit| hit.is_own || self.display_others)
+            {
+                if self.display_time {
+                    ui.text_colored(grey, format_time(hit.time));
                     ui.same_line();
-                    ui.text(&hit.skill.name);
-
-                    if self.display_others {
-                        ui.same_line();
-                        ui.text_colored(hit.attacker.friendly_color(&colors), &hit.attacker.name);
-                    }
-
-                    ui.same_line();
-                    ui.text_colored(
-                        hit.target.enemy_color(&colors, fight.target),
-                        &hit.target.name,
-                    );
                 }
+
+                ui.text_colored(blue, format!("{}.{}", hit.damage / 10, hit.damage % 10));
+
+                ui.same_line();
+                ui.text(&hit.skill.name);
+
+                if self.display_others {
+                    ui.same_line();
+                    ui.text_colored(hit.attacker.friendly_color(&colors), &hit.attacker.name);
+                }
+
+                ui.same_line();
+                ui.text_colored(
+                    hit.target.enemy_color(&colors, fight.target),
+                    &hit.target.name,
+                );
             }
-            _ => ui.text("No breakbar damage"),
         }
 
         self.scroll.update(ui);
