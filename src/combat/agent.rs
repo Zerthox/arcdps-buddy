@@ -115,16 +115,16 @@ impl From<&Player> for Agent {
 )]
 pub enum AgentFilter {
     All,
-    Player,
-    Npc,
+    Players,
+    NPCs,
 }
 
 impl AgentFilter {
     pub fn matches(&self, agent: &Agent) -> bool {
         match self {
             Self::All => true,
-            Self::Player => agent.is_player(),
-            Self::Npc => !agent.is_player(),
+            Self::Players => agent.is_player(),
+            Self::NPCs => !agent.is_player(),
         }
     }
 }

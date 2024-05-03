@@ -35,7 +35,7 @@ impl BreakbarLog {
 
     pub fn render_display(&mut self, ui: &Ui) {
         ui.checkbox("Display time", &mut self.display_time);
-        ui.checkbox("Display others", &mut self.display_others);
+        ui.checkbox("Display other players", &mut self.display_others);
     }
 }
 
