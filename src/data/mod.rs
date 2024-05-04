@@ -1,12 +1,10 @@
 mod buff;
 mod condi;
-mod skill;
-mod structs;
+mod skill_def;
+mod skill_info;
+mod skill_names;
 
-pub use self::buff::*;
-pub use self::condi::*;
-pub use self::skill::*;
-pub use self::structs::*;
+pub use self::{buff::*, condi::*, skill_def::*, skill_info::*, skill_names::*};
 
 use std::{
     collections::HashMap,

@@ -1,14 +1,14 @@
-#[path = "src/data/structs.rs"]
-mod structs;
+#[path = "src/data/skill_def.rs"]
+mod skill_def;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
+use skill_def::SkillDef;
 use std::{
     env,
     fs::{self, File},
     path::PathBuf,
 };
-use structs::SkillDef;
 use winresource::WindowsResource;
 
 fn main() {
