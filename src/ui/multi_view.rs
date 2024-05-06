@@ -4,7 +4,11 @@ use super::{
     cast_log::{CastLog, CastLogProps},
     transfer_log::{TransferLog, TransferLogProps},
 };
-use crate::{combat::CombatData, data::SkillData, history::History};
+use crate::{
+    combat::{skill::SkillMap, CombatData},
+    data::SkillData,
+    history::History,
+};
 use arc_util::{
     settings::HasSettings,
     ui::{Component, Windowable},
@@ -37,23 +41,36 @@ impl MultiView {
 
 #[derive(Debug)]
 pub struct MultiViewProps<'a> {
+    pub skills: &'a mut SkillMap,
     pub data: &'a SkillData,
     pub history: &'a mut History<CombatData>,
 }
 
 impl Component<MultiViewProps<'_>> for MultiView {
     fn render(&mut self, ui: &Ui, props: MultiViewProps) {
-        let MultiViewProps { data, history } = props;
+        let MultiViewProps {
+            skills,
+            data,
+            history,
+        } = props;
 
         TabBar::new("##tabs").build(ui, || {
             Self::scroll_tab(ui, "Casts", || {
-                self.casts.render(ui, CastLogProps { data, history })
+                self.casts.render(
+                    ui,
+                    CastLogProps {
+                        skills,
+                        data,
+                        history,
+                    },
+                )
             });
             Self::scroll_tab(ui, "Buffs", || {
                 self.buffs.render(ui, BuffLogProps { history })
             });
             Self::scroll_tab(ui, "Breakbar", || {
-                self.breakbars.render(ui, BreakbarLogProps { history })
+                self.breakbars
+                    .render(ui, BreakbarLogProps { skills, history })
             });
             Self::scroll_tab(ui, "Transfer", || {
                 self.transfers.render(ui, TransferLogProps { history })

@@ -1,4 +1,3 @@
-use super::skill::Skill;
 use arcdps::{evtc::AgentKind, Activation, Agent};
 
 /// Information about a cast (activation).
@@ -8,7 +7,7 @@ pub struct Cast {
     pub time: i32,
 
     /// Casted skill.
-    pub skill: Skill,
+    pub skill: u32,
 
     /// Current [`CastState`] of the cast.
     pub state: CastState,
@@ -22,7 +21,7 @@ pub struct Cast {
 
 impl Cast {
     /// Creates a new cast from a cast start.
-    pub const fn from_start(time: i32, skill: Skill, state: CastState) -> Self {
+    pub const fn from_start(time: i32, skill: u32, state: CastState) -> Self {
         Self {
             time,
             skill,
@@ -33,7 +32,7 @@ impl Cast {
     }
 
     /// Creates a new cast from a cast end.
-    pub const fn from_end(time: i32, skill: Skill, state: CastState, duration: i32) -> Self {
+    pub const fn from_end(time: i32, skill: u32, state: CastState, duration: i32) -> Self {
         Self {
             time,
             skill,
@@ -44,7 +43,7 @@ impl Cast {
     }
 
     /// Creates a new cast from an individual hit.
-    pub fn from_hit(time: i32, skill: Skill, target: &Agent) -> Self {
+    pub fn from_hit(time: i32, skill: u32, target: &Agent) -> Self {
         Self {
             time,
             skill,
@@ -60,7 +59,7 @@ impl Cast {
     }
 
     /// Completes the cast.
-    pub fn complete(&mut self, skill: Skill, result: CastState, duration: i32, time: i32) {
+    pub fn complete(&mut self, skill: u32, result: CastState, duration: i32, time: i32) {
         if let CastState::Pre = self.state {
             self.skill = skill;
             self.time = time - duration;

@@ -17,31 +17,47 @@ use arcdps::{
 
 impl Plugin {
     /// Callback for standalone UI creation.
-    pub fn render_windows(ui: &Ui, not_loading: bool) {
+    pub fn render(ui: &Ui, not_loading: bool) {
         let ui_settings = exports::ui_settings();
         if !ui_settings.hidden && (not_loading || ui_settings.draw_always) {
-            let Plugin {
-                updater,
-                data,
-                history,
-                multi_view,
-                cast_log,
-                buff_log,
-                breakbar_log,
-                transfer_log,
-                ..
-            } = &mut *Self::lock(); // for borrowing
-
-            updater.render(ui);
-            multi_view.render(ui, MultiViewProps { data, history });
-            cast_log.render(ui, CastLogProps { data, history });
-            buff_log.render(ui, BuffLogProps { history });
-            breakbar_log.render(ui, BreakbarLogProps { history });
-            transfer_log.render(ui, TransferLogProps { history });
+            Self::lock().render_windows(ui)
         }
     }
 
-    /// Callback for settings UI creation.
+    /// Renders standalone UI windows.
+    pub fn render_windows(&mut self, ui: &Ui) {
+        let Plugin {
+            skills,
+            data,
+            history,
+            ..
+        } = self;
+
+        self.updater.render(ui);
+
+        self.multi_view.render(
+            ui,
+            MultiViewProps {
+                skills,
+                data,
+                history,
+            },
+        );
+        self.cast_log.render(
+            ui,
+            CastLogProps {
+                skills,
+                data,
+                history,
+            },
+        );
+        self.buff_log.render(ui, BuffLogProps { history });
+        self.breakbar_log
+            .render(ui, BreakbarLogProps { skills, history });
+        self.transfer_log.render(ui, TransferLogProps { history });
+    }
+
+    /// Renders settings UI.
     pub fn render_settings(&mut self, ui: &Ui) {
         let colors = exports::colors();
         let grey = colors.core(CoreColor::MediumGrey).unwrap_or(GREY);
@@ -136,16 +152,27 @@ impl Plugin {
             Err(LoadError::FailedToRead) => ui.text_colored(red, "Failed to read file"),
             Err(LoadError::Invalid) => ui.text_colored(red, "Failed to parse"),
         }
-        if ui.button("Reload") {
+        if ui.button("Reload##data") {
             self.load_data();
         }
         ui.same_line_with_spacing(0.0, 5.0);
-        if ui.button("Reset") {
+        if ui.button("Reset##data") {
             self.reset_data();
+        }
+
+        ui.spacing();
+        ui.spacing();
+
+        ui.text_colored(grey, "Skill cache");
+        ui.text(format!("Overrides: {}", self.skills.overrides()));
+        ui.text(format!("Cached: {}", self.skills.len()));
+        ui.checkbox("Debug##skills", &mut self.skill_debug);
+        if ui.button("Reset##skills") {
+            self.skills.reset();
         }
     }
 
-    /// Callback for ArcDPS option checkboxes.
+    /// Renders window checkboxes.
     pub fn render_window_options(ui: &Ui, option_name: Option<&str>) -> bool {
         if option_name.is_none() {
             let mut plugin = Self::lock();

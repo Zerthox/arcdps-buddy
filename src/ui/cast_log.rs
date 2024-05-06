@@ -1,5 +1,5 @@
 use crate::{
-    combat::{cast::CastState, CombatData},
+    combat::{cast::CastState, skill::SkillMap, CombatData},
     data::{SkillData, SkillHitCount, SkillHits},
     history::History,
     ui::{format_time, scroll::AutoScroll},
@@ -77,13 +77,18 @@ impl CastLog {
 
 #[derive(Debug)]
 pub struct CastLogProps<'a> {
+    pub skills: &'a mut SkillMap,
     pub data: &'a SkillData,
     pub history: &'a mut History<CombatData>,
 }
 
 impl Component<CastLogProps<'_>> for CastLog {
     fn render(&mut self, ui: &Ui, props: CastLogProps) {
-        let CastLogProps { data, history } = props;
+        let CastLogProps {
+            skills,
+            data,
+            history,
+        } = props;
 
         if let Some(fight) = history.viewed_fight() {
             let colors = exports::colors();
@@ -93,7 +98,7 @@ impl Component<CastLogProps<'_>> for CastLog {
             let yellow = colors.core(CoreColor::LightYellow).unwrap_or(YELLOW);
 
             for cast in &fight.data.casts {
-                if let Some(info) = data.get(cast.skill.id) {
+                if let Some(info) = data.get(cast.skill) {
                     if self.only_misses {
                         if let Some(hit_info) = &info.hits {
                             if !hit_info.missed(cast.hits.len()) {
@@ -107,7 +112,7 @@ impl Component<CastLogProps<'_>> for CastLog {
                         ui.same_line();
                     }
 
-                    ui.text(&cast.skill.name);
+                    ui.text(skills.get_name(cast.skill));
 
                     if let Some(hit_info) = &info.hits {
                         if let HitDisplay::Target | HitDisplay::Both = self.display_hits {

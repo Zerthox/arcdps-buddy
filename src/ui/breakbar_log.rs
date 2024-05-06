@@ -1,5 +1,5 @@
 use crate::{
-    combat::CombatData,
+    combat::{skill::SkillMap, CombatData},
     history::History,
     ui::{format_time, scroll::AutoScroll},
 };
@@ -41,12 +41,13 @@ impl BreakbarLog {
 
 #[derive(Debug)]
 pub struct BreakbarLogProps<'a> {
+    pub skills: &'a mut SkillMap,
     pub history: &'a mut History<CombatData>,
 }
 
 impl Component<BreakbarLogProps<'_>> for BreakbarLog {
     fn render(&mut self, ui: &Ui, props: BreakbarLogProps) {
-        let BreakbarLogProps { history } = props;
+        let BreakbarLogProps { skills, history } = props;
 
         if let Some(fight) = history.viewed_fight() {
             let colors = exports::colors();
@@ -67,7 +68,7 @@ impl Component<BreakbarLogProps<'_>> for BreakbarLog {
                 ui.text_colored(blue, format!("{}.{}", hit.damage / 10, hit.damage % 10));
 
                 ui.same_line();
-                ui.text(&hit.skill.name);
+                ui.text(skills.get_name(hit.skill));
 
                 if self.display_others {
                     ui.same_line();

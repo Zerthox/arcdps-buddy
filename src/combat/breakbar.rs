@@ -1,4 +1,4 @@
-use super::{agent::Agent, skill::Skill};
+use super::agent::Agent;
 
 /// Information about a defiance damage hit.
 #[derive(Debug, Clone)]
@@ -7,7 +7,7 @@ pub struct BreakbarHit {
     pub time: i32,
 
     /// Skill causing the hit.
-    pub skill: Skill,
+    pub skill: u32,
 
     /// Defiance damage dealt by the hit.
     ///
@@ -28,7 +28,7 @@ impl BreakbarHit {
     /// Creates a new breakbar hit.
     pub fn new(
         time: i32,
-        skill: Skill,
+        skill: u32,
         damage: i32,
         attacker: Agent,
         is_own: bool,

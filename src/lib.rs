@@ -16,7 +16,7 @@ arcdps::export! {
     },
     release: || Plugin::lock().unload(),
     combat: Plugin::area_event,
-    imgui: Plugin::render_windows,
+    imgui: Plugin::render,
     options_end: |ui| Plugin::lock().render_settings(ui),
     options_windows: Plugin::render_window_options,
     wnd_filter: Plugin::key_event,

@@ -2,7 +2,7 @@ pub mod event;
 pub mod ui;
 
 use crate::{
-    combat::{player::Player, CombatData},
+    combat::{player::Player, skill::SkillMap, CombatData},
     data::{LoadError, SkillData},
     history::History,
     ui::{
@@ -38,6 +38,8 @@ static PLUGIN: Lazy<Mutex<Plugin>> = Lazy::new(|| Mutex::new(Plugin::new()));
 pub struct Plugin {
     updater: Updater,
 
+    skills: SkillMap,
+    skill_debug: bool,
     data: SkillData,
     data_state: Result<usize, LoadError>,
 
@@ -68,6 +70,8 @@ impl Plugin {
                 VERSION.parse().unwrap(),
             ),
 
+            skills: SkillMap::new(),
+            skill_debug: false,
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
 

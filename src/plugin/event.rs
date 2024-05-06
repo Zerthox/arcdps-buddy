@@ -4,7 +4,6 @@ use crate::combat::{
     buff::{Buff, BuffApply},
     cast::{Cast, CastState},
     player::Player,
-    skill::Skill,
     transfer::{Apply, Condition, Remove},
 };
 use arcdps::{evtc::EventCategory, Activation, Agent, BuffRemove, Event, StateChange, Strike};
@@ -144,14 +143,14 @@ impl Plugin {
         self.history.end_latest_fight(event.time);
     }
 
-    pub fn latest_cast_mut(&mut self, skill: u32) -> Option<&mut Cast> {
+    pub fn latest_cast_mut(&mut self, id: u32) -> Option<&mut Cast> {
         self.history.latest_fight_mut().and_then(|fight| {
             fight
                 .data
                 .casts
                 .iter_mut()
                 .rev()
-                .find(|cast| cast.skill.id == skill)
+                .find(|cast| cast.skill == id)
         })
     }
 
@@ -168,22 +167,23 @@ impl Plugin {
     }
 
     fn cast_start(&mut self, event: &Event, skill_name: Option<&str>, time: i32) {
-        let skill = Skill::new(event.skill_id, skill_name);
+        let id = event.skill_id;
+        let skill = self.skills.try_register(id, skill_name);
         debug!("start {skill:?}");
-        let cast = Cast::from_start(time, skill, CastState::Casting);
+        let cast = Cast::from_start(time, id, CastState::Casting);
         self.add_cast(cast);
     }
 
     fn cast_end(&mut self, event: &Event, skill_name: Option<&str>, time: i32) {
         let state = event.get_activation().into();
         let duration = event.value;
-
-        let skill = Skill::new(event.skill_id, skill_name);
+        let id = event.skill_id;
+        self.skills.try_register(id, skill_name);
         if let Some(cast) = self.latest_cast_mut(event.skill_id) {
-            cast.complete(skill, state, duration, time);
+            cast.complete(id, state, duration, time);
             debug!("complete {cast:?}");
         } else {
-            let cast = Cast::from_end(time - duration, skill, state, duration);
+            let cast = Cast::from_end(time - duration, id, state, duration);
             debug!("complete without start {cast:?}");
             self.add_cast(cast);
         }
@@ -222,13 +222,14 @@ impl Plugin {
         target: &Agent,
         time: i32,
     ) {
-        let skill = Skill::new(event.skill_id, skill_name);
+        let id = event.skill_id;
+        self.skills.try_register(id, skill_name);
         let is_minion = self.is_own_minion(event);
         let is_own = attacker.is_self != 0 || is_minion;
         match event.get_strike() {
             Strike::Normal | Strike::Crit | Strike::Glance => {
                 if is_own {
-                    self.damage_hit(is_minion, skill, target, time)
+                    self.damage_hit(is_minion, id, target, time)
                 }
             }
             Strike::Breakbar => {
@@ -236,27 +237,26 @@ impl Plugin {
                     .get_master(event)
                     .map(|player| player.into())
                     .unwrap_or(attacker.into());
-                self.breakbar_hit(skill, attacker, is_own, target, event.value, time)
+                self.breakbar_hit(id, attacker, is_own, target, event.value, time)
             }
             _ => {}
         }
     }
 
-    fn damage_hit(&mut self, is_minion: bool, mut skill: Skill, target: &Agent, time: i32) {
+    fn damage_hit(&mut self, is_minion: bool, skill: u32, target: &Agent, time: i32) {
         // TODO: use local combat events for hits?
-        if let Some(info) = self.data.get(skill.id) {
+        if let Some(info) = self.data.get(skill) {
             if info.minion || !is_minion {
-                // replace skill id
-                skill.id = info.id;
-
                 let max = info.max_duration;
-                match self.latest_cast_mut(skill.id) {
+                let id = info.id;
+                self.skills.try_duplicate(id, skill);
+                match self.latest_cast_mut(id) {
                     Some(cast) if time - cast.time <= max => {
                         cast.hit(target);
                         debug!("hit {:?}, {target:?}", cast.skill);
                     }
                     _ => {
-                        let cast = Cast::from_hit(time, skill, target);
+                        let cast = Cast::from_hit(time, id, target);
                         debug!("hit without start {:?}, {target:?}", cast.skill);
                         self.add_cast(cast);
                     }
@@ -267,7 +267,7 @@ impl Plugin {
 
     fn breakbar_hit(
         &mut self,
-        skill: Skill,
+        skill: u32,
         attacker: crate::combat::Agent,
         is_own: bool,
         target: &Agent,
