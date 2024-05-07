@@ -1,5 +1,6 @@
 use super::Plugin;
 use crate::{
+    combat::skill::SkillMap,
     data::LoadError,
     ui::{
         breakbar_log::BreakbarLogProps, buff_log::BuffLogProps, cast_log::CastLogProps,
@@ -164,11 +165,13 @@ impl Plugin {
         ui.spacing();
 
         ui.text_colored(grey, "Skill cache");
-        ui.text(format!("Overrides: {}", self.skills.overrides()));
-        ui.text(format!("Cached: {}", self.skills.len()));
-        ui.checkbox("Debug##skills", &mut self.skill_debug);
+        ui.text(format!("Overrides: {}", SkillMap::overrides()));
+        ui.same_line();
+        ui.text(SkillMap::overrides().to_string());
+        ui.text(format!("Cached: {}", self.skills.cached()));
         if ui.button("Reset##skills") {
             self.skills.reset();
+            log::info!("reset skill cache");
         }
     }
 

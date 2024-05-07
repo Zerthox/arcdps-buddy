@@ -3,9 +3,12 @@ use std::collections::{hash_map::Entry, HashMap};
 
 /// Skill map keeping skill information in memory.
 #[derive(Debug, Clone)]
-#[repr(transparent)]
 pub struct SkillMap {
+    /// Internal skill map.
     map: HashMap<u32, Skill>,
+
+    /// Number of non-placeholder entries.
+    cached: usize,
 }
 
 impl SkillMap {
@@ -13,6 +16,7 @@ impl SkillMap {
     pub fn new() -> Self {
         Self {
             map: Self::override_entries(),
+            cached: 0,
         }
     }
 
@@ -26,61 +30,70 @@ impl SkillMap {
     }
 
     /// Returns the number of skill overrides.
-    pub fn overrides(&self) -> usize {
+    pub fn overrides() -> usize {
         SKILL_OVERRIDES.len()
     }
 
-    /// Returns the number of skill entries.
-    pub fn len(&self) -> usize {
-        self.map.len() - self.overrides()
+    /// Returns the number of cached non-placeholder skill entries.
+    pub fn cached(&self) -> usize {
+        self.cached
     }
 
     /// Resets the stored skill information.
     pub fn reset(&mut self) {
         self.map = Self::override_entries();
+        self.cached = 0;
     }
 
     /// Returns the skill information for the given id.
+    ///
+    /// Inserts a placeholder if not present.
     pub fn get(&mut self, id: u32) -> &Skill {
         self.map.entry(id).or_insert_with(|| Skill::unnamed(id))
     }
 
     /// Returns the skill name for the given id.
+    ///
+    /// Inserts a placeholder if not present.
     pub fn get_name(&mut self, id: u32) -> &str {
         self.get(id).name.as_str()
     }
 
-    /// Attempts to register a skill.
-    ///
-    /// Skills are replaced if unnamed.
-    fn try_register_with(&mut self, id: u32, create: impl FnOnce() -> Skill) -> &Skill {
+    /// Attempts to register a skill while replacing placeholders.
+    fn try_replace_with(&mut self, id: u32, create: impl FnOnce() -> Skill) -> &Skill {
         match self.map.entry(id) {
             Entry::Occupied(occupied) => {
                 let value = occupied.into_mut();
-                if !value.is_named {
+                if value.is_placeholder {
                     *value = create();
                 }
                 value
             }
-            Entry::Vacant(vacant) => vacant.insert(create()),
+            Entry::Vacant(vacant) => {
+                let skill = create();
+                if !skill.is_placeholder {
+                    self.cached += 1;
+                }
+                vacant.insert(skill)
+            }
         }
     }
 
     /// Attempts to register a skill.
     pub fn try_register(&mut self, id: u32, skill_name: Option<&str>) -> &Skill {
-        self.try_register_with(id, || Skill::from_combat(id, skill_name))
+        self.try_replace_with(id, || Skill::from_combat(id, skill_name))
     }
 
     /// Attempts to duplicate a skill.
     pub fn try_duplicate(&mut self, id: u32, from: u32) {
         if id != from {
             if let Some(Skill {
-                is_named: true,
+                is_placeholder: false,
                 name,
             }) = self.map.get(&from)
             {
-                let new = Skill::named(name);
-                self.try_register_with(id, || new);
+                let new = Skill::placeholder(name);
+                self.try_replace_with(id, || new);
             }
         }
     }
@@ -89,8 +102,8 @@ impl SkillMap {
 /// Information about a skill.
 #[derive(Debug, Clone)]
 pub struct Skill {
-    /// Whether the skill is named.
-    pub is_named: bool,
+    /// Whether the skill is (possibly) a placeholder.
+    pub is_placeholder: bool,
 
     /// Name of the skill.
     pub name: String,
@@ -110,7 +123,7 @@ impl Skill {
     /// Creates a new named skill.
     fn named(name: &str) -> Self {
         Self {
-            is_named: true,
+            is_placeholder: false,
             name: name.into(),
         }
     }
@@ -118,8 +131,16 @@ impl Skill {
     /// Creates a new unnamed skill.
     fn unnamed(id: u32) -> Self {
         Self {
-            is_named: false,
+            is_placeholder: true,
             name: id.to_string(),
+        }
+    }
+
+    /// Creates a new placeholder skill.
+    fn placeholder(name: &str) -> Self {
+        Self {
+            is_placeholder: true,
+            name: name.into(),
         }
     }
 }

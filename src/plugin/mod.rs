@@ -39,7 +39,6 @@ pub struct Plugin {
     updater: Updater,
 
     skills: SkillMap,
-    skill_debug: bool,
     data: SkillData,
     data_state: Result<usize, LoadError>,
 
@@ -71,7 +70,6 @@ impl Plugin {
             ),
 
             skills: SkillMap::new(),
-            skill_debug: false,
             data: SkillData::with_defaults(),
             data_state: Err(LoadError::NotFound),
 
