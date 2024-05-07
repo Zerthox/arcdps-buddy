@@ -66,6 +66,8 @@
 # dagger
 - id: 62560 # bladecall
   hits: 6
+- id: 69311 # bladecall (non-virtuoso)
+  hits: 6
 - id: 62607 # unstable bladestorm
   hits: 8
 
