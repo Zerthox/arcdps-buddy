@@ -87,7 +87,10 @@ impl<T> Fight<T> {
     pub fn relative_time(&self, time: u64) -> Option<i32> {
         match self.end {
             Some(end) if time > end => None,
-            _ => Some((time - self.start) as i32),
+            _ => match time.checked_sub(self.start) {
+                Some(rel) => rel.try_into().ok(),
+                None => i32::try_from(self.start - time).ok().map(|rel| -rel),
+            },
         }
     }
 }
