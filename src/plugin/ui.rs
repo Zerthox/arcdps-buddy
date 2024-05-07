@@ -166,8 +166,6 @@ impl Plugin {
 
         ui.text_colored(grey, "Skill cache");
         ui.text(format!("Overrides: {}", SkillMap::overrides()));
-        ui.same_line();
-        ui.text(SkillMap::overrides().to_string());
         ui.text(format!("Cached: {}", self.skills.cached()));
         if ui.button("Reset##skills") {
             self.skills.reset();
