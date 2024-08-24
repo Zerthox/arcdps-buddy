@@ -71,6 +71,12 @@
 - id: 62607 # unstable bladestorm
   hits: 8
 
+# spear
+- id: 72946 # phantasmal lancer
+  hit_ids: [73743]
+  hits: 3
+  minion: true
+
 # slot
 - id: 10267 # phantasmal disenchanter
   hit_ids: [10266]
@@ -82,5 +88,6 @@
   hits: 4
 - id: 30359 # gravity well
   hits: 4
-- id: 24755
+- id: 24755 # thousand cuts
+  hits: 10
   max_duration: 4700
