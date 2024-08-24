@@ -24,9 +24,9 @@ impl Plugin {
                 let src_self = src.is_self != 0;
                 match event.categorize() {
                     EventCategory::StateChange => match event.get_statechange() {
-                        StateChange::LogStart => Self::lock().start_fight(event, dst),
+                        StateChange::SquadCombatStart => Self::lock().start_fight(event, dst),
                         StateChange::LogNPCUpdate => Self::lock().fight_target(event, dst),
-                        StateChange::LogEnd => Self::lock().end_fight(event, dst),
+                        StateChange::SquadCombatEnd => Self::lock().end_fight(event, dst),
                         _ => {}
                     },
 
