@@ -21,9 +21,11 @@ use windows::{
     Win32::UI::Input::KeyboardAndMouse::{MAPVK_VK_TO_VSC, MapVirtualKeyA},
 };
 
+const SIG: i32 = 0x84c13713u32 as i32;
+
 nexus::export! {
     name: "Buddy",
-    signature: -0x74c13713,
+    signature: SIG,
     load,
     provider: UpdateProvider::GitHub,
 }
